@@ -32,6 +32,7 @@ import com.espertech.esper.common.internal.util.JavaClassHelper;
 import java.util.Collection;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.epl.util.EPTypeCollectionConst.EPTYPE_COLLECTION_EVENTBEAN;
 
 public class ExprDotNodeForgeRootChildEval implements ExprEvaluator, ExprEnumerationEval {
     private final ExprDotNodeForgeRootChild forge;
@@ -107,7 +108,7 @@ public class ExprDotNodeForgeRootChildEval implements ExprEvaluator, ExprEnumera
         if (forge.getEvaluationType() == EPTypeNull.INSTANCE) {
             return constantNull();
         }
-        CodegenMethod methodNode = codegenMethodScope.makeChild((EPTypeClass) forge.getEvaluationType(), ExprDotNodeForgeRootChildEval.class, codegenClassScope);
+        CodegenMethod methodNode = codegenMethodScope.makeChild(EPTYPE_COLLECTION_EVENTBEAN, ExprDotNodeForgeRootChildEval.class, codegenClassScope);
 
         CodegenExpression typeInformation = constantNull();
         if (codegenClassScope.isInstrumented()) {
@@ -120,7 +121,7 @@ public class ExprDotNodeForgeRootChildEval implements ExprEvaluator, ExprEnumera
                 .ifRefNull("inner")
                 .apply(InstrumentationCode.instblock(codegenClassScope, "aExprDotChain"))
                 .blockReturn(constantNull())
-                .declareVar((EPTypeClass) forge.getEvaluationType(), "result", ExprDotNodeUtility.evaluateChainCodegen(methodNode, exprSymbol, codegenClassScope, ref("inner"), EPTypePremade.COLLECTION.getEPType(), forge.forgesIteratorEventBean, null))
+                .declareVar(EPTYPE_COLLECTION_EVENTBEAN, "result", ExprDotNodeUtility.evaluateChainCodegen(methodNode, exprSymbol, codegenClassScope, ref("inner"), EPTypePremade.COLLECTION.getEPType(), forge.forgesIteratorEventBean, null))
                 .apply(InstrumentationCode.instblock(codegenClassScope, "aExprDotChain"))
                 .methodReturn(ref("result"));
         return localMethod(methodNode);

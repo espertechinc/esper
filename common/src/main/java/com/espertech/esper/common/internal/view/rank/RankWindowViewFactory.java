@@ -32,12 +32,12 @@ public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowV
     protected boolean[] isDescendingValues;
     protected ExprEvaluator criteriaEval;
     protected EPType[] criteriaTypes;
-    protected DataInputOutputSerde<Object> keySerde;
+    protected DataInputOutputSerde keySerde;
     protected ExprEvaluator[] sortCriteriaEvaluators;
     protected EPType[] sortCriteriaTypes;
     protected ExprEvaluator size;
     protected boolean useCollatorSort;
-    protected DataInputOutputSerde<Object>[] sortSerdes;
+    protected DataInputOutputSerde[] sortSerdes;
 
     protected EventType eventType;
     protected Comparator<Object> comparator;
@@ -120,11 +120,11 @@ public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowV
         return ViewEnum.RANK_WINDOW.getName();
     }
 
-    public void setKeySerde(DataInputOutputSerde<Object> keySerde) {
+    public void setKeySerde(DataInputOutputSerde keySerde) {
         this.keySerde = keySerde;
     }
 
-    public void setSortSerdes(DataInputOutputSerde<Object>[] sortSerdes) {
+    public void setSortSerdes(DataInputOutputSerde[] sortSerdes) {
         this.sortSerdes = sortSerdes;
     }
 }

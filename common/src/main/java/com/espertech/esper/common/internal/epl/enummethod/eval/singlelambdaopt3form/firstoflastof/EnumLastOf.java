@@ -54,7 +54,7 @@ public class EnumLastOf extends EnumForgeBasePlain implements EnumForge, EnumEva
 
     public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         EPTypeClass type = JavaClassHelper.getBoxedType(EPChainableTypeHelper.getCodegenReturnType(resultType));
-        CodegenMethod method = codegenMethodScope.makeChild(type, EnumLastOf.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
+        CodegenMethod method = codegenMethodScope.makeChild(type, EnumLastOf.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMSCOLLOBJ).getBlock()
                 .declareVar(EPTypePremade.OBJECT.getEPType(), "result", constantNull())
                 .forEach(EPTypePremade.OBJECT.getEPType(), "next", EnumForgeCodegenNames.REF_ENUMCOLL)
                 .assignRef("result", ref("next"))

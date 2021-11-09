@@ -28,7 +28,9 @@ public interface ClassProvidedCompileTimeResolver extends CompileTimeResolver {
 
     boolean isEmpty();
 
-    void addTo(Map<String, byte[]> additionalClasses);
+    void addTo(ClassProvidedClassesAdd additionalClasses);
 
-    void removeFrom(Map<String, byte[]> moduleBytes);
+    void addTo(Map<String, byte[]> bytes);
+
+    void removeFrom(ClassProvidedClassRemove moduleBytes);
 }

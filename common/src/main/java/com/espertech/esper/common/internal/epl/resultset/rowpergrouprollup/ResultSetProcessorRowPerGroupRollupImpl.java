@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.resultset.rowpergrouprollup;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
@@ -49,6 +50,7 @@ import static com.espertech.esper.common.internal.epl.resultset.core.ResultSetPr
 import static com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProcessorGroupedUtil.METHOD_APPLYAGGJOINRESULTKEYEDJOIN;
 import static com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProcessorGroupedUtil.METHOD_APPLYAGGVIEWRESULTKEYEDVIEW;
 import static com.espertech.esper.common.internal.epl.resultset.rowpergrouprollup.ResultSetProcessorRowPerGroupRollupUtil.*;
+import static com.espertech.esper.common.internal.epl.util.EPTypeCollectionConst.*;
 import static com.espertech.esper.common.internal.util.CollectionUtil.*;
 
 public class ResultSetProcessorRowPerGroupRollupImpl {
@@ -61,7 +63,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
     private final static String NAME_RSTREAMEVENTSORTARRAYBUF = "rstreamEventSortArrayBuf";
 
     static void processJoinResultCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
-        addEventPerGroupBufCodegen(NAME_EVENTPERGROUPBUFJOIN, forge, instance, method, classScope);
+        addEventPerGroupBufCodegen(NAME_EVENTPERGROUPBUFJOIN, EPTYPE_MAPARRAY_OBJECT_EVENTBEANARRAY, forge, instance, method, classScope);
         CodegenMethod resetEventPerGroupJoinBuf = resetEventPerGroupBufCodegen(NAME_EVENTPERGROUPBUFJOIN, classScope, instance);
         CodegenMethod generateGroupKeysJoin = generateGroupKeysJoinCodegen(forge, classScope, instance);
         CodegenMethod generateOutputEventsJoin = generateOutputEventsJoinCodegen(forge, classScope, instance);
@@ -80,7 +82,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
     }
 
     static void processViewResultCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
-        addEventPerGroupBufCodegen(NAME_EVENTPERGROUPBUFVIEW, forge, instance, method, classScope);
+        addEventPerGroupBufCodegen(NAME_EVENTPERGROUPBUFVIEW, EPTYPE_MAPARRAY_OBJECT_EVENTBEAN, forge, instance, method, classScope);
         CodegenMethod resetEventPerGroupBufView = resetEventPerGroupBufCodegen(NAME_EVENTPERGROUPBUFVIEW, classScope, instance);
         CodegenMethod generateGroupKeysView = generateGroupKeysViewCodegen(forge, classScope, instance);
         CodegenMethod generateOutputEventsView = generateOutputEventsViewCodegen(forge, classScope, instance);
@@ -95,10 +97,10 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
             .methodReturn(staticMethod(ResultSetProcessorUtil.class, METHOD_TOPAIRNULLIFALLNULL, ref("selectNewEvents"), ref("selectOldEvents")));
     }
 
-    private static void addEventPerGroupBufCodegen(String memberName, ResultSetProcessorRowPerGroupRollupForge forge, CodegenInstanceAux instance, CodegenMethod method, CodegenClassScope classScope) {
+    private static void addEventPerGroupBufCodegen(String memberName, EPTypeClass type, ResultSetProcessorRowPerGroupRollupForge forge, CodegenInstanceAux instance, CodegenMethod method, CodegenClassScope classScope) {
         if (!instance.hasMember(memberName)) {
             CodegenMethod init = method.makeChild(EPTypePremade.LINKEDHASHMAPARRAY.getEPType(), ResultSetProcessorRowPerGroupRollupImpl.class, classScope);
-            instance.addMember(memberName, EPTypePremade.LINKEDHASHMAPARRAY.getEPType());
+            instance.addMember(memberName, type);
             instance.getServiceCtor().getBlock().assignMember(memberName, localMethod(init));
             int levelCount = forge.getGroupByRollupDesc().getLevels().length;
             init.getBlock().declareVar(EPTypePremade.LINKEDHASHMAPARRAY.getEPType(), memberName, newArrayByLength(EPTypePremade.LINKEDHASHMAP.getEPType(), constant(levelCount)))
@@ -149,7 +151,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
         };
 
         return instance.getMethods().addMethod(EventBean.EPTYPEARRAY, "generateOutputEventsView",
-            CodegenNamedParam.from(EPTypePremade.MAPARRAY.getEPType(), "keysAndEvents", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE), ResultSetProcessorRowPerGroupRollupImpl.class, classScope, code);
+            CodegenNamedParam.from(EPTYPE_MAPARRAY_OBJECT_EVENTBEAN, "keysAndEvents", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE), ResultSetProcessorRowPerGroupRollupImpl.class, classScope, code);
     }
 
     private static CodegenMethod generateOutputEventsJoinCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
@@ -190,7 +192,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
         };
 
         return instance.getMethods().addMethod(EventBean.EPTYPEARRAY, "generateOutputEventsJoin",
-            CodegenNamedParam.from(EPTypePremade.MAPARRAY.getEPType(), "eventPairs", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE), ResultSetProcessorRowPerGroupRollupImpl.class, classScope, code);
+            CodegenNamedParam.from(EPTYPE_MAPARRAY_OBJECT_EVENTBEANARRAY, "eventPairs", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE), ResultSetProcessorRowPerGroupRollupImpl.class, classScope, code);
     }
 
     static void getIteratorViewCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
@@ -430,7 +432,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
         };
 
         return instance.getMethods().addMethod(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "handleOutputLimitFirstViewHaving",
-            CodegenNamedParam.from(EPTypePremade.LIST.getEPType(), "viewEventsList", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.LISTARRAY.getEPType(), "oldEventsPerLevel", EPTypePremade.LISTARRAY.getEPType(), "oldEventsSortKeyPerLevel"),
+            CodegenNamedParam.from(EPTYPE_LIST_UNIFORMPAIR_EVENTBEANARRAY, "viewEventsList", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.LISTARRAY.getEPType(), "oldEventsPerLevel", EPTypePremade.LISTARRAY.getEPType(), "oldEventsSortKeyPerLevel"),
             ResultSetProcessorUtil.class, classScope, code);
     }
 
@@ -450,8 +452,8 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
 
             {
                 CodegenBlock forEach = methodNode.getBlock().forEach(UniformPair.EPTYPE, "pair", REF_JOINEVENTSSET);
-                forEach.declareVar(EPTypePremade.SET.getEPType(), "newData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getFirst")))
-                    .declareVar(EPTypePremade.SET.getEPType(), "oldData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getSecond")))
+                forEach.declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "newData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getFirst")))
+                    .declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "oldData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getSecond")))
                     .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "groupKeysPerLevel", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(forge.getGroupByRollupDesc().getLevels().length)));
 
                 {
@@ -503,7 +505,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
         };
 
         return instance.getMethods().addMethod(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "handleOutputLimitFirstJoinNoHaving",
-            CodegenNamedParam.from(EPTypePremade.LIST.getEPType(), NAME_JOINEVENTSSET, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.LISTARRAY.getEPType(), "oldEventsPerLevel", EPTypePremade.LISTARRAY.getEPType(), "oldEventsSortKeyPerLevel"),
+            CodegenNamedParam.from(EPTYPE_LIST_UNIFORMPAIR_SET_MKARRAY_EVENTBEAN, NAME_JOINEVENTSSET, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.LISTARRAY.getEPType(), "oldEventsPerLevel", EPTypePremade.LISTARRAY.getEPType(), "oldEventsSortKeyPerLevel"),
             ResultSetProcessorUtil.class, classScope, code);
     }
 
@@ -523,8 +525,8 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
 
             {
                 CodegenBlock forEach = methodNode.getBlock().forEach(UniformPair.EPTYPE, "pair", REF_JOINEVENTSSET);
-                forEach.declareVar(EPTypePremade.SET.getEPType(), "newData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getFirst")))
-                    .declareVar(EPTypePremade.SET.getEPType(), "oldData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getSecond")))
+                forEach.declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "newData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getFirst")))
+                    .declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "oldData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getSecond")))
                     .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "groupKeysPerLevel", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(forge.getGroupByRollupDesc().getLevels().length)));
                 {
                     CodegenBlock ifNewApplyAgg = forEach.ifCondition(notEqualsNull(ref("newData")));
@@ -601,7 +603,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
         };
 
         return instance.getMethods().addMethod(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "handleOutputLimitFirstJoinHaving",
-            CodegenNamedParam.from(EPTypePremade.LIST.getEPType(), NAME_JOINEVENTSSET, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.LISTARRAY.getEPType(), "oldEventsPerLevel", EPTypePremade.LISTARRAY.getEPType(), "oldEventsSortKeyPerLevel"),
+            CodegenNamedParam.from(EPTYPE_LIST_UNIFORMPAIR_SET_MKARRAY_EVENTBEAN, NAME_JOINEVENTSSET, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.LISTARRAY.getEPType(), "oldEventsPerLevel", EPTypePremade.LISTARRAY.getEPType(), "oldEventsSortKeyPerLevel"),
             ResultSetProcessorUtil.class, classScope, code);
     }
 
@@ -674,7 +676,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
         };
 
         return instance.getMethods().addMethod(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "handleOutputLimitFirstNoViewHaving",
-            CodegenNamedParam.from(EPTypePremade.LIST.getEPType(), "viewEventsList", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.LISTARRAY.getEPType(), "oldEventsPerLevel", EPTypePremade.LISTARRAY.getEPType(), "oldEventsSortKeyPerLevel"),
+            CodegenNamedParam.from(EPTYPE_LIST_UNIFORMPAIR_EVENTBEANARRAY, "viewEventsList", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.LISTARRAY.getEPType(), "oldEventsPerLevel", EPTypePremade.LISTARRAY.getEPType(), "oldEventsSortKeyPerLevel"),
             ResultSetProcessorUtil.class, classScope, code);
     }
 
@@ -714,8 +716,8 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
 
         {
             CodegenBlock forEach = method.getBlock().forEach(UniformPair.EPTYPE, "pair", REF_JOINEVENTSSET);
-            forEach.declareVar(EPTypePremade.SET.getEPType(), "newData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getFirst")))
-                .declareVar(EPTypePremade.SET.getEPType(), "oldData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getSecond")))
+            forEach.declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "newData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getFirst")))
+                .declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "oldData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getSecond")))
                 .localMethod(resetEventPerGroupBufJoin)
                 .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "newDataMultiKey", localMethod(generateGroupKeysJoin, ref("newData"), ref(NAME_EVENTPERGROUPBUFJOIN), constantTrue()))
                 .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "oldDataMultiKey", localMethod(generateGroupKeysJoin, ref("oldData"), ref(NAME_EVENTPERGROUPBUFJOIN), constantFalse()));
@@ -875,8 +877,8 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
 
         {
             CodegenBlock forEach = method.getBlock().forEach(UniformPair.EPTYPE, "pair", REF_JOINEVENTSSET);
-            forEach.declareVar(EPTypePremade.SET.getEPType(), "newData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getFirst")))
-                .declareVar(EPTypePremade.SET.getEPType(), "oldData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getSecond")))
+            forEach.declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "newData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getFirst")))
+                .declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "oldData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getSecond")))
                 .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "groupKeysPerLevel", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(forge.getGroupByRollupDesc().getLevels().length)))
                 .declareVarNoInit(EventBean.EPTYPEARRAY, "eventsPerStream");
 
@@ -935,7 +937,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
         if (forge.isSelectRStream()) {
             method.getBlock().exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "reset");
             method.getBlock().forEach(AggregationGroupByRollupLevel.EPTYPE, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
-                .declareVar(EPTypePremade.MAP.getEPType(), "groupGenerators", arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), exprDotMethod(ref("level"), "getLevelNumber")))
+                .declareVar(EPTYPE_MAP_OBJECT_EVENTBEANARRAY, "groupGenerators", arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), exprDotMethod(ref("level"), "getLevelNumber")))
                 .forEach(EPTypePremade.MAPENTRY.getEPType(), "entry", exprDotMethod(ref("groupGenerators"), "entrySet"))
                 .localMethod(generateOutputBatchedGivenArray, constantFalse(), exprDotMethod(ref("entry"), "getKey"), ref("level"), cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("entry"), "getValue")), constantFalse(), REF_ISSYNTHESIZE, exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getEventsPerLevel"), exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getSortKeyPerLevel"))
                 .incrementRef("count");
@@ -1003,7 +1005,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
         if (forge.isSelectRStream()) {
             method.getBlock().exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "reset");
             method.getBlock().forEach(AggregationGroupByRollupLevel.EPTYPE, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
-                .declareVar(EPTypePremade.MAP.getEPType(), "groupGenerators", arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), exprDotMethod(ref("level"), "getLevelNumber")))
+                .declareVar(EPTYPE_MAP_OBJECT_EVENTBEANARRAY, "groupGenerators", arrayAtIndex(ref(NAME_GROUPREPSPERLEVELBUF), exprDotMethod(ref("level"), "getLevelNumber")))
                 .forEach(EPTypePremade.MAPENTRY.getEPType(), "entry", exprDotMethod(ref("groupGenerators"), "entrySet"))
                 .localMethod(generateOutputBatchedGivenArray, constantFalse(), exprDotMethod(ref("entry"), "getKey"), ref("level"), cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("entry"), "getValue")), constantFalse(), REF_ISSYNTHESIZE, exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getEventsPerLevel"), exprDotMethod(ref(NAME_RSTREAMEVENTSORTARRAYBUF), "getSortKeyPerLevel"))
                 .incrementRef("count");
@@ -1011,8 +1013,8 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
 
         {
             CodegenBlock forEach = method.getBlock().forEach(UniformPair.EPTYPE, "pair", REF_JOINEVENTSSET);
-            forEach.declareVar(EPTypePremade.SET.getEPType(), "newData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getFirst")))
-                .declareVar(EPTypePremade.SET.getEPType(), "oldData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getSecond")))
+            forEach.declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "newData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getFirst")))
+                .declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "oldData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getSecond")))
                 .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "groupKeysPerLevel", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(forge.getGroupByRollupDesc().getLevels().length)))
                 .declareVarNoInit(EventBean.EPTYPEARRAY, "eventsPerStream");
 
@@ -1074,7 +1076,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
         };
 
         return instance.getMethods().addMethod(EPTypePremade.VOID.getEPType(), "generateOutputBatchedCollectView",
-            CodegenNamedParam.from(EPTypePremade.MAPARRAY.getEPType(), "eventPairs", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.LIST.getEPType(), "events", EPTypePremade.LIST.getEPType(), "sortKey", EventBean.EPTYPEARRAY, "eventsPerStream"),
+            CodegenNamedParam.from(EPTYPE_MAPARRAY_OBJECT_EVENTBEAN, "eventPairs", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.LIST.getEPType(), "events", EPTypePremade.LIST.getEPType(), "sortKey", EventBean.EPTYPEARRAY, "eventsPerStream"),
             ResultSetProcessorRowPerGroupRollupImpl.class, classScope, code);
     }
 
@@ -1093,12 +1095,12 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
         };
 
         return instance.getMethods().addMethod(EPTypePremade.VOID.getEPType(), "generateOutputBatchedCollectJoin",
-            CodegenNamedParam.from(EPTypePremade.MAPARRAY.getEPType(), "eventPairs", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.LIST.getEPType(), "events", EPTypePremade.LIST.getEPType(), "sortKey"),
+            CodegenNamedParam.from(EPTYPE_MAPARRAY_OBJECT_EVENTBEANARRAY, "eventPairs", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.LIST.getEPType(), "events", EPTypePremade.LIST.getEPType(), "sortKey"),
             ResultSetProcessorRowPerGroupRollupImpl.class, classScope, code);
     }
 
     private static CodegenMethod resetEventPerGroupBufCodegen(String memberName, CodegenClassScope classScope, CodegenInstanceAux instance) {
-        Consumer<CodegenMethod> code = methodNode -> methodNode.getBlock().forEach(EPTypePremade.LINKEDHASHMAP.getEPType(), "anEventPerGroupBuf", ref(memberName))
+        Consumer<CodegenMethod> code = methodNode -> methodNode.getBlock().forEach(EPTypePremade.MAP.getEPType(), "anEventPerGroupBuf", ref(memberName))
             .exprDotMethod(ref("anEventPerGroupBuf"), "clear");
 
         return instance.getMethods().addMethod(EPTypePremade.VOID.getEPType(), "resetEventPerGroupBuf", Collections.emptyList(), ResultSetProcessorRowPerGroupRollupImpl.class, classScope, code);
@@ -1154,7 +1156,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
         };
 
         return instance.getMethods().addMethod(EPTypePremade.OBJECTARRAYARRAY.getEPType(), "generateGroupKeysJoin",
-            CodegenNamedParam.from(EPTypePremade.SET.getEPType(), "events", EPTypePremade.MAPARRAY.getEPType(), "eventPerKey", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA), ResultSetProcessorRowPerGroupRollupImpl.class, classScope, code);
+            CodegenNamedParam.from(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "events", EPTypePremade.MAPARRAY.getEPType(), "eventPerKey", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA), ResultSetProcessorRowPerGroupRollupImpl.class, classScope, code);
     }
 
     private static CodegenMethod generateAndSortCodegen(ResultSetProcessorRowPerGroupRollupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
@@ -1176,7 +1178,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
                 .declareVar(EPTypePremade.LIST.getEPType(), "newEventsSortKey", forge.isSorting() ? newInstance(EPTypePremade.ARRAYLIST.getEPType()) : constantNull());
 
             methodNode.getBlock().forEach(AggregationGroupByRollupLevel.EPTYPE, "level", exprDotMethodChain(ref("this")).add("getGroupByRollupDesc").add("getLevels"))
-                .declareVar(EPTypePremade.MAP.getEPType(), "groupGenerators", arrayAtIndex(ref("outputLimitGroupRepsPerLevel"), exprDotMethod(ref("level"), "getLevelNumber")))
+                .declareVar(EPTYPE_MAP_OBJECT_EVENTBEANARRAY, "groupGenerators", arrayAtIndex(ref("outputLimitGroupRepsPerLevel"), exprDotMethod(ref("level"), "getLevelNumber")))
                 .forEach(EPTypePremade.MAPENTRY.getEPType(), "entry", exprDotMethod(ref("groupGenerators"), "entrySet"))
                 .localMethod(generateOutputBatched, exprDotMethod(ref("entry"), "getKey"), ref("level"), cast(EventBean.EPTYPEARRAY, exprDotMethod(ref("entry"), "getValue")), constantTrue(), REF_ISSYNTHESIZE, ref("newEvents"), ref("newEventsSortKey"));
 
@@ -1193,7 +1195,7 @@ public class ResultSetProcessorRowPerGroupRollupImpl {
         };
 
         return instance.getMethods().addMethod(UniformPair.EPTYPE, "generateAndSort",
-            CodegenNamedParam.from(EPTypePremade.MAPARRAY.getEPType(), "outputLimitGroupRepsPerLevel", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.INTEGERPRIMITIVE.getEPType(), "oldEventCount"),
+            CodegenNamedParam.from(EPTYPE_MAPARRAY_OBJECT_EVENTBEANARRAY, "outputLimitGroupRepsPerLevel", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.INTEGERPRIMITIVE.getEPType(), "oldEventCount"),
             ResultSetProcessorUtil.class, classScope, code);
     }
 

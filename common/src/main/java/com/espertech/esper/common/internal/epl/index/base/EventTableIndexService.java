@@ -21,19 +21,19 @@ import com.espertech.esper.common.client.util.StateMgmtSetting;
 public interface EventTableIndexService {
     boolean allowInitIndex(boolean isRecoveringResilient);
 
-    EventTableFactory createHashedOnly(int indexedStreamNum, EventType eventType, String[] indexProps, MultiKeyFromObjectArray transformFireAndForget, DataInputOutputSerde<Object> keySerde, boolean unique, String optionalIndexName, EventPropertyValueGetter getter, DataInputOutputSerde<Object> optionalValueSerde, boolean isFireAndForget, StateMgmtSetting stateMgmtSettings);
+    EventTableFactory createHashedOnly(int indexedStreamNum, EventType eventType, String[] indexProps, MultiKeyFromObjectArray transformFireAndForget, DataInputOutputSerde keySerde, boolean unique, String optionalIndexName, EventPropertyValueGetter getter, DataInputOutputSerde optionalValueSerde, boolean isFireAndForget, StateMgmtSetting stateMgmtSettings);
 
-    EventTableFactory createUnindexed(int indexedStreamNum, EventType eventType, DataInputOutputSerde<Object> optionalValueSerde, boolean isFireAndForget, StateMgmtSetting stateMgmtSettings);
+    EventTableFactory createUnindexed(int indexedStreamNum, EventType eventType, DataInputOutputSerde optionalValueSerde, boolean isFireAndForget, StateMgmtSetting stateMgmtSettings);
 
-    EventTableFactory createSorted(int indexedStreamNum, EventType eventType, String indexedProp, EPTypeClass indexType, EventPropertyValueGetter getter, DataInputOutputSerde<Object> serde, DataInputOutputSerde<Object> optionalValueSerde, boolean isFireAndForget, StateMgmtSetting stateMgmtSettings);
+    EventTableFactory createSorted(int indexedStreamNum, EventType eventType, String indexedProp, EPTypeClass indexType, EventPropertyValueGetter getter, DataInputOutputSerde serde, DataInputOutputSerde optionalValueSerde, boolean isFireAndForget, StateMgmtSetting stateMgmtSettings);
 
     EventTableFactory createComposite(int indexedStreamNum,
                                       EventType eventType, String[] indexProps, EPTypeClass[] indexCoercionTypes, EventPropertyValueGetter indexGetter,
-                                      MultiKeyFromObjectArray transformFireAndForget, DataInputOutputSerde<Object> keySerde,
-                                      String[] rangeProps, EPTypeClass[] rangeCoercionTypes, EventPropertyValueGetter[] rangeGetters, DataInputOutputSerde<Object>[] rangeSerdes,
-                                      DataInputOutputSerde<Object> optionalValueSerde, boolean isFireAndForget);
+                                      MultiKeyFromObjectArray transformFireAndForget, DataInputOutputSerde keySerde,
+                                      String[] rangeProps, EPTypeClass[] rangeCoercionTypes, EventPropertyValueGetter[] rangeGetters, DataInputOutputSerde[] rangeSerdes,
+                                      DataInputOutputSerde optionalValueSerde, boolean isFireAndForget);
 
-    EventTableFactory createInArray(int streamNum, EventType eventType, String[] propertyNames, EPTypeClass[] indexTypes, DataInputOutputSerde<Object>[] indexSerdes, boolean unique, EventPropertyValueGetter[] getters, boolean isFireAndForget, StateMgmtSetting stateMgmtSettings);
+    EventTableFactory createInArray(int streamNum, EventType eventType, String[] propertyNames, EPTypeClass[] indexTypes, DataInputOutputSerde[] indexSerdes, boolean unique, EventPropertyValueGetter[] getters, boolean isFireAndForget, StateMgmtSetting stateMgmtSettings);
 
     EventTableFactory createCustom(String optionalIndexName, int indexedStreamNum, EventType eventType, boolean unique, EventAdvancedIndexProvisionRuntime advancedIndexProvisionDesc);
 }

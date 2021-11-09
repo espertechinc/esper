@@ -84,22 +84,12 @@ public class ClassProvidedClasspathExtensionImpl implements ClassProvidedClasspa
     }
 
     public Class findClassByName(String className) {
-        // check inlined classes
-        for (Class clazz : classes) {
-            if (clazz.getName().equals(className)) {
-                return clazz;
-            }
+        Class clazz = resolve(className);
+        if (clazz != null) {
+            return clazz;
         }
-        // check same-module (create inlined_class) or path classes
-        ClassProvided provided = resolver.resolveClass(className);
-        if (provided != null) {
-            for (Class clazz : provided.getClassesMayNull()) {
-                if (clazz.getName().equals(className)) {
-                    return clazz;
-                }
-            }
-        }
-        return null;
+
+        return resolve("generated." + className);
     }
 
     public Pair<Class, ClasspathImportSingleRowDesc> resolveSingleRow(String name) {
@@ -143,5 +133,24 @@ public class ClassProvidedClasspathExtensionImpl implements ClassProvidedClasspa
             }
         }
         return false;
+    }
+
+    private Class resolve(String className) {
+        // check inlined classes
+        for (Class clazz : classes) {
+            if (clazz.getName().equals(className)) {
+                return clazz;
+            }
+        }
+        // check same-module (create inlined_class) or path classes
+        ClassProvided provided = resolver.resolveClass(className);
+        if (provided != null) {
+            for (Class clazz : provided.getClassesMayNull()) {
+                if (clazz.getName().equals(className)) {
+                    return clazz;
+                }
+            }
+        }
+        return null;
     }
 }

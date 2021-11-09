@@ -18,7 +18,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public class DIOJsonAnyValueSerde implements DataInputOutputSerde<Object> {
+public class DIOJsonAnyValueSerde implements DataInputOutputSerde {
     public final static EPTypeClass EPTYPE = new EPTypeClass(DIOJsonAnyValueSerde.class);
     public final static DIOJsonAnyValueSerde INSTANCE = new DIOJsonAnyValueSerde();
 

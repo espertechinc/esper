@@ -41,7 +41,7 @@ public interface Table {
 
     void setPrimaryKeyGetter(EventPropertyValueGetter primaryKeyGetter);
 
-    void setPrimaryKeySerde(DataInputOutputSerde<Object> primaryKeySerde);
+    void setPrimaryKeySerde(DataInputOutputSerde primaryKeySerde);
 
     void setPrimaryKeyObjectArrayTransform(MultiKeyFromObjectArray primaryKeyObjectArrayTransform);
 
@@ -85,7 +85,7 @@ public interface Table {
 
     Collection<TableUpdateStrategyRedoCallback> getUpdateStrategyCallbacks();
 
-    DataInputOutputSerde<Object> getPrimaryKeySerde();
+    DataInputOutputSerde getPrimaryKeySerde();
 
     MultiKeyFromMultiKey getPrimaryKeyIntoTableTransform();
 

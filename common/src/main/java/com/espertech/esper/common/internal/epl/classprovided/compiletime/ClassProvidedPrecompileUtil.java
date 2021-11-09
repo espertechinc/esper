@@ -10,71 +10,75 @@
  */
 package com.espertech.esper.common.internal.epl.classprovided.compiletime;
 
-import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
-import com.espertech.esper.common.internal.compile.stage1.CompilerServicesCompileException;
+import com.espertech.esper.common.internal.compile.compiler.CompilerAbstractionClassCollection;
+import com.espertech.esper.common.internal.compile.compiler.CompilerAbstractionCompilationContext;
+import com.espertech.esper.common.internal.compile.compiler.CompilerAbstractionCompileSourcesResult;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.context.util.ByteArrayProvidingClassLoader;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public class ClassProvidedPrecompileUtil {
     public static ClassProvidedPrecompileResult compileClassProvided(List<String> classTexts, Consumer<Object> compileResultConsumer, StatementCompileTimeServices compileTimeServices, ClassProvidedPrecompileResult optionalPrior)
-        throws ExprValidationException {
+            throws ExprValidationException {
         if (classTexts == null || classTexts.isEmpty()) {
             return ClassProvidedPrecompileResult.EMPTY;
         }
+
+        List<String> classWithText = new ArrayList<>(classTexts.size());
+        for (String classText : classTexts) {
+            if (classText.trim().isEmpty()) {
+                continue;
+            }
+            classWithText.add(classText);
+        }
+        if (classWithText.isEmpty()) {
+            return ClassProvidedPrecompileResult.EMPTY;
+        }
+
         if (!compileTimeServices.getConfiguration().getCompiler().getByteCode().isAllowInlinedClass()) {
             throw new ExprValidationException("Inlined-class compilation has been disabled by configuration");
         }
 
-        int index = -1;
-        Map<String, byte[]> allBytes = new HashMap<>();
+        CompilerAbstractionClassCollection allBytes = compileTimeServices.getCompilerAbstraction().newClassCollection();
         List<Class> allClasses = new ArrayList<>();
         if (optionalPrior != null) {
-            allBytes.putAll(optionalPrior.getBytes());
+            allBytes.add(optionalPrior.getBytes());
         }
-        ByteArrayProvidingClassLoader cl = new ByteArrayProvidingClassLoader(allBytes, compileTimeServices.getServices().getParentClassLoader());
 
+        Set<String> classNames;
+        try {
+            CompilerAbstractionCompilationContext ctx = new CompilerAbstractionCompilationContext(compileTimeServices.getServices(), compileResultConsumer, Collections.emptyList());
+            CompilerAbstractionCompileSourcesResult result = compileTimeServices.getCompilerAbstraction().compileSources(classTexts, ctx, allBytes);
+            classNames = result.getClassNames();
+        } catch (RuntimeException ex) {
+            throw new ExprValidationException("Failed to compile an inlined-class: " + ex.getMessage(), ex);
+        }
+
+        ByteArrayProvidingClassLoader cl = new ByteArrayProvidingClassLoader(allBytes.getClasses(), compileTimeServices.getServices().getParentClassLoader());
         for (String classText : classTexts) {
             if (classText.trim().isEmpty()) {
                 continue;
             }
 
-            index++;
-            String className = "provided_" + index + "_" + CodeGenerationIDGenerator.generateClassNameUUID();
-            Map<String, byte[]> output = new HashMap<>();
-
-            try {
-                compileTimeServices.getCompilerServices().compileClass(classText, className, allBytes, output, compileResultConsumer, compileTimeServices.getServices());
-            } catch (CompilerServicesCompileException ex) {
-                throw handleException(ex, "Failed to compile class", classText);
-            }
-
-            for (Map.Entry<String, byte[]> entry : output.entrySet()) {
-                if (allBytes.containsKey(entry.getKey())) {
-                    throw new ExprValidationException("Duplicate class by name '" + entry.getKey() + "'");
-                }
-            }
-
-            allBytes.putAll(output);
-            List<Class> classes = new ArrayList<>(2);
-            for (Map.Entry<String, byte[]> entry : output.entrySet()) {
+            List<Class> classes = new ArrayList<>(classNames.size());
+            for (String className : classNames) {
                 try {
-                    Class clazz = Class.forName(entry.getKey(), false, cl);
+                    Class clazz = Class.forName(className, false, cl);
                     classes.add(clazz);
                 } catch (RuntimeException | ClassNotFoundException e) {
-                    throw handleException(e, "Failed to load class '" + entry.getKey() + "'", classText);
+                    throw handleException(e, "Failed to load class '" + className + "'", classText);
                 }
             }
             allClasses.addAll(classes);
         }
 
-        return new ClassProvidedPrecompileResult(allBytes, allClasses);
+        return new ClassProvidedPrecompileResult(allBytes.getClasses(), allClasses);
     }
 
     private static ExprValidationException handleException(Exception ex, String action, String classText) {

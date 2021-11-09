@@ -35,7 +35,7 @@ public class RowRecogNFAViewFactory implements ViewFactory {
     private boolean trackMaxStates;
     private RowRecogNFAState[] startStates;
     private RowRecogNFAState[] allStates;
-    protected DataInputOutputSerde<Object> partitionKeySerde;
+    protected DataInputOutputSerde partitionKeySerde;
     protected int scheduleCallbackId;
 
     public void setDesc(RowRecogDesc desc) {
@@ -117,7 +117,7 @@ public class RowRecogNFAViewFactory implements ViewFactory {
         return allStates;
     }
 
-    public DataInputOutputSerde<Object> getPartitionKeySerde() {
+    public DataInputOutputSerde getPartitionKeySerde() {
         return partitionKeySerde;
     }
 

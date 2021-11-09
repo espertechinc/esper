@@ -26,7 +26,7 @@ public class ContextControllerDetailKeyedItem {
     private String optionalInitConditionAsName;
     private ExprFilterSpecLookupable[] lookupables;
     private EPType[] propertyTypes;
-    private DataInputOutputSerde<Object> keySerde;
+    private DataInputOutputSerde keySerde;
     private String aliasName;
 
     public EventPropertyValueGetter getGetter() {
@@ -77,11 +77,11 @@ public class ContextControllerDetailKeyedItem {
         this.aliasName = aliasName;
     }
 
-    public DataInputOutputSerde<Object> getKeySerde() {
+    public DataInputOutputSerde getKeySerde() {
         return keySerde;
     }
 
-    public void setKeySerde(DataInputOutputSerde<Object> keySerde) {
+    public void setKeySerde(DataInputOutputSerde keySerde) {
         this.keySerde = keySerde;
     }
 }

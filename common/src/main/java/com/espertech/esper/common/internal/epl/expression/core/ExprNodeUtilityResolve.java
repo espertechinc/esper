@@ -91,7 +91,7 @@ public class ExprNodeUtilityResolve {
                 }
                 EventType eventTypeColl = enumeration.getEventTypeCollection(statementRawInfo, services);
                 if (eventTypeColl != null) {
-                    childEvalsEventBeanReturnTypesForges[count] = new ExprEvalStreamNumEnumCollForge(enumeration);
+                    childEvalsEventBeanReturnTypesForges[count] = new ExprEvalStreamNumEnumCollEventForge(enumeration);
                     allowEventBeanCollType[count] = true;
                     count++;
                     continue;

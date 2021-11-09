@@ -57,7 +57,7 @@ public abstract class TwoLambdaThreeFormScalar extends EnumForgeBasePlain {
         CodegenExpressionField resultTypeMember = codegenClassScope.addFieldUnshared(true, ObjectArrayEventType.EPTYPE, cast(ObjectArrayEventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(resultEventType, EPStatementInitServices.REF)));
 
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
-        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(EPTypePremade.MAP.getEPType(), getClass(), scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(EPTypePremade.MAP.getEPType(), getClass(), scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMSCOLLOBJ);
         boolean hasIndex = numParameters >= 2;
         boolean hasSize = numParameters >= 3;
 

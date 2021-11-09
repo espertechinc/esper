@@ -26,7 +26,7 @@ public class FirstUniqueByPropertyViewFactory implements ViewFactory {
 
     protected ExprEvaluator criteriaEval;
     protected EPType[] criteriaTypes;
-    protected DataInputOutputSerde<Object> keySerde;
+    protected DataInputOutputSerde keySerde;
     protected EventType eventType;
 
     public void setEventType(EventType eventType) {
@@ -56,7 +56,7 @@ public class FirstUniqueByPropertyViewFactory implements ViewFactory {
         this.criteriaTypes = criteriaTypes;
     }
 
-    public void setKeySerde(DataInputOutputSerde<Object> keySerde) {
+    public void setKeySerde(DataInputOutputSerde keySerde) {
         this.keySerde = keySerde;
     }
 

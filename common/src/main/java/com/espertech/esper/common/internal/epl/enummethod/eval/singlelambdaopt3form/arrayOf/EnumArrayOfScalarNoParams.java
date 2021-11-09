@@ -63,7 +63,7 @@ public class EnumArrayOfScalarNoParams implements EnumForge {
     public CodegenExpression codegen(EnumForgeCodegenParams premade, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         EPTypeClass arrayType = JavaClassHelper.getArrayType(arrayComponentType);
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
-        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(arrayType, EnumArrayOfScalarNoParams.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(arrayType, EnumArrayOfScalarNoParams.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMSCOLLOBJ);
 
         CodegenBlock block = methodNode.getBlock()
             .ifCondition(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty"))

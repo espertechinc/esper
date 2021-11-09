@@ -59,7 +59,7 @@ public class CodegenNamedParam {
         if (type != null) {
             appendClassName(builder, type, imports);
         } else {
-            builder.append(typeName);
+            appendClassName(builder, typeName);
         }
         builder.append(" ").append(name);
     }

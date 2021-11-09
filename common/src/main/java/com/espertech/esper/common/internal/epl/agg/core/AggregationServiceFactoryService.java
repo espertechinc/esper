@@ -31,7 +31,7 @@ public interface AggregationServiceFactoryService {
                                       AggSvcGroupByReclaimAgedEvalFuncFactory reclaimMaxAge,
                                       AggSvcGroupByReclaimAgedEvalFuncFactory reclaimFreq,
                                       TimeAbacus timeAbacus,
-                                      DataInputOutputSerde<Object> groupKeySerde,
+                                      DataInputOutputSerde groupKeySerde,
                                       StateMgmtSetting stateMgmtSettings);
 
     AggregationServiceFactory groupByRollup(AggregationServiceFactory nonHAFactory,

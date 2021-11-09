@@ -13,6 +13,9 @@ package com.espertech.esper.compiler.internal.util;
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EPCompiledManifest;
 import com.espertech.esper.common.client.EventType;
+import com.espertech.esper.common.internal.compile.compiler.CompilerAbstraction;
+import com.espertech.esper.common.internal.compile.compiler.CompilerAbstractionClassCollection;
+import com.espertech.esper.common.internal.compile.compiler.CompilerAbstractionCompilationContext;
 import com.espertech.esper.common.client.meta.EventTypeMetadata;
 import com.espertech.esper.common.client.module.ModuleProperty;
 import com.espertech.esper.common.client.serde.DataInputOutputSerde;
@@ -65,14 +68,9 @@ import com.espertech.esper.common.internal.fabric.FabricStatement;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.util.CollectionUtil;
 import com.espertech.esper.common.internal.util.SerializerUtil;
-import com.espertech.esper.compiler.client.CompilerOptions;
-import com.espertech.esper.compiler.client.EPCompileException;
-import com.espertech.esper.compiler.client.EPCompileExceptionItem;
-import com.espertech.esper.compiler.client.EPCompileExceptionSyntaxItem;
+import com.espertech.esper.compiler.client.*;
 
-import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
@@ -82,18 +80,21 @@ import static com.espertech.esper.compiler.internal.util.CompilerVersion.COMPILE
 public class CompilerHelperModuleProvider {
     private final static int NUM_STATEMENT_NAMES_PER_BATCH = 1000;
 
-    protected static EPCompiled compile(List<Compilable> compilables, String optionalModuleName, Map<ModuleProperty, Object> moduleProperties, ModuleCompileTimeServices compileTimeServices, CompilerOptions compilerOptions) throws EPCompileException {
-        ConcurrentHashMap<String, byte[]> moduleBytes = new ConcurrentHashMap<>();
+    protected static EPCompiled compile(List<Compilable> compilables, String optionalModuleName, Map<ModuleProperty, Object> moduleProperties, ModuleCompileTimeServices compileTimeServices, CompilerOptions compilerOptions, CompilerPath path) throws EPCompileException {
+        CompilerAbstraction compilerAbstraction = compileTimeServices.getCompilerAbstraction();
+        CompilerAbstractionClassCollection compilationState = compilerAbstraction.newClassCollection();
+
         EPCompiledManifest manifest;
         try {
-            manifest = compileToBytes(moduleBytes, compilables, optionalModuleName, moduleProperties, compileTimeServices, compilerOptions);
+            manifest = compileToBytes(compilerAbstraction, compilationState, compilables, optionalModuleName, moduleProperties, compileTimeServices, compilerOptions, path);
         } catch (EPCompileException ex) {
             throw ex;
         } catch (Throwable t) {
             throw new EPCompileException("Unexpected exception compiling module: " + t.getMessage(), t, Collections.emptyList());
         }
 
-        EPCompiled compiled = new EPCompiled(moduleBytes, manifest);
+        Map<String, byte[]> classes = compilationState.getClasses();
+        EPCompiled compiled = new EPCompiled(classes, manifest);
         if (compilerOptions.getPathCache() != null) {
             try {
                 ((CompilerPathCacheImpl) compilerOptions.getPathCache()).put(compiled, toPathable(optionalModuleName, compileTimeServices, "cached-entry"));
@@ -104,7 +105,7 @@ public class CompilerHelperModuleProvider {
         return compiled;
     }
 
-    private static EPCompiledManifest compileToBytes(ConcurrentHashMap<String, byte[]> moduleBytes, List<Compilable> compilables, String optionalModuleName, Map<ModuleProperty, Object> moduleProperties, ModuleCompileTimeServices compileTimeServices, CompilerOptions compilerOptions) throws EPCompileException, IOException {
+    private static EPCompiledManifest compileToBytes(CompilerAbstraction compilerAbstraction, CompilerAbstractionClassCollection compilationState, List<Compilable> compilables, String optionalModuleName, Map<ModuleProperty, Object> moduleProperties, ModuleCompileTimeServices compileTimeServices, CompilerOptions compilerOptions, CompilerPath path) throws EPCompileException {
         String moduleAssignedName = optionalModuleName == null ? UUID.randomUUID().toString() : optionalModuleName;
         String moduleIdentPostfix = IdentifierUtil.getIdentifierMayStartNumeric(moduleAssignedName);
 
@@ -113,7 +114,7 @@ public class CompilerHelperModuleProvider {
         Set<String> statementNames = new HashSet<>();
         List<EPCompileExceptionItem> exceptions = new ArrayList<>();
         List<EPCompileExceptionItem> postLatchThrowables = new ArrayList<>();
-        CompilerPool compilerPool = new CompilerPool(compilables.size(), compileTimeServices, moduleBytes);
+        CompilerPool compilerPool = new CompilerPool(compilables.size(), compileTimeServices, path.getCompileds(), compilerAbstraction, compilationState);
         boolean targetHA = compileTimeServices.getSerdeEventTypeRegistry().isTargetHA();
         List<FabricStatement> fabricStatements = targetHA ? new ArrayList<>() : Collections.emptyList();
 
@@ -173,26 +174,24 @@ public class CompilerHelperModuleProvider {
         }
 
         // compile module resource
-        String moduleProviderClassName = compileModule(optionalModuleName, moduleProperties, statementClassNames, moduleIdentPostfix, moduleBytes, compileTimeServices);
+        String moduleProviderClassName = compileModule(optionalModuleName, moduleProperties, statementClassNames, moduleIdentPostfix, compilerAbstraction, compilationState, compileTimeServices, path.getCompileds());
 
         // remove path create-class class-provided byte code
-        compileTimeServices.getClassProvidedCompileTimeResolver().removeFrom(moduleBytes);
+        compileTimeServices.getClassProvidedCompileTimeResolver().removeFrom(compilationState::remove);
 
         // add class-provided create-class classes to module bytes
-        for (Map.Entry<String, ClassProvided> entry : compileTimeServices.getClassProvidedCompileTimeRegistry().getClasses().entrySet()) {
-            moduleBytes.putAll(entry.getValue().getBytes());
-        }
+        compileTimeServices.getClassProvidedCompileTimeRegistry().addTo(compilationState::add);
 
         // add HA-fabric to module bytes
         if (compileTimeServices.getSerdeEventTypeRegistry().isTargetHA()) {
-            compileTimeServices.getStateMgmtSettingsProvider().spec(fabricStatements, compileTimeServices, moduleBytes);
+            compileTimeServices.getStateMgmtSettingsProvider().spec(fabricStatements, compileTimeServices, compilationState.getClasses());
         }
 
         // create manifest
         return new EPCompiledManifest(COMPILER_VERSION, moduleProviderClassName, null, compileTimeServices.getSerdeResolver().isTargetHA());
     }
 
-    private static String compileModule(String optionalModuleName, Map<ModuleProperty, Object> moduleProperties, List<String> statementClassNames, String moduleIdentPostfix, Map<String, byte[]> moduleBytes, ModuleCompileTimeServices compileTimeServices) {
+    private static String compileModule(String optionalModuleName, Map<ModuleProperty, Object> moduleProperties, List<String> statementClassNames, String moduleIdentPostfix, CompilerAbstraction compilerAbstraction, CompilerAbstractionClassCollection compilationState, ModuleCompileTimeServices compileTimeServices, List<EPCompiled> path) {
         // write code to create an implementation of StatementResource
         CodegenPackageScope packageScope = new CodegenPackageScope(compileTimeServices.getPackageName(), null, compileTimeServices.isInstrumented(), compileTimeServices.getConfiguration().getCompiler().getByteCode());
         String moduleClassName = CodeGenerationIDGenerator.generateClassNameSimple(ModuleProvider.class, moduleIdentPostfix);
@@ -286,7 +285,8 @@ public class CompilerHelperModuleProvider {
         CodegenStackGenerator.recursiveBuildStack(statementsMethod, "statements", methods);
 
         CodegenClass clazz = new CodegenClass(CodegenClassType.MODULEPROVIDER, ModuleProvider.EPTYPE, moduleClassName, classScope, Collections.emptyList(), null, methods, Collections.emptyList());
-        JaninoCompiler.compile(clazz, moduleBytes, moduleBytes, compileTimeServices);
+        CompilerAbstractionCompilationContext context = new CompilerAbstractionCompilationContext(compileTimeServices, path);
+        compilerAbstraction.compileClasses(Collections.singletonList(clazz), context, compilationState);
 
         return CodeGenerationIDGenerator.generateClassNameWithPackage(compileTimeServices.getPackageName(), ModuleProvider.class, moduleIdentPostfix);
     }

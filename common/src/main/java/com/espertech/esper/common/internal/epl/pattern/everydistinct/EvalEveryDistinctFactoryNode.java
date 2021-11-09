@@ -29,7 +29,7 @@ public class EvalEveryDistinctFactoryNode extends EvalFactoryNodeBase {
     private TimePeriodCompute timePeriodCompute;
     protected EvalFactoryNode childNode;
     private EPType[] distinctTypes;
-    private DataInputOutputSerde<Object> distinctSerde;
+    private DataInputOutputSerde distinctSerde;
 
     public void setDistinctExpression(ExprEvaluator distinctExpression) {
         this.distinctExpression = distinctExpression;
@@ -89,11 +89,11 @@ public class EvalEveryDistinctFactoryNode extends EvalFactoryNodeBase {
         return distinctTypes;
     }
 
-    public DataInputOutputSerde<Object> getDistinctSerde() {
+    public DataInputOutputSerde getDistinctSerde() {
         return distinctSerde;
     }
 
-    public void setDistinctSerde(DataInputOutputSerde<Object> distinctSerde) {
+    public void setDistinctSerde(DataInputOutputSerde distinctSerde) {
         this.distinctSerde = distinctSerde;
     }
 

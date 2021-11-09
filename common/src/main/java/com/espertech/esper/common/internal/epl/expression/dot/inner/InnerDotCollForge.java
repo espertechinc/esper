@@ -23,6 +23,7 @@ import com.espertech.esper.common.internal.epl.expression.dot.core.ExprDotEvalRo
 import com.espertech.esper.common.internal.rettype.EPChainableType;
 import com.espertech.esper.common.internal.rettype.EPChainableTypeHelper;
 
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.cast;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constantNull;
 
 public class InnerDotCollForge implements ExprDotEvalRootChildInnerForge {
@@ -38,7 +39,7 @@ public class InnerDotCollForge implements ExprDotEvalRootChildInnerForge {
     }
 
     public CodegenExpression codegenEvaluate(CodegenMethod parentMethod, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
-        return rootForge.evaluateCodegen((EPTypeClass) rootForge.getEvaluationType(), parentMethod, exprSymbol, codegenClassScope);
+        return cast(EPTypePremade.COLLECTION.getEPType(), rootForge.evaluateCodegen((EPTypeClass) rootForge.getEvaluationType(), parentMethod, exprSymbol, codegenClassScope));
     }
 
     public CodegenExpression evaluateGetROCollectionEventsCodegen(CodegenMethod parentMethod, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {

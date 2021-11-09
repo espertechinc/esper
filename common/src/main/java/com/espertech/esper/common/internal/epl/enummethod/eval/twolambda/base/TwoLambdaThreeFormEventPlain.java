@@ -46,7 +46,7 @@ public abstract class TwoLambdaThreeFormEventPlain extends EnumForgeBasePlain {
 
     public CodegenExpression codegen(EnumForgeCodegenParams premade, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
-        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(returnType(), this.getClass(), scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(returnType(), this.getClass(), scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMSCOLLBEAN);
 
         CodegenExpression returnIfEmpty = returnIfEmptyOptional();
         if (returnIfEmpty != null) {

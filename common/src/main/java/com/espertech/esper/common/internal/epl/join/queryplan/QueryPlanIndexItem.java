@@ -35,17 +35,17 @@ public class QueryPlanIndexItem {
     private final EPTypeClass[] hashPropTypes;
     private final EventPropertyValueGetter hashGetter;
     private final MultiKeyFromObjectArray transformFireAndForget;
-    private final DataInputOutputSerde<Object> hashKeySerde;
+    private final DataInputOutputSerde hashKeySerde;
     private final String[] rangeProps;
     private final EPTypeClass[] rangePropTypes;
     private final EventPropertyValueGetter[] rangeGetters;
-    private final DataInputOutputSerde<Object>[] rangeKeySerdes;
+    private final DataInputOutputSerde[] rangeKeySerdes;
     private final boolean unique;
     private final EventAdvancedIndexProvisionRuntime advancedIndexProvisionDesc;
     private final StateMgmtSetting stateMgmtSettings;
 
-    public QueryPlanIndexItem(String[] hashProps, EPTypeClass[] hashPropTypes, EventPropertyValueGetter hashGetter, MultiKeyFromObjectArray transformFireAndForget, DataInputOutputSerde<Object> hashKeySerde,
-                              String[] rangeProps, EPTypeClass[] rangePropTypes, EventPropertyValueGetter[] rangeGetters, DataInputOutputSerde<Object>[] rangeKeySerdes,
+    public QueryPlanIndexItem(String[] hashProps, EPTypeClass[] hashPropTypes, EventPropertyValueGetter hashGetter, MultiKeyFromObjectArray transformFireAndForget, DataInputOutputSerde hashKeySerde,
+                              String[] rangeProps, EPTypeClass[] rangePropTypes, EventPropertyValueGetter[] rangeGetters, DataInputOutputSerde[] rangeKeySerdes,
                               boolean unique, EventAdvancedIndexProvisionRuntime advancedIndexProvisionDesc, StateMgmtSetting stateMgmtSettings) {
         this.hashProps = hashProps;
         this.hashPropTypes = hashPropTypes;
@@ -93,11 +93,11 @@ public class QueryPlanIndexItem {
         return advancedIndexProvisionDesc;
     }
 
-    public DataInputOutputSerde<Object> getHashKeySerde() {
+    public DataInputOutputSerde getHashKeySerde() {
         return hashKeySerde;
     }
 
-    public DataInputOutputSerde<Object>[] getRangeKeySerdes() {
+    public DataInputOutputSerde[] getRangeKeySerdes() {
         return rangeKeySerdes;
     }
 

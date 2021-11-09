@@ -49,7 +49,7 @@ public class CodegenStatementDeclareVar extends CodegenStatementBase {
         if (clazz != null) {
             appendClassName(builder, clazz, imports);
         } else {
-            builder.append(typeName);
+            appendClassName(builder, typeName);
         }
         builder.append(" ").append(var);
         if (optionalInitializer != null) {

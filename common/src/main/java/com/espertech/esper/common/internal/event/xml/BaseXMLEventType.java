@@ -85,7 +85,7 @@ public abstract class BaseXMLEventType extends BaseConfigurableEventType {
         }
     }
 
-    public void setUnderlyingBindingDIO(DataInputOutputSerde<Object> underlyingSerde) {
+    public void setUnderlyingBindingDIO(DataInputOutputSerde underlyingSerde) {
         throw new UnsupportedOperationException("XML event type does not receive a serde");
     }
 

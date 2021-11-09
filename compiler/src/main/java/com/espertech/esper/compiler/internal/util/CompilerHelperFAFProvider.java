@@ -12,6 +12,8 @@ package com.espertech.esper.compiler.internal.util;
 
 import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.EPCompiledManifest;
+import com.espertech.esper.common.internal.compile.compiler.CompilerAbstractionClassCollection;
+import com.espertech.esper.common.internal.compile.compiler.CompilerAbstractionCompilationContext;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
@@ -45,7 +47,9 @@ import com.espertech.esper.common.internal.epl.util.StatementSpecRawWalkerSubsel
 import com.espertech.esper.compiler.client.*;
 
 import java.lang.annotation.Annotation;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
@@ -90,7 +94,9 @@ public class CompilerHelperFAFProvider {
         StatementSpecCompiled specCompiled = compiledDesc.getCompiled();
         FireAndForgetSpec fafSpec = specCompiled.getRaw().getFireAndForgetSpec();
 
-        Map<String, byte[]> moduleBytes = new HashMap<>(walkResult.getClassesInlined().getBytes());
+        CompilerAbstractionClassCollection compilerState = services.getCompilerAbstraction().newClassCollection();
+        compilerState.add(walkResult.getClassesInlined().getBytes());
+
         EPCompiledManifest manifest;
         String classPostfix = IdentifierUtil.getIdentifierMayStartNumeric(statementName);
 
@@ -113,21 +119,21 @@ public class CompilerHelperFAFProvider {
         verifySubstitutionParams(raw.getSubstitutionParameters());
 
         try {
-            manifest = compileToBytes(query, classPostfix, moduleBytes, args.getOptions(), services);
+            manifest = compileToBytes(query, classPostfix, compilerState, services, args.getPath());
         } catch (EPCompileException ex) {
             throw ex;
         } catch (Throwable t) {
             throw new EPCompileException("Unexpected exception compiling module: " + t.getMessage(), t, Collections.emptyList());
         }
 
-        return new EPCompiled(moduleBytes, manifest);
+        return new EPCompiled(compilerState.getClasses(), manifest);
     }
 
-    private static EPCompiledManifest compileToBytes(FAFQueryMethodForge query, String classPostfix, Map<String, byte[]> moduleBytes, CompilerOptions compilerOptions, ModuleCompileTimeServices compileTimeServices) throws EPCompileException {
+    private static EPCompiledManifest compileToBytes(FAFQueryMethodForge query, String classPostfix, CompilerAbstractionClassCollection compilerState, ModuleCompileTimeServices compileTimeServices, CompilerPath path) throws EPCompileException {
 
         String queryMethodProviderClassName;
         try {
-            queryMethodProviderClassName = CompilerHelperFAFQuery.compileQuery(query, classPostfix, moduleBytes, compileTimeServices);
+            queryMethodProviderClassName = CompilerHelperFAFQuery.compileQuery(query, classPostfix, compilerState, compileTimeServices, path);
         } catch (StatementSpecCompileException ex) {
             EPCompileExceptionItem first;
             if (ex instanceof StatementSpecCompileSyntaxException) {
@@ -140,13 +146,13 @@ public class CompilerHelperFAFProvider {
         }
 
         // compile query provider
-        String fafProviderClassName = makeFAFProvider(queryMethodProviderClassName, classPostfix, moduleBytes, compileTimeServices);
+        String fafProviderClassName = makeFAFProvider(queryMethodProviderClassName, classPostfix, compilerState, compileTimeServices, path);
 
         // create manifest
         return new EPCompiledManifest(COMPILER_VERSION, null, fafProviderClassName, false);
     }
 
-    private static String makeFAFProvider(String queryMethodProviderClassName, String classPostfix, Map<String, byte[]> moduleBytes, ModuleCompileTimeServices compileTimeServices) {
+    private static String makeFAFProvider(String queryMethodProviderClassName, String classPostfix, CompilerAbstractionClassCollection compilerState, ModuleCompileTimeServices compileTimeServices, CompilerPath path) {
         CodegenPackageScope packageScope = new CodegenPackageScope(compileTimeServices.getPackageName(), null, compileTimeServices.isInstrumented(), compileTimeServices.getConfiguration().getCompiler().getByteCode());
         String fafProviderClassName = CodeGenerationIDGenerator.generateClassNameSimple(FAFProvider.class, classPostfix);
         CodegenClassScope classScope = new CodegenClassScope(true, packageScope, fafProviderClassName);
@@ -179,7 +185,8 @@ public class CompilerHelperFAFProvider {
         members.add(new CodegenTypedParam(FAFQueryMethodProvider.EPTYPE, MEMBERNAME_QUERY_METHOD_PROVIDER).setFinal(false));
 
         CodegenClass clazz = new CodegenClass(CodegenClassType.FAFPROVIDER, FAFProvider.EPTYPE, fafProviderClassName, classScope, members, null, methods, Collections.emptyList());
-        JaninoCompiler.compile(clazz, moduleBytes, moduleBytes, compileTimeServices);
+        CompilerAbstractionCompilationContext context = new CompilerAbstractionCompilationContext(compileTimeServices, path.getCompileds());
+        compileTimeServices.getCompilerAbstraction().compileClasses(Collections.singletonList(clazz), context, compilerState);
 
         return CodeGenerationIDGenerator.generateClassNameWithPackage(compileTimeServices.getPackageName(), FAFProvider.class, classPostfix);
     }

@@ -40,7 +40,7 @@ public interface VariableManagementService {
      */
     ReadWriteLock getReadWriteLock();
 
-    void addVariable(String deploymentId, VariableMetaData metaData, String optionalDeploymentIdContext, DataInputOutputSerde<Object> optionalSerde);
+    void addVariable(String deploymentId, VariableMetaData metaData, String optionalDeploymentIdContext, DataInputOutputSerde optionalSerde);
 
     /**
      * Returns a reader that provides access to variable values. The reader considers the

@@ -25,7 +25,7 @@ public class ContextControllerDetailInitiatedTerminated implements ContextContro
     private boolean overlapping;
     private ExprEvaluator distinctEval;
     private EPType[] distinctTypes;
-    private DataInputOutputSerde<Object> distinctSerde;
+    private DataInputOutputSerde distinctSerde;
 
     public ContextConditionDescriptor getStartCondition() {
         return startCondition;
@@ -67,11 +67,11 @@ public class ContextControllerDetailInitiatedTerminated implements ContextContro
         this.distinctTypes = distinctTypes;
     }
 
-    public DataInputOutputSerde<Object> getDistinctSerde() {
+    public DataInputOutputSerde getDistinctSerde() {
         return distinctSerde;
     }
 
-    public void setDistinctSerde(DataInputOutputSerde<Object> distinctSerde) {
+    public void setDistinctSerde(DataInputOutputSerde distinctSerde) {
         this.distinctSerde = distinctSerde;
     }
 }

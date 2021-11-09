@@ -25,13 +25,13 @@ public class PropertyHashedArrayFactoryFactory implements EventTableFactoryFacto
     protected final int streamNum;
     protected final String[] propertyNames;
     protected final EPTypeClass[] propertyTypes;
-    protected final DataInputOutputSerde<Object>[] propertySerdes;
+    protected final DataInputOutputSerde[] propertySerdes;
     protected final boolean unique;
     protected final EventPropertyValueGetter[] propertyGetters;
     protected final boolean isFireAndForget;
     private final StateMgmtSetting stateMgmtSettings;
 
-    public PropertyHashedArrayFactoryFactory(int streamNum, String[] propertyNames, EPTypeClass[] propertyTypes, DataInputOutputSerde<Object>[] propertySerdes, boolean unique, EventPropertyValueGetter[] propertyGetters, boolean isFireAndForget, StateMgmtSetting stateMgmtSettings) {
+    public PropertyHashedArrayFactoryFactory(int streamNum, String[] propertyNames, EPTypeClass[] propertyTypes, DataInputOutputSerde[] propertySerdes, boolean unique, EventPropertyValueGetter[] propertyGetters, boolean isFireAndForget, StateMgmtSetting stateMgmtSettings) {
         this.streamNum = streamNum;
         this.propertyNames = propertyNames;
         this.propertyTypes = propertyTypes;

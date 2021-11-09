@@ -60,7 +60,7 @@ public class EnumDistinctOfScalarNoParams extends EnumForgeBasePlain implements 
     }
 
     public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.COLLECTION.getEPType(), EnumDistinctOfScalarNoParams.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.COLLECTION.getEPType(), EnumDistinctOfScalarNoParams.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMSCOLLOBJ);
 
         method.getBlock()
             .ifCondition(relational(exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "size"), LE, constant(1)))

@@ -51,7 +51,7 @@ public class EnumFirstOf extends EnumForgeBasePlain implements EnumForge, EnumEv
 
     public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         EPTypeClass type = EPChainableTypeHelper.getCodegenReturnType(resultType);
-        CodegenMethod method = codegenMethodScope.makeChild(type, EnumFirstOf.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
+        CodegenMethod method = codegenMethodScope.makeChild(type, EnumFirstOf.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMSCOLLOBJ).getBlock()
                 .ifCondition(or(equalsNull(EnumForgeCodegenNames.REF_ENUMCOLL), exprDotMethod(EnumForgeCodegenNames.REF_ENUMCOLL, "isEmpty")))
                 .blockReturn(constantNull())
                 .methodReturn(cast(type, exprDotMethodChain(EnumForgeCodegenNames.REF_ENUMCOLL).add("iterator").add("next")));

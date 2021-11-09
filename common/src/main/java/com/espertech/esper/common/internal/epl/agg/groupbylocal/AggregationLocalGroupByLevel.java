@@ -25,9 +25,9 @@ public class AggregationLocalGroupByLevel {
     private final EPType[] groupKeyTypes;
     private final ExprEvaluator groupKeyEval;
     private final boolean isDefaultLevel;
-    private final DataInputOutputSerde<Object> keySerde;
+    private final DataInputOutputSerde keySerde;
 
-    public AggregationLocalGroupByLevel(AggregationRowFactory rowFactory, DataInputOutputSerde rowSerde, EPType[] groupKeyTypes, ExprEvaluator groupKeyEval, boolean isDefaultLevel, DataInputOutputSerde<Object> keySerde) {
+    public AggregationLocalGroupByLevel(AggregationRowFactory rowFactory, DataInputOutputSerde rowSerde, EPType[] groupKeyTypes, ExprEvaluator groupKeyEval, boolean isDefaultLevel, DataInputOutputSerde keySerde) {
         this.rowFactory = rowFactory;
         this.rowSerde = rowSerde;
         this.groupKeyTypes = groupKeyTypes;
@@ -56,7 +56,7 @@ public class AggregationLocalGroupByLevel {
         return isDefaultLevel;
     }
 
-    public DataInputOutputSerde<Object> getKeySerde() {
+    public DataInputOutputSerde getKeySerde() {
         return keySerde;
     }
 }

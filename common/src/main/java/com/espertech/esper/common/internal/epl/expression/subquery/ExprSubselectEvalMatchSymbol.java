@@ -11,7 +11,6 @@
 package com.espertech.esper.common.internal.epl.expression.subquery;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
@@ -19,6 +18,7 @@ import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodeg
 import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
+import static com.espertech.esper.common.internal.epl.util.EPTypeCollectionConst.EPTYPE_COLLECTION_EVENTBEAN;
 
 public class ExprSubselectEvalMatchSymbol extends ExprForgeCodegenSymbol {
 
@@ -43,7 +43,7 @@ public class ExprSubselectEvalMatchSymbol extends ExprForgeCodegenSymbol {
     @Override
     public void provide(Map<String, EPTypeClass> symbols) {
         if (optionalMatchingEventRef != null) {
-            symbols.put(optionalMatchingEventRef.getRef(), EPTypePremade.COLLECTION.getEPType());
+            symbols.put(optionalMatchingEventRef.getRef(), EPTYPE_COLLECTION_EVENTBEAN);
         }
         super.provide(symbols);
     }

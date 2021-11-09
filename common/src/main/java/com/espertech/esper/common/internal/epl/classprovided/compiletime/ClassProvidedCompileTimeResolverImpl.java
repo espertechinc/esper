@@ -96,11 +96,15 @@ public class ClassProvidedCompileTimeResolverImpl implements ClassProvidedCompil
         return path.isEmpty() && locals.getClasses().isEmpty();
     }
 
-    public void addTo(Map<String, byte[]> additionalClasses) {
-        path.traverse(cp -> additionalClasses.putAll(cp.getBytes()));
+    public void addTo(ClassProvidedClassesAdd additionalClasses) {
+        path.traverse(cp -> additionalClasses.add(cp.getBytes()));
     }
 
-    public void removeFrom(Map<String, byte[]> moduleBytes) {
+    public void addTo(Map<String, byte[]> bytes) {
+        path.traverse(cp -> bytes.putAll(cp.getBytes()));
+    }
+
+    public void removeFrom(ClassProvidedClassRemove moduleBytes) {
         Consumer<ClassProvided> classProvidedByteCodeRemover = item -> {
             for (Map.Entry<String, byte[]> entry : item.getBytes().entrySet()) {
                 moduleBytes.remove(entry.getKey());

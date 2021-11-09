@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.client.type.EPTypePremade;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -80,17 +80,18 @@ public class EnumMinMaxScalarNoParam extends EnumForgeBasePlain implements EnumF
     public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         EPTypeClass innerTypeBoxed = JavaClassHelper.getBoxedType(EPChainableTypeHelper.getCodegenReturnType(resultType));
 
-        CodegenBlock block = codegenMethodScope.makeChild(innerTypeBoxed, EnumMinMaxScalarNoParam.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
-                .declareVar(innerTypeBoxed, "minKey", constantNull());
+        CodegenBlock block = codegenMethodScope.makeChild(innerTypeBoxed, EnumMinMaxScalarNoParam.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMSCOLLOBJ).getBlock()
+                .declareVar(innerTypeBoxed, "minKey", constantNull())
+                .declareVar(new EPTypeClassParameterized(Collection.class, innerTypeBoxed), "coll", EnumForgeCodegenNames.REF_ENUMCOLL);
 
-        CodegenBlock forEach = block.forEach(EPTypePremade.OBJECT.getEPType(), "value", EnumForgeCodegenNames.REF_ENUMCOLL)
+        CodegenBlock forEach = block.forEach(innerTypeBoxed, "value", ref("coll"))
                 .ifRefNull("value").blockContinue();
 
         forEach.ifCondition(equalsNull(ref("minKey")))
-                .assignRef("minKey", cast(innerTypeBoxed, ref("value")))
+                .assignRef("minKey", ref("value"))
                 .ifElse()
                 .ifCondition(relational(exprDotMethod(ref("minKey"), "compareTo", ref("value")), max ? LT : GT, constant(0)))
-                .assignRef("minKey", cast(innerTypeBoxed, ref("value")));
+                .assignRef("minKey", ref("value"));
 
         CodegenMethod method = block.methodReturn(ref("minKey"));
         return localMethod(method, args.getExpressions());

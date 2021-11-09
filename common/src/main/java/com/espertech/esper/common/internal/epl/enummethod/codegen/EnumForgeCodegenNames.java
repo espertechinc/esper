@@ -21,14 +21,17 @@ import java.util.List;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.ref;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.FP_EXPREVALCONTEXT;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.FP_ISNEWDATA;
+import static com.espertech.esper.common.internal.epl.util.EPTypeCollectionConst.EPTYPE_COLLECTION_EVENTBEAN;
 
 public class EnumForgeCodegenNames {
 
     public final static CodegenExpressionRef REF_ENUMCOLL = ref("enumcoll");
     public final static CodegenExpressionRef REF_EPS = ref(ExprForgeCodegenNames.NAME_EPS);
 
-    private final static CodegenNamedParam FP_ENUMCOLL = new CodegenNamedParam(EPTypePremade.COLLECTION.getEPType(), REF_ENUMCOLL);
+    private final static CodegenNamedParam FP_ENUMCOLLBEAN = new CodegenNamedParam(EPTYPE_COLLECTION_EVENTBEAN, REF_ENUMCOLL);
+    private final static CodegenNamedParam FP_ENUMCOLLOBJ = new CodegenNamedParam(EPTypePremade.COLLECTION.getEPType(), REF_ENUMCOLL);
 
-    public final static List<CodegenNamedParam> PARAMS = Arrays.asList(ExprForgeCodegenNames.FP_EPS, FP_ENUMCOLL, FP_ISNEWDATA, FP_EXPREVALCONTEXT);
+    public final static List<CodegenNamedParam> PARAMSCOLLBEAN = Arrays.asList(ExprForgeCodegenNames.FP_EPS, FP_ENUMCOLLBEAN, FP_ISNEWDATA, FP_EXPREVALCONTEXT);
+    public final static List<CodegenNamedParam> PARAMSCOLLOBJ = Arrays.asList(ExprForgeCodegenNames.FP_EPS, FP_ENUMCOLLOBJ, FP_ISNEWDATA, FP_EXPREVALCONTEXT);
 }
 

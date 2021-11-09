@@ -42,9 +42,12 @@ public class ClassProvidedCompileTimeResolverEmpty implements ClassProvidedCompi
         return true;
     }
 
-    public void addTo(Map<String, byte[]> additionalClasses) {
+    public void addTo(ClassProvidedClassesAdd additionalClasses) {
     }
 
-    public void removeFrom(Map<String, byte[]> moduleBytes) {
+    public void addTo(Map<String, byte[]> bytes) {
+    }
+
+    public void removeFrom(ClassProvidedClassRemove moduleBytes) {
     }
 }

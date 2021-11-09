@@ -37,7 +37,7 @@ public class RowRecogDesc {
     private int[] multimatchVariableToStreamNum;
     private ExprEvaluator partitionEvalMayNull;
     private EPType[] partitionEvalTypes;
-    private DataInputOutputSerde<Object> partitionEvalSerde;
+    private DataInputOutputSerde partitionEvalSerde;
     private LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams;
     private boolean hasInterval;
     private boolean iterateOnly;
@@ -109,11 +109,11 @@ public class RowRecogDesc {
         this.partitionEvalTypes = partitionEvalTypes;
     }
 
-    public DataInputOutputSerde<Object> getPartitionEvalSerde() {
+    public DataInputOutputSerde getPartitionEvalSerde() {
         return partitionEvalSerde;
     }
 
-    public void setPartitionEvalSerde(DataInputOutputSerde<Object> partitionEvalSerde) {
+    public void setPartitionEvalSerde(DataInputOutputSerde partitionEvalSerde) {
         this.partitionEvalSerde = partitionEvalSerde;
     }
 

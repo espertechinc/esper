@@ -36,7 +36,7 @@ public class EventSerdeFactoryDefault implements EventSerdeFactory {
         return DIOUnsupportedSerde.INSTANCE;
     }
 
-    public DataInputOutputSerde<Object> listEvents(EventType eventType) {
+    public DataInputOutputSerde listEvents(EventType eventType) {
         return DIOUnsupportedSerde.INSTANCE;
     }
 
@@ -52,7 +52,7 @@ public class EventSerdeFactoryDefault implements EventSerdeFactory {
         return DIOUnsupportedSerde.INSTANCE;
     }
 
-    public DataInputOutputSerde<Object> nullableEventOrUnderlying(EventType eventType) {
+    public DataInputOutputSerde nullableEventOrUnderlying(EventType eventType) {
         return DIOUnsupportedSerde.INSTANCE;
     }
 
@@ -60,11 +60,11 @@ public class EventSerdeFactoryDefault implements EventSerdeFactory {
         return null;
     }
 
-    public DataInputOutputSerde<Object> objectArrayMayNullNull(DataInputOutputSerde[] serdes) {
+    public DataInputOutputSerde objectArrayMayNullNull(DataInputOutputSerde[] serdes) {
         return DIOUnsupportedSerde.INSTANCE;
     }
 
-    public DataInputOutputSerde<Object> nullableEventArrayOrUnderlying(EventType eventType) {
+    public DataInputOutputSerde nullableEventArrayOrUnderlying(EventType eventType) {
         return DIOUnsupportedSerde.INSTANCE;
     }
 }

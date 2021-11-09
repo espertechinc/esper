@@ -14,7 +14,9 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
 
-import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.cast;
+import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.staticMethod;
+import static com.espertech.esper.common.internal.epl.util.EPTypeCollectionConst.*;
 
 public class JsonWriteForgeByMethod implements JsonWriteForge {
 
@@ -27,6 +29,10 @@ public class JsonWriteForgeByMethod implements JsonWriteForge {
     public CodegenExpression codegenWrite(JsonWriteForgeRefs refs, CodegenMethod method, CodegenClassScope classScope) {
         if (methodName.equals("writeJsonValue") || methodName.equals("writeJsonArray")) {
             return staticMethod(JsonWriteUtil.class, methodName, refs.getWriter(), refs.getName(), refs.getField());
+        } else if (methodName.equals("writeJsonMap")) {
+            return staticMethod(JsonWriteUtil.class, methodName, refs.getWriter(), cast(EPTYPE_MAP_STRING_OBJECT, refs.getField()));
+        } else if (methodName.equals("writeCollectionNumber")) {
+            return staticMethod(JsonWriteUtil.class, methodName, refs.getWriter(), cast(EPTYPE_COLLECTION_NUMBER, refs.getField()));
         } else {
             return staticMethod(JsonWriteUtil.class, methodName, refs.getWriter(), refs.getField());
         }

@@ -72,8 +72,8 @@ public class EPLVariablesInlinedClass {
         public void run(RegressionEnvironment env) {
             String epl = "inlined_class \"\"\"\n" +
                 "public class MyStateful implements java.io.Serializable {\n" +
-                "    private final int a;\n" +
-                "    private final int b;\n" +
+                "    private int a;\n" +
+                "    private int b;\n" +
                 "    public MyStateful(int a, int b) {\n" +
                 "        this.a = a;\n" +
                 "        this.b = b;\n" +

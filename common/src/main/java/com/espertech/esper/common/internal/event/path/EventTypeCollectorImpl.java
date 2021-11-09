@@ -151,7 +151,7 @@ public class EventTypeCollectorImpl implements EventTypeCollector {
         moduleEventTypes.put(eventType.getName(), eventType);
     }
 
-    public void registerSerde(EventTypeMetadata metadata, DataInputOutputSerde<Object> underlyingSerde, EPTypeClass underlyingClass) {
+    public void registerSerde(EventTypeMetadata metadata, DataInputOutputSerde underlyingSerde, EPTypeClass underlyingClass) {
         serdes.add(new EventTypeCollectedSerde(metadata, underlyingSerde, underlyingClass));
     }
 

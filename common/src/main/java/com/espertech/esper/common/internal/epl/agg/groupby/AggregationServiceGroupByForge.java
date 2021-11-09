@@ -39,6 +39,7 @@ import static com.espertech.esper.common.internal.context.module.EPStatementInit
 import static com.espertech.esper.common.internal.epl.agg.core.AggregationServiceCodegenNames.*;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.*;
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_EXPREVALCONTEXT;
+import static com.espertech.esper.common.internal.epl.util.EPTypeCollectionConst.EPTYPE_MAP_OBJECT_AGGROW;
 import static com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCode.instblock;
 
 /**
@@ -123,9 +124,9 @@ public class AggregationServiceGroupByForge implements AggregationServiceFactory
 
     public void ctorCodegen(CodegenCtor ctor, List<CodegenTypedParam> explicitMembers, CodegenClassScope classScope, AggregationClassNames classNames) {
         ctor.getCtorParams().add(new CodegenTypedParam(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT));
-        explicitMembers.add(new CodegenTypedParam(EPTypePremade.MAP.getEPType(), MEMBER_AGGREGATORSPERGROUP.getRef()));
-        explicitMembers.add(new CodegenTypedParam(EPTypePremade.OBJECT.getEPType(), MEMBER_CURRENTGROUPKEY.getRef()));
-        explicitMembers.add(new CodegenTypedParam(classNames.getRowTop(), MEMBER_CURRENTROW.getRef()));
+        explicitMembers.add(new CodegenTypedParam(EPTYPE_MAP_OBJECT_AGGROW, MEMBER_AGGREGATORSPERGROUP.getRef()));
+        explicitMembers.add(new CodegenTypedParam(EPTypePremade.OBJECT.getEPType(), MEMBER_CURRENTGROUPKEY.getRef()).setFinal(false));
+        explicitMembers.add(new CodegenTypedParam(classNames.getRowTop(), MEMBER_CURRENTROW.getRef()).setFinal(false));
         ctor.getBlock().assignRef(MEMBER_AGGREGATORSPERGROUP, newInstance(EPTypePremade.HASHMAP.getEPType()));
         if (aggGroupByDesc.isReclaimAged()) {
             AggSvcGroupByReclaimAgedImpl.ctorCodegenReclaim(ctor, explicitMembers, classScope, reclaimAge, reclaimFreq);

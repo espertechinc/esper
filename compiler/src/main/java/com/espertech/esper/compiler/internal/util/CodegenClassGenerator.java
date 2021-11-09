@@ -23,7 +23,7 @@ public class CodegenClassGenerator {
 
     private static final CodegenIndent INDENT = new CodegenIndent(true);
 
-    public static String compile(CodegenClass clazz) {
+    public static String generate(CodegenClass clazz) {
         // build members and imports
         Set<Class> classes = clazz.getReferencedClasses();
         Map<Class, String> imports = compileImports(classes);
@@ -171,7 +171,9 @@ public class CodegenClassGenerator {
             for (CodegenTypedParam param : optionalCtor.getCtorParams()) {
                 if (param.isMemberWhenCtorParam()) {
                     INDENT.indent(builder, indent);
-                    builder.append("final ");
+                    if (param.isFinal()) {
+                        builder.append("final ");
+                    }
                     param.renderAsMember(builder, imports);
                     builder.append(";\n");
                 }
@@ -188,7 +190,7 @@ public class CodegenClassGenerator {
             if (param.isStatic()) {
                 builder.append("static ");
             }
-            param.renderType(builder, imports, isInnerClass);
+            param.renderType(builder, imports);
             builder.append(" ").append(param.getName());
             param.renderInitializer(builder, imports, isInnerClass);
             builder.append(";\n");

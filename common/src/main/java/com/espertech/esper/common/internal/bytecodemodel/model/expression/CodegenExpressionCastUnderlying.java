@@ -40,7 +40,7 @@ public class CodegenExpressionCastUnderlying implements CodegenExpression {
         if (clazz != null) {
             appendClassName(builder, clazz, imports);
         } else {
-            builder.append(className);
+            appendClassName(builder, className);
         }
         builder.append(")");
         expression.render(builder, imports, isInnerClass);

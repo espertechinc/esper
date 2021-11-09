@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.compiler.internal.util;
 
+import com.espertech.esper.common.internal.compile.compiler.CompilerAbstractionClassCollection;
+import com.espertech.esper.common.internal.compile.compiler.CompilerAbstractionCompilationContext;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenPackageScope;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationIDGenerator;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClass;
@@ -20,13 +22,13 @@ import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableStmt
 import com.espertech.esper.common.internal.context.module.StatementFields;
 import com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQueryMethodForge;
 import com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQueryMethodProvider;
+import com.espertech.esper.compiler.client.CompilerPath;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class CompilerHelperFAFQuery {
-    public static String compileQuery(FAFQueryMethodForge query, String classPostfix, Map<String, byte[]> moduleBytes, ModuleCompileTimeServices compileTimeServices) throws StatementSpecCompileException {
+    public static String compileQuery(FAFQueryMethodForge query, String classPostfix, CompilerAbstractionClassCollection compilerState, ModuleCompileTimeServices compileTimeServices, CompilerPath path) throws StatementSpecCompileException {
 
         String statementFieldsClassName = CodeGenerationIDGenerator.generateClassNameSimple(StatementFields.class, classPostfix);
         CodegenPackageScope packageScope = new CodegenPackageScope(compileTimeServices.getPackageName(), statementFieldsClassName, compileTimeServices.isInstrumented(), compileTimeServices.getConfiguration().getCompiler().getByteCode());
@@ -54,14 +56,13 @@ public class CompilerHelperFAFQuery {
         packageScope.rewriteStatementFieldUse(classes);
 
         // add class-provided create-class to classpath
-        compileTimeServices.getClassProvidedCompileTimeResolver().addTo(moduleBytes);
+        compileTimeServices.getClassProvidedCompileTimeResolver().addTo(compilerState::add);
 
-        for (CodegenClass clazz : classes) {
-            JaninoCompiler.compile(clazz, moduleBytes, moduleBytes, compileTimeServices);
-        }
+        CompilerAbstractionCompilationContext ctx = new CompilerAbstractionCompilationContext(compileTimeServices, path.getCompileds());
+        compileTimeServices.getCompilerAbstraction().compileClasses(classes, ctx, compilerState);
 
         // remove path create-class class-provided byte code
-        compileTimeServices.getClassProvidedCompileTimeResolver().removeFrom(moduleBytes);
+        compileTimeServices.getClassProvidedCompileTimeResolver().removeFrom(compilerState::remove);
 
         return queryMethodProviderClassName;
     }

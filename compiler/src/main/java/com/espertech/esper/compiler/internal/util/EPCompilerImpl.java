@@ -95,7 +95,7 @@ public class EPCompilerImpl implements EPCompilerSPI {
             }
 
             // compile
-            return CompilerHelperModuleProvider.compile(compilables, moduleName, moduleProperties, compileTimeServices, arguments.getOptions());
+            return CompilerHelperModuleProvider.compile(compilables, moduleName, moduleProperties, compileTimeServices, arguments.getOptions(), arguments.getPath());
         } catch (EPCompileException ex) {
             throw ex;
         } catch (ParseException t) {
@@ -170,7 +170,7 @@ public class EPCompilerImpl implements EPCompilerSPI {
         addModuleProperty(moduleProperties, ModuleProperty.IMPORTS, toNullOrArray(module.getImports()));
 
         // compile
-        return CompilerHelperModuleProvider.compile(compilables, moduleName, moduleProperties, compileTimeServices, arguments.getOptions());
+        return CompilerHelperModuleProvider.compile(compilables, moduleName, moduleProperties, compileTimeServices, arguments.getOptions(), arguments.getPath());
     }
 
     public Module readModule(InputStream stream, String uri) throws IOException, ParseException {

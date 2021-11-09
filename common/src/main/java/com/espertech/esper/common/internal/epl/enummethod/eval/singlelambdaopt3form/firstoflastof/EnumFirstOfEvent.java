@@ -61,7 +61,7 @@ public class EnumFirstOfEvent extends EnumForgeBasePlain {
 
     public CodegenExpression codegen(EnumForgeCodegenParams premade, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
-        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(EventBean.EPTYPE, EnumFirstOfEvent.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(EventBean.EPTYPE, EnumFirstOfEvent.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMSCOLLBEAN);
 
         CodegenBlock block = methodNode.getBlock();
         CodegenBlock forEach = block.forEach(EventBean.EPTYPE, "next", EnumForgeCodegenNames.REF_ENUMCOLL)

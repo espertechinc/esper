@@ -51,9 +51,9 @@ import com.espertech.esper.common.internal.epl.variable.core.Variable;
 public interface ResultSetProcessorHelperFactory {
     EPTypeClass EPTYPE = new EPTypeClass(ResultSetProcessorHelperFactory.class);
 
-    ResultSetProcessorRowPerGroupUnboundHelper makeRSRowPerGroupUnboundGroupRep(EPType[] groupKeyTypes, DataInputOutputSerde<Object> serde, EventType eventType, StateMgmtSetting stateMgmtSettings, ExprEvaluatorContext exprEvaluatorContext);
+    ResultSetProcessorRowPerGroupUnboundHelper makeRSRowPerGroupUnboundGroupRep(EPType[] groupKeyTypes, DataInputOutputSerde serde, EventType eventType, StateMgmtSetting stateMgmtSettings, ExprEvaluatorContext exprEvaluatorContext);
 
-    ResultSetProcessorGroupedOutputFirstHelper makeRSGroupedOutputFirst(ExprEvaluatorContext exprEvaluatorContext, EPType[] groupKeyTypes, OutputConditionPolledFactory optionalOutputFirstConditionFactory, AggregationGroupByRollupDesc optionalGroupByRollupDesc, int optionalRollupLevel, DataInputOutputSerde<Object> serde, StateMgmtSetting stateMgmtSettings);
+    ResultSetProcessorGroupedOutputFirstHelper makeRSGroupedOutputFirst(ExprEvaluatorContext exprEvaluatorContext, EPType[] groupKeyTypes, OutputConditionPolledFactory optionalOutputFirstConditionFactory, AggregationGroupByRollupDesc optionalGroupByRollupDesc, int optionalRollupLevel, DataInputOutputSerde serde, StateMgmtSetting stateMgmtSettings);
 
     OutputProcessViewConditionDeltaSet makeOutputConditionChangeSet(EventType[] eventTypes, ExprEvaluatorContext exprEvaluatorContext, StateMgmtSetting stateMgmtSettings);
 
@@ -81,15 +81,15 @@ public interface ResultSetProcessorHelperFactory {
 
     ResultSetProcessorRowForAllOutputLastHelper makeRSRowForAllOutputLast(ResultSetProcessorRowForAll processor, ExprEvaluatorContext exprEvaluatorContext, StateMgmtSetting stateMgmtSetting);
 
-    ResultSetProcessorGroupedOutputAllGroupReps makeRSGroupedOutputAllNoOpt(ExprEvaluatorContext exprEvaluatorContext, EPType[] groupKeyTypes, DataInputOutputSerde<Object> serde, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
+    ResultSetProcessorGroupedOutputAllGroupReps makeRSGroupedOutputAllNoOpt(ExprEvaluatorContext exprEvaluatorContext, EPType[] groupKeyTypes, DataInputOutputSerde serde, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
 
-    ResultSetProcessorRowPerGroupOutputAllHelper makeRSRowPerGroupOutputAllOpt(ExprEvaluatorContext exprEvaluatorContext, ResultSetProcessorRowPerGroup processor, EPType[] groupKeyTypes, DataInputOutputSerde<Object> serde, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
+    ResultSetProcessorRowPerGroupOutputAllHelper makeRSRowPerGroupOutputAllOpt(ExprEvaluatorContext exprEvaluatorContext, ResultSetProcessorRowPerGroup processor, EPType[] groupKeyTypes, DataInputOutputSerde serde, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
 
-    ResultSetProcessorRowPerGroupOutputLastHelper makeRSRowPerGroupOutputLastOpt(ExprEvaluatorContext exprEvaluatorContext, ResultSetProcessorRowPerGroup processor, EPType[] groupKeyTypes, DataInputOutputSerde<Object> serde, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
+    ResultSetProcessorRowPerGroupOutputLastHelper makeRSRowPerGroupOutputLastOpt(ExprEvaluatorContext exprEvaluatorContext, ResultSetProcessorRowPerGroup processor, EPType[] groupKeyTypes, DataInputOutputSerde serde, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
 
-    ResultSetProcessorAggregateGroupedOutputAllHelper makeRSAggregateGroupedOutputAll(ExprEvaluatorContext exprEvaluatorContext, ResultSetProcessorAggregateGrouped processor, EPType[] groupKeyTypes, DataInputOutputSerde<Object> serde, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
+    ResultSetProcessorAggregateGroupedOutputAllHelper makeRSAggregateGroupedOutputAll(ExprEvaluatorContext exprEvaluatorContext, ResultSetProcessorAggregateGrouped processor, EPType[] groupKeyTypes, DataInputOutputSerde serde, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
 
-    ResultSetProcessorAggregateGroupedOutputLastHelper makeRSAggregateGroupedOutputLastOpt(ExprEvaluatorContext exprEvaluatorContext, ResultSetProcessorAggregateGrouped processor, EPType[] groupKeyTypes, DataInputOutputSerde<Object> serde, StateMgmtSetting stateMgmtSettings);
+    ResultSetProcessorAggregateGroupedOutputLastHelper makeRSAggregateGroupedOutputLastOpt(ExprEvaluatorContext exprEvaluatorContext, ResultSetProcessorAggregateGrouped processor, EPType[] groupKeyTypes, DataInputOutputSerde serde, StateMgmtSetting stateMgmtSettings);
 
     ResultSetProcessorRowPerGroupRollupOutputLastHelper makeRSRowPerGroupRollupLast(ExprEvaluatorContext exprEvaluatorContext, ResultSetProcessorRowPerGroupRollup processor, EPType[] groupKeyTypes, EventType[] eventTypes, StateMgmtSetting stateMgmtSettings);
 

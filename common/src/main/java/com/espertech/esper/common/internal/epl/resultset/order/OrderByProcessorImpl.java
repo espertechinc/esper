@@ -35,6 +35,7 @@ import static com.espertech.esper.common.internal.epl.expression.codegen.ExprFor
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_AGGREGATIONSVC;
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_EXPREVALCONTEXT;
 import static com.espertech.esper.common.internal.epl.resultset.order.OrderByProcessorCodegenNames.*;
+import static com.espertech.esper.common.internal.epl.util.EPTypeCollectionConst.EPTYPE_LIST_GROUPBYROLLUPKEY;
 import static com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCode.instblock;
 
 /**
@@ -172,7 +173,7 @@ public class OrderByProcessorImpl {
             forEach.incrementRef("count");
             method.getBlock().methodReturn(staticMethod(Arrays.class, "asList", ref("sortProperties")));
         };
-        return namedMethods.addMethod(EPTypePremade.LIST.getEPType(), "createSortPropertiesWRollup", CodegenNamedParam.from(EPTypePremade.LIST.getEPType(), REF_ORDERCURRENTGENERATORS.getRef(), EPTypePremade.BOOLEANPRIMITIVE.getEPType(), REF_ISNEWDATA.getRef(), ExprEvaluatorContext.EPTYPE, REF_EXPREVALCONTEXT.getRef(), AggregationService.EPTYPE, MEMBER_AGGREGATIONSVC.getRef()), OrderByProcessorImpl.class, classScope, code);
+        return namedMethods.addMethod(EPTypePremade.LIST.getEPType(), "createSortPropertiesWRollup", CodegenNamedParam.from(EPTYPE_LIST_GROUPBYROLLUPKEY, REF_ORDERCURRENTGENERATORS.getRef(), EPTypePremade.BOOLEANPRIMITIVE.getEPType(), REF_ISNEWDATA.getRef(), ExprEvaluatorContext.EPTYPE, REF_EXPREVALCONTEXT.getRef(), AggregationService.EPTYPE, MEMBER_AGGREGATIONSVC.getRef()), OrderByProcessorImpl.class, classScope, code);
     }
 
     public static CodegenMethod determineLocalMinMaxCodegen(OrderByProcessorForgeImpl forge, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {

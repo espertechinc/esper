@@ -247,6 +247,9 @@ public class EPChainableTypeHelper {
     public static EPTypeClass getCodegenReturnType(EPChainableType theType) {
         if (theType instanceof EPChainableTypeEventMulti) {
             EPChainableTypeEventMulti multi = (EPChainableTypeEventMulti) theType;
+            if (multi.getContainer().isArray()) {
+                return EventBean.EPTYPEARRAY;
+            }
             return EPTypeClassParameterized.from(multi.getContainer(), EventBean.EPTYPE);
         } else if (theType instanceof EPChainableTypeEventSingle) {
             return EventBean.EPTYPE;

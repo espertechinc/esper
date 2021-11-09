@@ -35,9 +35,15 @@ public class ClassProvidedCompileTimeRegistry implements CompileTimeRegistry {
         return classes;
     }
 
-    public void addTo(Map<String, byte[]> additionalClasses) {
+    public void addTo(ClassProvidedClassesAdd add) {
         for (Map.Entry<String, ClassProvided> entry : classes.entrySet()) {
-            additionalClasses.putAll(entry.getValue().getBytes());
+            add.add(entry.getValue().getBytes());
+        }
+    }
+
+    public void addTo(Map<String, byte[]> bytes) {
+        for (Map.Entry<String, ClassProvided> entry : classes.entrySet()) {
+            bytes.putAll(entry.getValue().getBytes());
         }
     }
 }

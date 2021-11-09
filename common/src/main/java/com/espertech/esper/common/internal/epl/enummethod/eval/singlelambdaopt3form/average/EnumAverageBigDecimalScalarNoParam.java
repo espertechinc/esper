@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.epl.enummethod.eval.singlelambdaopt3form.average;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
@@ -58,9 +59,10 @@ public class EnumAverageBigDecimalScalarNoParam extends EnumForgeBasePlain imple
 
     public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
         CodegenExpression math = codegenClassScope.addOrGetFieldSharable(new MathContextCodegenField(optionalMathContext));
-        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.BIGDECIMAL.getEPType(), EnumAverageScalarNoParam.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS).getBlock()
+        CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.BIGDECIMAL.getEPType(), EnumAverageScalarNoParam.class, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMSCOLLOBJ).getBlock()
                 .declareVar(AggregatorAvgBigDecimal.EPTYPE, "agg", newInstance(AggregatorAvgBigDecimal.EPTYPE, math))
-                .forEach(EPTypePremade.NUMBER.getEPType(), "num", EnumForgeCodegenNames.REF_ENUMCOLL)
+                .declareVar(new EPTypeClassParameterized(Collection.class, EPTypePremade.NUMBER.getEPType()), "coll", EnumForgeCodegenNames.REF_ENUMCOLL)
+                .forEach(EPTypePremade.NUMBER.getEPType(), "num", ref("coll"))
                 .ifRefNull("num").blockContinue()
                 .expression(exprDotMethod(ref("agg"), "enter", ref("num")))
                 .blockEnd()

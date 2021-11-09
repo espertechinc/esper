@@ -32,7 +32,7 @@ public class SortWindowViewFactory implements DataWindowViewFactory, DataWindowV
 
     protected ExprEvaluator[] sortCriteriaEvaluators;
     protected EPType[] sortCriteriaTypes;
-    protected DataInputOutputSerde<Object>[] sortSerdes;
+    protected DataInputOutputSerde[] sortSerdes;
     protected boolean[] isDescendingValues;
     protected ExprEvaluator size;
     protected boolean useCollatorSort;
@@ -116,7 +116,7 @@ public class SortWindowViewFactory implements DataWindowViewFactory, DataWindowV
         this.useCollatorSort = useCollatorSort;
     }
 
-    public void setSortSerdes(DataInputOutputSerde<Object>[] sortSerdes) {
+    public void setSortSerdes(DataInputOutputSerde[] sortSerdes) {
         this.sortSerdes = sortSerdes;
     }
 

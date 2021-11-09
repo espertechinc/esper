@@ -35,6 +35,10 @@ public class CompilerOptions {
     private InlinedClassInspectionOption inlinedClassInspection;
     private StateMgmtSettingOption stateMgmtSetting;
     private CompilerPathCache pathCache;
+    private CompilerHookOption compilerHook;
+
+    public CompilerOptions() {
+    }
 
     /**
      * Returns the callback that determines the access modifier of a given event type
@@ -346,5 +350,37 @@ public class CompilerOptions {
      */
     public void setPathCache(CompilerPathCache pathCache) {
         this.pathCache = pathCache;
+    }
+
+    /**
+     * Experimental API: Returns the provider of the compiler to use
+     * <p>
+     *     NOTE: Experimental API and not supported
+     * </p>
+     * @return compiler option or null to use the default Janino-based compiler
+     */
+    public CompilerHookOption getCompilerHook() {
+        return compilerHook;
+    }
+
+    /**
+     * Experimental API: Sets the provider of the compiler to use
+     * <p>
+     *     NOTE: Experimental API and not supported
+     * </p>
+     * <p>
+     *     Experimental - Not Supported - Set the JDK compiler like this:
+     * </p>
+     * <pre>
+     *         compilerHook = new CompilerHookOption() {
+     *             public CompilerAbstraction getValue(CompilerHookContext env) {
+     *                 return new CompilerAbstractionToolProvider(ToolProvider.getSystemJavaCompiler());
+     *             }
+     *         };
+     * </pre>
+     * @param compilerHook provider of the compiler to that replaces the default Janino-based compiler
+     */
+    public void setCompilerHook(CompilerHookOption compilerHook) {
+        this.compilerHook = compilerHook;
     }
 }

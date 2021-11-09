@@ -16,10 +16,10 @@ import com.espertech.esper.common.client.type.EPTypeClass;
 
 public class EventTypeCollectedSerde {
     private final EventTypeMetadata metadata;
-    private final DataInputOutputSerde<Object> underlyingSerde;
+    private final DataInputOutputSerde underlyingSerde;
     private final EPTypeClass underlying;
 
-    public EventTypeCollectedSerde(EventTypeMetadata metadata, DataInputOutputSerde<Object> underlyingSerde, EPTypeClass underlying) {
+    public EventTypeCollectedSerde(EventTypeMetadata metadata, DataInputOutputSerde underlyingSerde, EPTypeClass underlying) {
         this.metadata = metadata;
         this.underlyingSerde = underlyingSerde;
         this.underlying = underlying;
@@ -29,7 +29,7 @@ public class EventTypeCollectedSerde {
         return metadata;
     }
 
-    public DataInputOutputSerde<Object> getUnderlyingSerde() {
+    public DataInputOutputSerde getUnderlyingSerde() {
         return underlyingSerde;
     }
 

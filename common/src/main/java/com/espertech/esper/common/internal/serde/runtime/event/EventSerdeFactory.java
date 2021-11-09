@@ -20,11 +20,11 @@ public interface EventSerdeFactory {
     void verifyHADeployment(boolean targetHA) throws ExprValidationException;
     DataInputOutputSerde<EventBean> nullableEvent(EventType eventType);
     DataInputOutputSerde<EventBean> nullableEventArray(EventType eventType);
-    DataInputOutputSerde<Object> nullableEventOrUnderlying(EventType eventType);
-    DataInputOutputSerde<Object> nullableEventArrayOrUnderlying(EventType eventType);
+    DataInputOutputSerde nullableEventOrUnderlying(EventType eventType);
+    DataInputOutputSerde nullableEventArrayOrUnderlying(EventType eventType);
     DIOSerdeTreeMapEventsMayDeque treeMapEventsMayDeque(DataInputOutputSerde[] criteriaSerdes, EventType eventType);
-    DataInputOutputSerde<Object> objectArrayMayNullNull(DataInputOutputSerde[] serdes);
-    DataInputOutputSerde<Object> listEvents(EventType eventType);
+    DataInputOutputSerde objectArrayMayNullNull(DataInputOutputSerde[] serdes);
+    DataInputOutputSerde listEvents(EventType eventType);
     DataInputOutputSerde linkedHashMapEventsAndInt(EventType eventType);
     DataInputOutputSerde refCountedSetAtomicInteger(EventType eventType);
     DataInputOutputSerde<EventBean> nullableEventMayCollate(EventType eventType);

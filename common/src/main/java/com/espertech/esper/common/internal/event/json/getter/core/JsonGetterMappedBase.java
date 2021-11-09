@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.util.CollectionUtil;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.common.internal.epl.util.EPTypeCollectionConst.EPTYPE_MAP_STRING_OBJECT;
 
 public abstract class JsonGetterMappedBase implements JsonEventPropertyGetter {
     protected final String key;
@@ -35,7 +36,7 @@ public abstract class JsonGetterMappedBase implements JsonEventPropertyGetter {
     }
 
     public final CodegenExpression underlyingGetCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return staticMethod(CollectionUtil.class, "mapValueForKey", exprDotName(underlyingExpression, getFieldName()), constant(key));
+        return staticMethod(CollectionUtil.class, "mapValueForKey", cast(EPTYPE_MAP_STRING_OBJECT, exprDotName(underlyingExpression, getFieldName())), constant(key));
     }
 
     public final CodegenExpression eventBeanExistsCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
@@ -43,7 +44,7 @@ public abstract class JsonGetterMappedBase implements JsonEventPropertyGetter {
     }
 
     public final CodegenExpression underlyingExistsCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
-        return staticMethod(CollectionUtil.class, "mapExistsForKey", exprDotName(underlyingExpression, getFieldName()), constant(key));
+        return staticMethod(CollectionUtil.class, "mapExistsForKey", cast(EPTYPE_MAP_STRING_OBJECT, exprDotName(underlyingExpression, getFieldName())), constant(key));
     }
 
     public final CodegenExpression eventBeanFragmentCodegen(CodegenExpression beanExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {

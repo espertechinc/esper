@@ -38,7 +38,7 @@ public abstract class TableBase implements Table {
     protected AggregationRowFactory aggregationRowFactory;
     protected TableSerdes tableSerdes;
     protected EventPropertyValueGetter primaryKeyGetter;
-    protected DataInputOutputSerde<Object> primaryKeySerde;
+    protected DataInputOutputSerde primaryKeySerde;
     protected MultiKeyFromObjectArray primaryKeyObjectArrayTransform;
     protected MultiKeyFromMultiKey primaryKeyIntoTableTransform;
     protected Set<TableUpdateStrategyRedoCallback> updateStrategyRedoCallbacks = new HashSet<>(4);
@@ -70,7 +70,7 @@ public abstract class TableBase implements Table {
         this.primaryKeyGetter = primaryKeyGetter;
     }
 
-    public void setPrimaryKeySerde(DataInputOutputSerde<Object> primaryKeySerde) {
+    public void setPrimaryKeySerde(DataInputOutputSerde primaryKeySerde) {
         this.primaryKeySerde = primaryKeySerde;
     }
 
@@ -191,7 +191,7 @@ public abstract class TableBase implements Table {
         return primaryKeyObjectArrayTransform;
     }
 
-    public DataInputOutputSerde<Object> getPrimaryKeySerde() {
+    public DataInputOutputSerde getPrimaryKeySerde() {
         return primaryKeySerde;
     }
 }

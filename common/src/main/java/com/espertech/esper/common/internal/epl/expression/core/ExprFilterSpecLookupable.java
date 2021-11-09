@@ -27,10 +27,10 @@ public class ExprFilterSpecLookupable {
     private transient final ExprEventEvaluator eval;
     private final EPTypeClass returnType;
     private final boolean isNonPropertyEval;
-    private final DataInputOutputSerde<Object> valueSerde;
+    private final DataInputOutputSerde valueSerde;
     private transient final ExprEvaluator expr;
 
-    public ExprFilterSpecLookupable(String expression, ExprEventEvaluator eval, ExprEvaluator expr, EPTypeClass returnType, boolean isNonPropertyEval, DataInputOutputSerde<Object> valueSerde) {
+    public ExprFilterSpecLookupable(String expression, ExprEventEvaluator eval, ExprEvaluator expr, EPTypeClass returnType, boolean isNonPropertyEval, DataInputOutputSerde valueSerde) {
         this.expression = expression;
         this.eval = eval;
         this.expr = expr;
@@ -80,7 +80,7 @@ public class ExprFilterSpecLookupable {
         return isNonPropertyEval;
     }
 
-    public DataInputOutputSerde<Object> getValueSerde() {
+    public DataInputOutputSerde getValueSerde() {
         return valueSerde;
     }
 

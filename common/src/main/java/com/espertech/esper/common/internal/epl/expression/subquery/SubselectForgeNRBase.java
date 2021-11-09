@@ -30,6 +30,7 @@ import static com.espertech.esper.common.internal.epl.expression.subquery.Subsel
 import static com.espertech.esper.common.internal.epl.expression.subquery.SubselectForgeCodegenUtil.REF_EVENTS_SHIFTED;
 import static com.espertech.esper.common.internal.epl.expression.subquery.SubselectForgeNRSymbol.NAME_LEFTRESULT;
 import static com.espertech.esper.common.internal.epl.expression.subquery.SubselectForgeNRSymbol.REF_LEFTRESULT;
+import static com.espertech.esper.common.internal.epl.util.EPTypeCollectionConst.EPTYPE_COLLECTION_EVENTBEAN;
 
 public abstract class SubselectForgeNRBase implements SubselectForgeNR {
     protected final ExprSubselectNode subselect;
@@ -60,7 +61,7 @@ public abstract class SubselectForgeNRBase implements SubselectForgeNR {
         SubselectForgeNRSymbol nrSymbols = new SubselectForgeNRSymbol(leftResultType);
         CodegenMethod child = parent.makeChildWithScope((EPTypeClass) subselect.getEvaluationType(), this.getClass(), nrSymbols, classScope)
                 .addParam(leftResultType, NAME_LEFTRESULT).addParam(EventBean.EPTYPEARRAY, NAME_EPS).addParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA)
-                .addParam(EPTypePremade.COLLECTION.getEPType(), NAME_MATCHINGEVENTS).addParam(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
+                .addParam(EPTYPE_COLLECTION_EVENTBEAN, NAME_MATCHINGEVENTS).addParam(ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT);
         child.getBlock().methodReturn(codegenEvaluateInternal(child, nrSymbols, classScope));
         method.getBlock().methodReturn(localMethod(child, REF_LEFTRESULT, REF_EVENTS_SHIFTED, symbols.getAddIsNewData(method), symbols.getAddMatchingEvents(method), symbols.getAddExprEvalCtx(method)));
 

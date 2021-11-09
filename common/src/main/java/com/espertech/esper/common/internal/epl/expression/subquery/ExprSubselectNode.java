@@ -39,6 +39,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectEvalMatchSymbol.NAME_MATCHINGEVENTS;
 import static com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectEvalMatchSymbol.REF_MATCHINGEVENTS;
 import static com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode.SubselectEvaluationType.*;
+import static com.espertech.esper.common.internal.epl.util.EPTypeCollectionConst.EPTYPE_COLLECTION_EVENTBEAN;
 
 /**
  * Represents a subselect in an expression tree.
@@ -348,7 +349,7 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
 
         // process matching events
         ExprSubselectEvalMatchSymbol evalMatchSymbol = new ExprSubselectEvalMatchSymbol();
-        CodegenMethod processMethod = method.makeChildWithScope(resultType, ExprSubselectNode.class, evalMatchSymbol, classScope).addParam(EPTypePremade.COLLECTION.getEPType(), NAME_MATCHINGEVENTS).addParam(ExprForgeCodegenNames.PARAMS);
+        CodegenMethod processMethod = method.makeChildWithScope(resultType, ExprSubselectNode.class, evalMatchSymbol, classScope).addParam(EPTYPE_COLLECTION_EVENTBEAN, NAME_MATCHINGEVENTS).addParam(ExprForgeCodegenNames.PARAMS);
         CodegenExpression process;
         if (evaluationType == PLAIN) {
             process = subselectNode.evalMatchesPlainCodegen(processMethod, evalMatchSymbol, classScope);

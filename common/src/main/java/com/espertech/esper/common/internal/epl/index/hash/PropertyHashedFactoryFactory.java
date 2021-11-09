@@ -27,12 +27,12 @@ public class PropertyHashedFactoryFactory extends EventTableFactoryFactoryBase {
     private final boolean unique;
     private final EventPropertyValueGetter valueGetter;
     private final MultiKeyFromObjectArray transformFireAndForget;
-    private final DataInputOutputSerde<Object> keySerde;
+    private final DataInputOutputSerde keySerde;
     private final StateMgmtSetting stateMgmtSettings;
 
     public PropertyHashedFactoryFactory(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget,
                                         String[] indexProps, boolean unique, EventPropertyValueGetter valueGetter,
-                                        MultiKeyFromObjectArray transformFireAndForget, DataInputOutputSerde<Object> keySerde,
+                                        MultiKeyFromObjectArray transformFireAndForget, DataInputOutputSerde keySerde,
                                         StateMgmtSetting stateMgmtSettings) {
         super(indexedStreamNum, subqueryNum, isFireAndForget);
         this.indexProps = indexProps;

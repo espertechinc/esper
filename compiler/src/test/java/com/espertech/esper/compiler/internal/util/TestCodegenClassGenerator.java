@@ -25,6 +25,6 @@ public class TestCodegenClassGenerator extends TestCase {
         ctor.getBlock().declareVar(EPTypePremade.COLLECTION.getEPType(), "utilcoll", constantNull());
         ctor.getBlock().declareVar(EPTypePremade.INTEGERPRIMITIVE.getEPType(), "anint", constant(0));
         CodegenClass clazz = new CodegenClass(CodegenClassType.STATEMENTFIELDS, null, "ABC", classScope, Collections.emptyList(), ctor, methods, Collections.emptyList());
-        System.out.println(CodegenClassGenerator.compile(clazz));
+        System.out.println(CodegenClassGenerator.generate(clazz));
     }
 }

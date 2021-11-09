@@ -13,6 +13,8 @@ package com.espertech.esper.common.internal.epl.expression.dot.core;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPType;
 import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.client.type.EPTypeClassParameterized;
+import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
@@ -135,11 +137,26 @@ public class ExprDotNodeForgeRootChild extends ExprDotNodeForge implements ExprE
     }
 
     public EventType getEventTypeCollection(StatementRawInfo statementRawInfo, StatementCompileTimeServices compileTimeServices) throws ExprValidationException {
-        return innerForge.getEventTypeCollection();
+        ExprDotForge last = forgesIteratorEventBean[forgesIteratorEventBean.length - 1];
+        EPChainableType type = last.getTypeInfo();
+        if (type instanceof EPChainableTypeEventMulti) {
+            return ((EPChainableTypeEventMulti) type).getComponent();
+        }
+        return null;
     }
 
     public EPTypeClass getComponentTypeCollection() throws ExprValidationException {
-        return innerForge.getComponentTypeCollection();
+        ExprDotForge last = forgesUnpacking[forgesUnpacking.length - 1];
+        EPChainableType type = last.getTypeInfo();
+        EPType normalized = EPChainableTypeHelper.getNormalizedEPType(type);
+        if (JavaClassHelper.isSubclassOrImplementsInterface(normalized, Collection.class)) {
+            if (normalized instanceof EPTypeClassParameterized) {
+                return ((EPTypeClassParameterized) normalized).getParameters()[0];
+            } else {
+                return EPTypePremade.OBJECT.getEPType();
+            }
+        }
+        return null;
     }
 
     public EventType getEventTypeSingle(StatementRawInfo statementRawInfo, StatementCompileTimeServices compileTimeServices) throws ExprValidationException {

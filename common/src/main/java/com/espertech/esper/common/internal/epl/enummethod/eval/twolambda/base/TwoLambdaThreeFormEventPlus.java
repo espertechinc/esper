@@ -56,7 +56,7 @@ public abstract class TwoLambdaThreeFormEventPlus extends EnumForgeBaseWFields {
         CodegenExpressionField resultTypeMember = codegenClassScope.addFieldUnshared(true, ObjectArrayEventType.EPTYPE, cast(ObjectArrayEventType.EPTYPE, EventTypeUtility.resolveTypeCodegen(getFieldEventType(), EPStatementInitServices.REF)));
 
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
-        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(EPTypePremade.MAP.getEPType(), getClass(), scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(EPTypePremade.MAP.getEPType(), getClass(), scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMSCOLLBEAN);
         boolean hasSize = numParameters >= 3;
 
         CodegenExpression returnIfEmpty = returnIfEmptyOptional();

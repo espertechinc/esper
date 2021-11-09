@@ -35,8 +35,8 @@ import com.espertech.esper.common.internal.view.core.ViewFactoryForge;
 import com.espertech.esper.common.internal.view.core.ViewForgeEnv;
 
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class StateMgmtSettingsProviderDefault implements StateMgmtSettingsProvider {
     public final static StateMgmtSettingsProviderDefault INSTANCE = new StateMgmtSettingsProviderDefault();
@@ -88,7 +88,7 @@ public class StateMgmtSettingsProviderDefault implements StateMgmtSettingsProvid
         return StateMgmtSettingDefault.INSTANCE;
     }
 
-    public void spec(List<FabricStatement> formatStatements, ModuleCompileTimeServices compileTimeServices, ConcurrentHashMap<String, byte[]> moduleBytes) {
+    public void spec(List<FabricStatement> formatStatements, ModuleCompileTimeServices compileTimeServices, Map<String, byte[]> moduleBytes) {
         throw new IllegalStateException("Not implemented for non-HA compile");
     }
 

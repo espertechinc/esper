@@ -157,7 +157,7 @@ public interface EPStatementInitServices {
 
     void activateNamedWindow(String name);
 
-    void activateVariable(String name, DataInputOutputSerde<Object> serde);
+    void activateVariable(String name, DataInputOutputSerde serde);
 
     void activateContext(String name, ContextDefinition definition);
 

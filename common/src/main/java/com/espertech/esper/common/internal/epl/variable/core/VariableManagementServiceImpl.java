@@ -253,7 +253,7 @@ public class VariableManagementServiceImpl implements VariableManagementService 
         }
     }
 
-    public synchronized void addVariable(String deploymentId, VariableMetaData metaData, String optionalDeploymentIdContext, DataInputOutputSerde<Object> optionalSerde) {
+    public synchronized void addVariable(String deploymentId, VariableMetaData metaData, String optionalDeploymentIdContext, DataInputOutputSerde optionalSerde) {
 
         // check if already exists
         VariableDeployment deploymentEntry = deploymentsWithVariables.get(deploymentId);

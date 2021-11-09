@@ -10,24 +10,32 @@
  */
 package com.espertech.esper.compiler.internal.util;
 
+import com.espertech.esper.common.client.EPCompiled;
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerByteCode;
-import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClass;
+import com.espertech.esper.common.internal.compile.compiler.CompilerAbstraction;
+import com.espertech.esper.common.internal.compile.compiler.CompilerAbstractionClassCollection;
+import com.espertech.esper.common.internal.compile.compiler.CompilerAbstractionCompilationContext;
 import com.espertech.esper.common.internal.compile.stage3.ModuleCompileTimeServices;
 import com.espertech.esper.compiler.client.EPCompileException;
 
+import java.util.List;
 import java.util.concurrent.*;
 
 class CompilerPool {
     private final ModuleCompileTimeServices compileTimeServices;
-    private final ConcurrentHashMap<String, byte[]> moduleBytes;
+    private final List<EPCompiled> path;
+    private final CompilerAbstraction compilerAbstraction;
+    private final CompilerAbstractionClassCollection compilationState;
 
     private ExecutorService compilerThreadPool;
     private Future<CompilableItemResult>[] futures;
     private Semaphore semaphore;
 
-    CompilerPool(int size, ModuleCompileTimeServices compileTimeServices, ConcurrentHashMap<String, byte[]> moduleBytes) {
+    CompilerPool(int size, ModuleCompileTimeServices compileTimeServices, List<EPCompiled> path, CompilerAbstraction compilerAbstraction, CompilerAbstractionClassCollection compilationState) {
         this.compileTimeServices = compileTimeServices;
-        this.moduleBytes = moduleBytes;
+        this.path = path;
+        this.compilerAbstraction = compilerAbstraction;
+        this.compilationState = compilationState;
 
         ConfigurationCompilerByteCode config = compileTimeServices.getConfiguration().getCompiler().getByteCode();
         int numThreads = config.getThreadPoolCompilerNumThreads();
@@ -43,21 +51,20 @@ class CompilerPool {
     void submit(int statementNumber, CompilableItem item) throws InterruptedException {
         // We are adding all class-provided classes to the output.
         // Later we remove the create-class classes.
-        moduleBytes.putAll(item.getClassesProvided());
+        compilationState.add(item.getClassesProvided());
 
         // no thread pool, compile right there
         if (compilerThreadPool == null) {
             try {
-                for (CodegenClass clazz : item.getClasses()) {
-                    JaninoCompiler.compile(clazz, moduleBytes, moduleBytes, compileTimeServices);
-                }
+                CompilerAbstractionCompilationContext context = new CompilerAbstractionCompilationContext(compileTimeServices, path);
+                compilerAbstraction.compileClasses(item.getClasses(), context, compilationState);
             } finally {
-                item.getPostCompileLatch().completed(moduleBytes);
+                item.getPostCompileLatch().completed(compilationState.getClasses());
             }
             return;
         }
 
-        CompileCallable callable = new CompileCallable(item, compileTimeServices, semaphore, moduleBytes);
+        CompileCallable callable = new CompileCallable(item, compileTimeServices, path, semaphore, compilerAbstraction, compilationState);
         semaphore.acquire();
         futures[statementNumber] = compilerThreadPool.submit(callable);
     }

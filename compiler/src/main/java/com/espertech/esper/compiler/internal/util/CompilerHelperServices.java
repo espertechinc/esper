@@ -17,6 +17,7 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.ConfigurationException;
 import com.espertech.esper.common.client.configuration.compiler.*;
+import com.espertech.esper.common.internal.compile.compiler.CompilerAbstraction;
 import com.espertech.esper.common.client.serde.SerdeProvider;
 import com.espertech.esper.common.client.serde.SerdeProviderFactory;
 import com.espertech.esper.common.client.serde.SerdeProviderFactoryContext;
@@ -106,6 +107,8 @@ import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.CompilerOptions;
 import com.espertech.esper.compiler.client.CompilerPath;
 import com.espertech.esper.compiler.client.EPCompileException;
+import com.espertech.esper.compiler.internal.compiler.abstraction.CompilerAbstractionJanino;
+import com.espertech.esper.compiler.client.option.CompilerHookContext;
 
 import java.util.*;
 
@@ -428,7 +431,15 @@ public class CompilerHelperServices {
         SerdeEventTypeCompileTimeRegistry serdeEventTypeRegistry = new SerdeEventTypeCompileTimeRegistryImpl(targetHA);
         SerdeCompileTimeResolver serdeResolver = targetHA ? makeSerdeResolver(configuration.getCompiler().getSerde(), configuration.getCommon().getTransientConfiguration()) : SerdeCompileTimeResolverNonHA.INSTANCE;
 
-        return new ModuleCompileTimeServices(compilerServices, configuration, classProvidedCompileTimeRegistry, classProvidedCompileTimeResolver, contextCompileTimeRegistry, contextCompileTimeResolver, beanEventTypeStemService, beanEventTypeFactoryPrivate, databaseConfigServiceCompileTime, classpathImportServiceCompileTime, exprDeclaredCompileTimeRegistry, exprDeclaredCompileTimeResolver, eventTypeAvroHandler, eventTypeCompileRegistry, eventTypeCompileTimeResolver, eventTypeRepositoryPreconfigured, isFireAndForget, indexCompileTimeRegistry, moduleDependencies, moduleVisibilityRules, namedWindowCompileTimeResolver, namedWindowCompileTimeRegistry,
+        CompilerAbstraction compilerAbstraction = CompilerAbstractionJanino.INSTANCE;
+        if (arguments.getOptions() != null && arguments.getOptions().getCompilerHook() != null) {
+            CompilerAbstraction abstraction = arguments.getOptions().getCompilerHook().getValue(new CompilerHookContext(moduleName));
+            if (abstraction != null) {
+                compilerAbstraction = abstraction;
+            }
+        }
+
+        return new ModuleCompileTimeServices(compilerAbstraction, compilerServices, configuration, classProvidedCompileTimeRegistry, classProvidedCompileTimeResolver, contextCompileTimeRegistry, contextCompileTimeResolver, beanEventTypeStemService, beanEventTypeFactoryPrivate, databaseConfigServiceCompileTime, classpathImportServiceCompileTime, exprDeclaredCompileTimeRegistry, exprDeclaredCompileTimeResolver, eventTypeAvroHandler, eventTypeCompileRegistry, eventTypeCompileTimeResolver, eventTypeRepositoryPreconfigured, isFireAndForget, indexCompileTimeRegistry, moduleDependencies, moduleVisibilityRules, namedWindowCompileTimeResolver, namedWindowCompileTimeRegistry,
             stateMgmtSettingsProvider, classLoaderParent,
             patternResolutionService, scriptCompileTimeRegistry, scriptCompileTimeResolver, serdeEventTypeRegistry, serdeResolver,
             tableCompileTimeRegistry, tableCompileTimeResolver, variableCompileTimeRegistry, variableCompileTimeResolver, viewResolutionService, xmlFragmentEventTypeFactory);

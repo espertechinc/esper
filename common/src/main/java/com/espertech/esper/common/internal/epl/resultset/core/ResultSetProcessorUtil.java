@@ -37,9 +37,9 @@ import java.util.function.Consumer;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.*;
-import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.NAME_ISNEWDATA;
-import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.REF_ISNEWDATA;
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.*;
+import static com.espertech.esper.common.internal.epl.util.EPTypeCollectionConst.EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN;
+import static com.espertech.esper.common.internal.epl.util.EPTypeCollectionConst.EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEANARRAY;
 import static com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCode.instblock;
 import static com.espertech.esper.common.internal.util.CollectionUtil.*;
 
@@ -462,7 +462,7 @@ public class ResultSetProcessorUtil {
         };
 
         return instance.getMethods().addMethod(EventBean.EPTYPEARRAY, "getSelectJoinEventsHaving",
-                CodegenNamedParam.from(SelectExprProcessor.EPTYPE, NAME_SELECTEXPRPROCESSOR, EPTypePremade.SET.getEPType(), "events", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT),
+                CodegenNamedParam.from(SelectExprProcessor.EPTYPE, NAME_SELECTEXPRPROCESSOR, EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "events", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT),
                 ResultSetProcessorUtil.class, classScope, code);
     }
 
@@ -543,7 +543,7 @@ public class ResultSetProcessorUtil {
         };
 
         return instance.getMethods().addMethod(EventBean.EPTYPEARRAY, "getSelectJoinEventsHavingWithOrderBy",
-                CodegenNamedParam.from(AggregationService.EPTYPE, MEMBER_AGGREGATIONSVC.getRef(), SelectExprProcessor.EPTYPE, NAME_SELECTEXPRPROCESSOR, OrderByProcessor.EPTYPE, NAME_ORDERBYPROCESSOR, EPTypePremade.SET.getEPType(), "events", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT),
+                CodegenNamedParam.from(AggregationService.EPTYPE, MEMBER_AGGREGATIONSVC.getRef(), SelectExprProcessor.EPTYPE, NAME_SELECTEXPRPROCESSOR, OrderByProcessor.EPTYPE, NAME_ORDERBYPROCESSOR, EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEANARRAY, "events", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT),
                 ResultSetProcessorUtil.class, classScope, code);
     }
 
@@ -701,7 +701,7 @@ public class ResultSetProcessorUtil {
         };
 
         return instance.getMethods().addMethod(EPTypePremade.VOID.getEPType(), "populateSelectJoinEventsHavingCodegen",
-                CodegenNamedParam.from(SelectExprProcessor.EPTYPE, NAME_SELECTEXPRPROCESSOR, EPTypePremade.SET.getEPType(), "events", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.LIST.getEPType(), "result", ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT),
+                CodegenNamedParam.from(SelectExprProcessor.EPTYPE, NAME_SELECTEXPRPROCESSOR, EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "events", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.LIST.getEPType(), "result", ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT),
                 ResultSetProcessorUtil.class, classScope, code);
     }
 
@@ -742,7 +742,7 @@ public class ResultSetProcessorUtil {
         };
 
         return instance.getMethods().addMethod(EPTypePremade.VOID.getEPType(), "populateSelectJoinEventsHavingWithOrderBy",
-                CodegenNamedParam.from(SelectExprProcessor.EPTYPE, NAME_SELECTEXPRPROCESSOR, OrderByProcessor.EPTYPE, NAME_ORDERBYPROCESSOR, EPTypePremade.SET.getEPType(), "events", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.LIST.getEPType(), "result", EPTypePremade.LIST.getEPType(), "sortKeys", ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT),
+                CodegenNamedParam.from(SelectExprProcessor.EPTYPE, NAME_SELECTEXPRPROCESSOR, OrderByProcessor.EPTYPE, NAME_ORDERBYPROCESSOR, EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEANARRAY, "events", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.LIST.getEPType(), "result", EPTypePremade.LIST.getEPType(), "sortKeys", ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT),
                 ResultSetProcessorUtil.class, classScope, code);
     }
 

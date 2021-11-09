@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.compile.stage3;
 
 import com.espertech.esper.common.client.configuration.Configuration;
+import com.espertech.esper.common.internal.compile.compiler.CompilerAbstraction;
 import com.espertech.esper.common.internal.compile.stage1.CompilerServices;
 import com.espertech.esper.common.internal.compile.stage1.specmapper.StatementSpecMapEnv;
 import com.espertech.esper.common.internal.context.compile.ContextCompileTimeRegistry;
@@ -185,6 +186,10 @@ public class StatementCompileTimeServices {
 
     public EventTypeCompileTimeResolver getEventTypeCompileTimeResolver() {
         return services.getEventTypeCompileTimeResolver();
+    }
+
+    public CompilerAbstraction getCompilerAbstraction() {
+        return services.getCompilerAbstraction();
     }
 
     public CompilerServices getCompilerServices() {

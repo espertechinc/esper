@@ -81,7 +81,7 @@ public class CodegenTypedParam {
         if (type != null) {
             appendClassName(builder, type, imports);
         } else {
-            builder.append(typeName);
+            appendClassName(builder, typeName);
         }
         builder.append(" ").append(name);
     }
@@ -99,16 +99,16 @@ public class CodegenTypedParam {
         if (type != null) {
             appendClassName(builder, type, imports);
         } else {
-            builder.append(typeName);
+            appendClassName(builder, typeName);
         }
         builder.append(" ").append(name);
     }
 
-    public void renderType(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
+    public void renderType(StringBuilder builder, Map<Class, String> imports) {
         if (type != null) {
             appendClassName(builder, type, imports);
         } else {
-            builder.append(typeName);
+            appendClassName(builder, typeName);
         }
     }
 

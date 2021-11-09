@@ -38,7 +38,7 @@ public class StatementAgentInstanceFactoryCreateTable implements StatementAgentI
     private AggregationRowFactory aggregationRowFactory;
     private DataInputOutputSerde aggregationSerde;
     private EventPropertyValueGetter primaryKeyGetter;
-    private DataInputOutputSerde<Object> primaryKeySerde;
+    private DataInputOutputSerde primaryKeySerde;
     private MultiKeyFromObjectArray primaryKeyObjectArrayTransform;
     private MultiKeyFromMultiKey primaryKeyIntoTableTransform;
     private DataInputOutputSerde[] propertyForges;
@@ -69,7 +69,7 @@ public class StatementAgentInstanceFactoryCreateTable implements StatementAgentI
         this.primaryKeyGetter = primaryKeyGetter;
     }
 
-    public void setPrimaryKeySerde(DataInputOutputSerde<Object> primaryKeySerde) {
+    public void setPrimaryKeySerde(DataInputOutputSerde primaryKeySerde) {
         this.primaryKeySerde = primaryKeySerde;
     }
 

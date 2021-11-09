@@ -91,7 +91,7 @@ public class EnumAggregateEvent extends EnumForgeBasePlain {
         EPType innerType = innerExpression.getEvaluationType();
 
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
-        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(initType, EnumAggregateEvent.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(initType, EnumAggregateEvent.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMSCOLLBEAN);
 
         CodegenBlock block = methodNode.getBlock();
         block.declareVar(initType, "value", initialization.evaluateCodegen(initType, methodNode, scope, codegenClassScope))

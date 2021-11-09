@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.bytecodemodel.core;
 
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.type.EPTypeClassParameterized;
+import com.espertech.esper.common.internal.util.JavaClassHelper;
 
 import java.util.Map;
 
@@ -28,11 +29,20 @@ public class CodeGenerationHelper {
         return builder;
     }
 
+    public static StringBuilder appendClassName(StringBuilder builder, String typeName) {
+        builder.append(typeName.replaceAll("\\$", "."));
+        return builder;
+    }
+
     public static StringBuilder appendClassName(StringBuilder builder, EPTypeClass clazz, Map<Class, String> imports) {
+        return appendClassName(builder, clazz, imports, true);
+    }
+
+    public static StringBuilder appendClassName(StringBuilder builder, EPTypeClass clazz, Map<Class, String> imports, boolean allowArrayTypeParameterized) {
         if (!clazz.getType().isArray()) {
             String assignedName = getAssignedName(clazz.getType(), imports);
             builder.append(assignedName);
-            if (clazz instanceof EPTypeClassParameterized) {
+            if (clazz instanceof EPTypeClassParameterized && allowArrayTypeParameterized) {
                 EPTypeClassParameterized parameterized = (EPTypeClassParameterized) clazz;
                 builder.append("<");
                 String delimiter = "";
@@ -45,8 +55,12 @@ public class CodeGenerationHelper {
             }
             return builder;
         }
-        appendClassName(builder, clazz.getType().getComponentType(), imports);
-        builder.append("[]");
+        EPTypeClass component = JavaClassHelper.getArrayComponentTypeInnermost(clazz);
+        appendClassName(builder, component, imports, allowArrayTypeParameterized);
+        int dimensions = JavaClassHelper.getArrayDimensions(clazz.getType());
+        for (int i = 0; i < dimensions; i++) {
+            builder.append("[]");
+        }
         return builder;
     }
 
@@ -55,6 +69,9 @@ public class CodeGenerationHelper {
         if (assigned != null) {
             return assigned;
         }
-        return clazz.getName();
+        if (clazz.getDeclaringClass() == clazz) {
+            return clazz.getName();
+        }
+        return clazz.getName().replaceAll("\\$", ".");
     }
 }

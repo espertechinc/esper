@@ -28,7 +28,7 @@ public class AggregationServiceFactoryServiceImpl implements AggregationServiceF
         return nonHAFactory;
     }
 
-    public AggregationServiceFactory groupBy(AggregationServiceFactory nonHAFactory, AggregationRowFactory rowFactory, AggregationUseFlags useFlags, DataInputOutputSerde<AggregationRow> serde, AggSvcGroupByReclaimAgedEvalFuncFactory reclaimMaxAge, AggSvcGroupByReclaimAgedEvalFuncFactory reclaimFreq, TimeAbacus timeAbacus, DataInputOutputSerde<Object> groupKeySerde, StateMgmtSetting stateMgmtSettings) {
+    public AggregationServiceFactory groupBy(AggregationServiceFactory nonHAFactory, AggregationRowFactory rowFactory, AggregationUseFlags useFlags, DataInputOutputSerde<AggregationRow> serde, AggSvcGroupByReclaimAgedEvalFuncFactory reclaimMaxAge, AggSvcGroupByReclaimAgedEvalFuncFactory reclaimFreq, TimeAbacus timeAbacus, DataInputOutputSerde groupKeySerde, StateMgmtSetting stateMgmtSettings) {
         return nonHAFactory;
     }
 

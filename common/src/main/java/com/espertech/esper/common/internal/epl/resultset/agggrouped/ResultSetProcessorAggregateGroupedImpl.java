@@ -46,6 +46,7 @@ import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSe
 import static com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorUtil.*;
 import static com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProcessorGroupedUtil.METHOD_APPLYAGGJOINRESULTKEYEDJOIN;
 import static com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProcessorGroupedUtil.METHOD_APPLYAGGVIEWRESULTKEYEDVIEW;
+import static com.espertech.esper.common.internal.epl.util.EPTypeCollectionConst.*;
 import static com.espertech.esper.common.internal.util.CollectionUtil.*;
 
 /**
@@ -235,7 +236,7 @@ public class ResultSetProcessorAggregateGroupedImpl {
         };
 
         return instance.getMethods().addMethod(EventBean.EPTYPEARRAY, "generateOutputEventsJoin",
-                CodegenNamedParam.from(EPTypePremade.SET.getEPType(), "resultSet", EPTypePremade.OBJECTARRAY.getEPType(), "groupByKeys", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE),
+                CodegenNamedParam.from(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEANARRAY, "resultSet", EPTypePremade.OBJECTARRAY.getEPType(), "groupByKeys", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE),
                 ResultSetProcessorAggregateGroupedImpl.class, classScope, code);
     }
 
@@ -376,7 +377,7 @@ public class ResultSetProcessorAggregateGroupedImpl {
             }
         };
         return instance.getMethods().addMethod(EPTypePremade.VOID.getEPType(), "generateOutputBatchedJoinUnkeyed",
-                CodegenNamedParam.from(EPTypePremade.SET.getEPType(), "outputEvents", EPTypePremade.OBJECTARRAY.getEPType(), "groupByKeys", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.COLLECTION.getEPType(), "resultEvents", EPTypePremade.LIST.getEPType(), "optSortKeys"), ResultSetProcessorAggregateGrouped.class, classScope, code);
+                CodegenNamedParam.from(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "outputEvents", EPTypePremade.OBJECTARRAY.getEPType(), "groupByKeys", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTYPE_COLLECTION_EVENTBEAN, "resultEvents", EPTYPE_LIST_OBJECT, "optSortKeys"), ResultSetProcessorAggregateGrouped.class, classScope, code);
     }
 
     static void generateOutputBatchedSingleCodegen(ResultSetProcessorAggregateGroupedForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
@@ -446,7 +447,7 @@ public class ResultSetProcessorAggregateGroupedImpl {
             }
         };
         return instance.getMethods().addMethod(EPTypePremade.VOID.getEPType(), "generateOutputBatchedJoinPerKey",
-                CodegenNamedParam.from(EPTypePremade.SET.getEPType(), "outputEvents", EPTypePremade.OBJECTARRAY.getEPType(), "groupByKeys", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.MAP.getEPType(), "resultEvents", EPTypePremade.MAP.getEPType(), "optSortKeys"), ResultSetProcessorAggregateGrouped.class, classScope, code);
+                CodegenNamedParam.from(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "outputEvents", EPTypePremade.OBJECTARRAY.getEPType(), "groupByKeys", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTYPE_MAP_OBJECT_EVENTBEAN, "resultEvents", EPTYPE_MAP_OBJECT_OBJECT, "optSortKeys"), ResultSetProcessorAggregateGrouped.class, classScope, code);
     }
 
     static void removedAggregationGroupKeyCodegen(CodegenClassScope classScope, CodegenInstanceAux instance) {
@@ -527,8 +528,8 @@ public class ResultSetProcessorAggregateGroupedImpl {
 
         {
             CodegenBlock forEach = method.getBlock().forEach(UniformPair.EPTYPE, "pair", REF_JOINEVENTSSET);
-            forEach.declareVar(EPTypePremade.SET.getEPType(), "newData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getFirst")))
-                    .declareVar(EPTypePremade.SET.getEPType(), "oldData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getSecond")))
+            forEach.declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "newData", cast(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, exprDotMethod(ref("pair"), "getFirst")))
+                    .declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "oldData", cast(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, exprDotMethod(ref("pair"), "getSecond")))
                     .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "newDataMultiKey", localMethod(forge.getGenerateGroupKeyArrayJoin(), ref("newData"), constantTrue()))
                     .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "oldDataMultiKey", localMethod(forge.getGenerateGroupKeyArrayJoin(), ref("oldData"), constantFalse()));
 
@@ -578,8 +579,8 @@ public class ResultSetProcessorAggregateGroupedImpl {
         if (forge.getOptionalHavingNode() == null) {
             {
                 CodegenBlock forEach = method.getBlock().forEach(UniformPair.EPTYPE, "pair", REF_JOINEVENTSSET);
-                forEach.declareVar(EPTypePremade.SET.getEPType(), "newData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getFirst")))
-                        .declareVar(EPTypePremade.SET.getEPType(), "oldData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getSecond")))
+                forEach.declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "newData", cast(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, exprDotMethod(ref("pair"), "getFirst")))
+                        .declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "oldData", cast(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, exprDotMethod(ref("pair"), "getSecond")))
                         .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "newDataMultiKey", localMethod(forge.getGenerateGroupKeyArrayJoin(), ref("newData"), constantTrue()))
                         .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "oldDataMultiKey", localMethod(forge.getGenerateGroupKeyArrayJoin(), ref("oldData"), constantFalse()));
 
@@ -620,8 +621,8 @@ public class ResultSetProcessorAggregateGroupedImpl {
             // having clause present, having clause evaluates at the level of individual posts
             {
                 CodegenBlock forEach = method.getBlock().forEach(UniformPair.EPTYPE, "pair", REF_JOINEVENTSSET);
-                forEach.declareVar(EPTypePremade.SET.getEPType(), "newData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getFirst")))
-                        .declareVar(EPTypePremade.SET.getEPType(), "oldData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getSecond")))
+                forEach.declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "newData", cast(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, exprDotMethod(ref("pair"), "getFirst")))
+                        .declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "oldData", cast(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, exprDotMethod(ref("pair"), "getSecond")))
                         .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "newDataMultiKey", localMethod(forge.getGenerateGroupKeyArrayJoin(), ref("newData"), constantTrue()))
                         .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "oldDataMultiKey", localMethod(forge.getGenerateGroupKeyArrayJoin(), ref("oldData"), constantFalse()))
                         .staticMethod(ResultSetProcessorGroupedUtil.class, METHOD_APPLYAGGJOINRESULTKEYEDJOIN, MEMBER_AGGREGATIONSVC, MEMBER_EXPREVALCONTEXT, ref("newData"), ref("newDataMultiKey"), ref("oldData"), ref("oldDataMultiKey"));
@@ -699,8 +700,8 @@ public class ResultSetProcessorAggregateGroupedImpl {
 
         {
             CodegenBlock forEach = method.getBlock().forEach(UniformPair.EPTYPE, "pair", REF_JOINEVENTSSET);
-            forEach.declareVar(EPTypePremade.SET.getEPType(), "newData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getFirst")))
-                    .declareVar(EPTypePremade.SET.getEPType(), "oldData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getSecond")))
+            forEach.declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "newData", cast(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, exprDotMethod(ref("pair"), "getFirst")))
+                    .declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "oldData", cast(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, exprDotMethod(ref("pair"), "getSecond")))
                     .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "newDataMultiKey", localMethod(forge.getGenerateGroupKeyArrayJoin(), ref("newData"), constantTrue()))
                     .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "oldDataMultiKey", localMethod(forge.getGenerateGroupKeyArrayJoin(), ref("oldData"), constantFalse()));
 
@@ -758,8 +759,8 @@ public class ResultSetProcessorAggregateGroupedImpl {
 
         {
             CodegenBlock forEach = method.getBlock().forEach(UniformPair.EPTYPE, "pair", REF_JOINEVENTSSET);
-            forEach.declareVar(EPTypePremade.SET.getEPType(), "newData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getFirst")))
-                    .declareVar(EPTypePremade.SET.getEPType(), "oldData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getSecond")))
+            forEach.declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "newData", cast(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, exprDotMethod(ref("pair"), "getFirst")))
+                    .declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "oldData", cast(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, exprDotMethod(ref("pair"), "getSecond")))
                     .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "newDataMultiKey", localMethod(forge.getGenerateGroupKeyArrayJoin(), ref("newData"), constantTrue()))
                     .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "oldDataMultiKey", localMethod(forge.getGenerateGroupKeyArrayJoin(), ref("oldData"), constantFalse()));
 
@@ -1044,7 +1045,7 @@ public class ResultSetProcessorAggregateGroupedImpl {
         };
 
         return instance.getMethods().addMethod(EPTypePremade.VOID.getEPType(), "generateOutputBatchedAddToList",
-                CodegenNamedParam.from(EPTypePremade.MAP.getEPType(), "keysAndEvents", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.LIST.getEPType(), "resultEvents", EPTypePremade.LIST.getEPType(), "optSortKeys"),
+                CodegenNamedParam.from(EPTYPE_MAP_OBJECT_EVENTBEANARRAY, "keysAndEvents", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.LIST.getEPType(), "resultEvents", EPTypePremade.LIST.getEPType(), "optSortKeys"),
                 ResultSetProcessorAggregateGroupedImpl.class, classScope, code);
     }
 

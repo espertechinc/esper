@@ -26,7 +26,7 @@ public class UniqueByPropertyViewFactory implements DataWindowViewFactory {
 
     protected ExprEvaluator criteriaEval;
     protected EPType[] criteriaTypes;
-    protected DataInputOutputSerde<Object> keySerde;
+    protected DataInputOutputSerde keySerde;
     protected EventType eventType;
 
     public void setEventType(EventType eventType) {
@@ -64,11 +64,11 @@ public class UniqueByPropertyViewFactory implements DataWindowViewFactory {
         return ViewEnum.UNIQUE_BY_PROPERTY.getName();
     }
 
-    public DataInputOutputSerde<Object> getKeySerde() {
+    public DataInputOutputSerde getKeySerde() {
         return keySerde;
     }
 
-    public void setKeySerde(DataInputOutputSerde<Object> keySerde) {
+    public void setKeySerde(DataInputOutputSerde keySerde) {
         this.keySerde = keySerde;
     }
 }

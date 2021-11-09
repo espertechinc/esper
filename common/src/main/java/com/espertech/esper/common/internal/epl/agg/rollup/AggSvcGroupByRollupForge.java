@@ -38,6 +38,8 @@ import static com.espertech.esper.common.internal.context.module.EPStatementInit
 import static com.espertech.esper.common.internal.epl.agg.core.AggregationServiceCodegenNames.REF_AGGVISITOR;
 import static com.espertech.esper.common.internal.epl.agg.core.AggregationServiceCodegenNames.REF_VCOL;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.*;
+import static com.espertech.esper.common.internal.epl.util.EPTypeCollectionConst.EPTYPE_MAPARRAY_OBJECT_AGGROW;
+import static com.espertech.esper.common.internal.epl.util.EPTypeCollectionConst.EPTYPE_MAP_OBJECT_AGGROW;
 
 /**
  * Implementation for handling aggregation with grouping by group-keys.
@@ -104,7 +106,7 @@ public class AggSvcGroupByRollupForge implements AggregationServiceFactoryForgeW
     }
 
     public void ctorCodegen(CodegenCtor ctor, List<CodegenTypedParam> explicitMembers, CodegenClassScope classScope, AggregationClassNames classNames) {
-        explicitMembers.add(new CodegenTypedParam(EPTypePremade.MAPARRAY.getEPType(), MEMBER_AGGREGATORSPERGROUP.getRef()));
+        explicitMembers.add(new CodegenTypedParam(EPTYPE_MAPARRAY_OBJECT_AGGROW, MEMBER_AGGREGATORSPERGROUP.getRef()));
         explicitMembers.add(new CodegenTypedParam(EPTypePremade.LISTARRAY.getEPType(), MEMBER_REMOVEDKEYS.getRef()));
         ctor.getBlock().assignRef(MEMBER_AGGREGATORSPERGROUP, newArrayByLength(EPTypePremade.MAP.getEPType(), constant(rollupDesc.getNumLevelsAggregation())))
                 .assignRef(MEMBER_REMOVEDKEYS, newArrayByLength(EPTypePremade.LIST.getEPType(), constant(rollupDesc.getNumLevelsAggregation())));
@@ -117,9 +119,9 @@ public class AggSvcGroupByRollupForge implements AggregationServiceFactoryForgeW
         ctor.getBlock().assignRef(MEMBER_AGGREGATORTOPGROUP, CodegenExpressionBuilder.newInstance(classNames.getRowTop()))
                 .exprDotMethod(MEMBER_AGGREGATORTOPGROUP, "decreaseRefcount");
 
-        explicitMembers.add(new CodegenTypedParam(AggregationRow.EPTYPE, MEMBER_CURRENTROW.getRef()));
-        explicitMembers.add(new CodegenTypedParam(EPTypePremade.OBJECT.getEPType(), MEMBER_CURRENTGROUPKEY.getRef()));
-        explicitMembers.add(new CodegenTypedParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), MEMBER_HASREMOVEDKEY.getRef()));
+        explicitMembers.add(new CodegenTypedParam(AggregationRow.EPTYPE, MEMBER_CURRENTROW.getRef()).setFinal(false));
+        explicitMembers.add(new CodegenTypedParam(EPTypePremade.OBJECT.getEPType(), MEMBER_CURRENTGROUPKEY.getRef()).setFinal(false));
+        explicitMembers.add(new CodegenTypedParam(EPTypePremade.BOOLEANPRIMITIVE.getEPType(), MEMBER_HASREMOVEDKEY.getRef()).setFinal(false));
     }
 
     public void getValueCodegen(CodegenMethod method, CodegenClassScope classScope, CodegenNamedMethods namedMethods) {
@@ -187,7 +189,7 @@ public class AggSvcGroupByRollupForge implements AggregationServiceFactoryForgeW
 
     public void acceptGroupDetailCodegen(CodegenMethod method, CodegenClassScope classScope) {
         method.getBlock().exprDotMethod(REF_AGGVISITOR, "visitGrouped", getGroupKeyCountCodegen(method, classScope))
-                .forEach(EPTypePremade.MAP.getEPType(), "anAggregatorsPerGroup", MEMBER_AGGREGATORSPERGROUP)
+                .forEach(EPTYPE_MAP_OBJECT_AGGROW, "anAggregatorsPerGroup", MEMBER_AGGREGATORSPERGROUP)
                 .forEach(EPTypePremade.MAPENTRY.getEPType(), "entry", exprDotMethod(ref("anAggregatorsPerGroup"), "entrySet"))
                 .exprDotMethod(REF_AGGVISITOR, "visitGroup", exprDotMethod(ref("entry"), "getKey"), exprDotMethod(ref("entry"), "getValue"))
                 .blockEnd()

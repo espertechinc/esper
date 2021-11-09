@@ -23,11 +23,11 @@ public abstract class AggregationGroupByRollupLevel {
     private final int levelNumber;
     private final int levelOffset;
     private final int[] rollupKeys;
-    private final DataInputOutputSerde<Object> subkeySerde;
+    private final DataInputOutputSerde subkeySerde;
 
     public abstract Object computeSubkey(Object groupKey);
 
-    public AggregationGroupByRollupLevel(int levelNumber, int levelOffset, int[] rollupKeys, DataInputOutputSerde<Object> subkeySerde) {
+    public AggregationGroupByRollupLevel(int levelNumber, int levelOffset, int[] rollupKeys, DataInputOutputSerde subkeySerde) {
         this.levelNumber = levelNumber;
         this.levelOffset = levelOffset;
         this.rollupKeys = rollupKeys;
@@ -57,7 +57,7 @@ public abstract class AggregationGroupByRollupLevel {
         return rollupKeys;
     }
 
-    public DataInputOutputSerde<Object> getSubkeySerde() {
+    public DataInputOutputSerde getSubkeySerde() {
         return subkeySerde;
     }
 

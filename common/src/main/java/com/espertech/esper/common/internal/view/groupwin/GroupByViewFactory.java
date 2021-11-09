@@ -28,7 +28,7 @@ public class GroupByViewFactory implements ViewFactory {
     protected ExprEvaluator criteriaEval;
     protected String[] propertyNames;
     protected EPType[] criteriaTypes;
-    protected DataInputOutputSerde<Object> keySerde;
+    protected DataInputOutputSerde keySerde;
     protected EventType eventType;
     protected boolean addingProperties;  // when adding properties to the grouped-views output
     protected boolean isReclaimAged;
@@ -127,11 +127,11 @@ public class GroupByViewFactory implements ViewFactory {
         this.criteriaEval = criteriaEval;
     }
 
-    public DataInputOutputSerde<Object> getKeySerde() {
+    public DataInputOutputSerde getKeySerde() {
         return keySerde;
     }
 
-    public void setKeySerde(DataInputOutputSerde<Object> keySerde) {
+    public void setKeySerde(DataInputOutputSerde keySerde) {
         this.keySerde = keySerde;
     }
 }

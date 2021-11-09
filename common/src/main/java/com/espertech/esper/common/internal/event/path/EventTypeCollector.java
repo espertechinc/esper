@@ -43,5 +43,5 @@ public interface EventTypeCollector {
 
     void registerVariant(EventTypeMetadata metadata, EventType[] variants, boolean any);
 
-    void registerSerde(EventTypeMetadata metadata, DataInputOutputSerde<Object> underlyingSerde, EPTypeClass underlyingClass);
+    void registerSerde(EventTypeMetadata metadata, DataInputOutputSerde underlyingSerde, EPTypeClass underlyingClass);
 }

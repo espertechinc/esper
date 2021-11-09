@@ -25,10 +25,10 @@ public class PropertySortedFactoryFactory extends EventTableFactoryFactoryBase {
     private final String indexProp;
     private final EPTypeClass indexType;
     private final EventPropertyValueGetter valueGetter;
-    private final DataInputOutputSerde<Object> indexSerde;
+    private final DataInputOutputSerde indexSerde;
     private final StateMgmtSetting stateMgmtSettings;
 
-    public PropertySortedFactoryFactory(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget, String indexProp, EPTypeClass indexType, EventPropertyValueGetter valueGetter, DataInputOutputSerde<Object> indexSerde, StateMgmtSetting stateMgmtSettings) {
+    public PropertySortedFactoryFactory(int indexedStreamNum, Integer subqueryNum, boolean isFireAndForget, String indexProp, EPTypeClass indexType, EventPropertyValueGetter valueGetter, DataInputOutputSerde indexSerde, StateMgmtSetting stateMgmtSettings) {
         super(indexedStreamNum, subqueryNum, isFireAndForget);
         this.indexProp = indexProp;
         this.indexType = indexType;

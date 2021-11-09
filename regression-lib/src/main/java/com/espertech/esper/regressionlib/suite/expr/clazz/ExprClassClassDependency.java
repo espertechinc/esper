@@ -87,7 +87,7 @@ public class ExprClassClassDependency {
                 "    }\n" +
                 "\"\"\" \n" +
                 "select MyClass.doIt(theString) as c0 from SupportBean\n";
-            env.tryInvalidCompile(path, eplInvalid, "Failed to compile class: Line 4, Column 27: Unknown variable or type \"MyUtil\" for class");
+            env.tryInvalidCompile(path, eplInvalid, "Failed to compile an inlined-class:");
 
             // create-class depending on create-class
             eplInvalid = "create inlined_class \"\"\"\n" +
@@ -97,7 +97,7 @@ public class ExprClassClassDependency {
                 "        }\n" +
                 "    }\n" +
                 "\"\"\"";
-            env.tryInvalidCompile(path, eplInvalid, "Failed to compile class: Line 4, Column 27: Unknown variable or type \"MyUtil\" for class");
+            env.tryInvalidCompile(path, eplInvalid, "Failed to compile an inlined-class: ");
         }
     }
 

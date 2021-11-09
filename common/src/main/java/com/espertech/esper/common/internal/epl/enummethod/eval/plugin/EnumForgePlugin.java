@@ -76,7 +76,7 @@ public class EnumForgePlugin implements EnumForge {
     public CodegenExpression codegen(EnumForgeCodegenParams args, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
 
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
-        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(expectedStateReturnType, EnumForgePlugin.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(expectedStateReturnType, EnumForgePlugin.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMSCOLLOBJ);
         methodNode.getBlock().declareVarNewInstance(mode.getStateClass(), "state");
 
         // call set-parameter for each non-lambda expression

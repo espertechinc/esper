@@ -46,6 +46,7 @@ import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSe
 import static com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorUtil.*;
 import static com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProcessorGroupedUtil.METHOD_APPLYAGGJOINRESULTKEYEDJOIN;
 import static com.espertech.esper.common.internal.epl.resultset.grouped.ResultSetProcessorGroupedUtil.METHOD_APPLYAGGVIEWRESULTKEYEDVIEW;
+import static com.espertech.esper.common.internal.epl.util.EPTypeCollectionConst.*;
 
 /**
  * Result set processor for the fully-grouped case:
@@ -175,7 +176,7 @@ public class ResultSetProcessorRowPerGroupImpl {
         };
 
         return instance.getMethods().addMethod(EventBean.EPTYPEARRAY, "generateOutputEventsView",
-            CodegenNamedParam.from(EPTypePremade.MAP.getEPType(), "keysAndEvents", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EventBean.EPTYPEARRAY, NAME_EPS),
+            CodegenNamedParam.from(EPTYPE_MAP_OBJECT_EVENTBEAN, "keysAndEvents", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EventBean.EPTYPEARRAY, NAME_EPS),
             ResultSetProcessorRowPerGroupImpl.class, classScope, code);
     }
 
@@ -201,7 +202,7 @@ public class ResultSetProcessorRowPerGroupImpl {
         };
 
         return instance.getMethods().addMethod(EPTypePremade.VOID.getEPType(), "generateOutputBatchedRowFromMap",
-            CodegenNamedParam.from(EPTypePremade.MAP.getEPType(), "keysAndEvents", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.LIST.getEPType(), "resultEvents", EPTypePremade.LIST.getEPType(), "optSortKeys", ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT), ResultSetProcessorRowPerGroupImpl.class, classScope, code);
+            CodegenNamedParam.from(EPTYPE_MAP_OBJECT_EVENTBEAN, "keysAndEvents", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE, EPTypePremade.LIST.getEPType(), "resultEvents", EPTypePremade.LIST.getEPType(), "optSortKeys", ExprEvaluatorContext.EPTYPE, NAME_EXPREVALCONTEXT), ResultSetProcessorRowPerGroupImpl.class, classScope, code);
     }
 
     static CodegenMethod generateOutputBatchedArrFromIteratorCodegen(ResultSetProcessorRowPerGroupForge forge, CodegenClassScope classScope, CodegenInstanceAux instance) {
@@ -287,7 +288,7 @@ public class ResultSetProcessorRowPerGroupImpl {
         };
 
         return instance.getMethods().addMethod(EventBean.EPTYPEARRAY, "generateOutputEventsJoin",
-            CodegenNamedParam.from(EPTypePremade.MAP.getEPType(), "keysAndEvents", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE),
+            CodegenNamedParam.from(EPTYPE_MAP_OBJECT_EVENTBEANARRAY, "keysAndEvents", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA, EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISSYNTHESIZE),
             ResultSetProcessorRowPerGroupImpl.class, classScope, code);
     }
 
@@ -326,7 +327,7 @@ public class ResultSetProcessorRowPerGroupImpl {
         };
 
         return instance.getMethods().addMethod(EPTypePremade.OBJECTARRAY.getEPType(), "generateGroupKeyArrayJoinTakingMapCodegen",
-            CodegenNamedParam.from(EPTypePremade.SET.getEPType(), "resultSet", EPTypePremade.MAP.getEPType(), "eventPerKey", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA), ResultSetProcessorRowPerGroupImpl.class, classScope, code);
+            CodegenNamedParam.from(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "resultSet", EPTypePremade.MAP.getEPType(), "eventPerKey", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), NAME_ISNEWDATA), ResultSetProcessorRowPerGroupImpl.class, classScope, code);
     }
 
     public static void getIteratorViewCodegen(ResultSetProcessorRowPerGroupForge forge, CodegenClassScope classScope, CodegenMethod method, CodegenInstanceAux instance) {
@@ -544,8 +545,8 @@ public class ResultSetProcessorRowPerGroupImpl {
         method.getBlock().declareVar(EPTypePremade.MAP.getEPType(), "groupRepsView", newInstance(EPTypePremade.HASHMAP.getEPType()));
         {
             CodegenBlock forEach = method.getBlock().forEach(UniformPair.EPTYPE, "pair", REF_JOINEVENTSSET);
-            forEach.declareVar(EPTypePremade.SET.getEPType(), "newData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getFirst")))
-                .declareVar(EPTypePremade.SET.getEPType(), "oldData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getSecond")));
+            forEach.declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEANARRAY, "newData", cast(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEANARRAY, exprDotMethod(ref("pair"), "getFirst")))
+                .declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEANARRAY, "oldData", cast(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEANARRAY, exprDotMethod(ref("pair"), "getSecond")));
 
             if (forge.isUnidirectional()) {
                 forEach.exprDotMethod(ref("this"), "clear");
@@ -603,8 +604,8 @@ public class ResultSetProcessorRowPerGroupImpl {
         if (forge.getOptionalHavingNode() == null) {
             {
                 CodegenBlock forEach = method.getBlock().forEach(UniformPair.EPTYPE, "pair", REF_JOINEVENTSSET);
-                forEach.declareVar(EPTypePremade.SET.getEPType(), "newData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getFirst")))
-                    .declareVar(EPTypePremade.SET.getEPType(), "oldData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getSecond")));
+                forEach.declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "newData", cast(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, exprDotMethod(ref("pair"), "getFirst")))
+                    .declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "oldData", cast(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, exprDotMethod(ref("pair"), "getSecond")));
 
                 {
                     CodegenBlock ifNewData = forEach.ifCondition(notEqualsNull(ref("newData")));
@@ -643,8 +644,8 @@ public class ResultSetProcessorRowPerGroupImpl {
             method.getBlock().exprDotMethod(ref("groupRepsView"), "clear");
             {
                 CodegenBlock forEach = method.getBlock().forEach(UniformPair.EPTYPE, "pair", REF_JOINEVENTSSET);
-                forEach.declareVar(EPTypePremade.SET.getEPType(), "newData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getFirst")))
-                    .declareVar(EPTypePremade.SET.getEPType(), "oldData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getSecond")))
+                forEach.declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "newData", cast(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, exprDotMethod(ref("pair"), "getFirst")))
+                    .declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "oldData", cast(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, exprDotMethod(ref("pair"), "getSecond")))
                     .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "newDataMultiKey", localMethod(forge.getGenerateGroupKeyArrayJoin(), ref("newData"), constantTrue()))
                     .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "oldDataMultiKey", localMethod(forge.getGenerateGroupKeyArrayJoin(), ref("oldData"), constantTrue()))
                     .staticMethod(ResultSetProcessorGroupedUtil.class, METHOD_APPLYAGGJOINRESULTKEYEDJOIN, MEMBER_AGGREGATIONSVC, MEMBER_EXPREVALCONTEXT, ref("newData"), ref("newDataMultiKey"), ref("oldData"), ref("oldDataMultiKey"));
@@ -724,8 +725,8 @@ public class ResultSetProcessorRowPerGroupImpl {
 
         {
             CodegenBlock forLoop = method.getBlock().forEach(UniformPair.EPTYPE, "pair", REF_JOINEVENTSSET);
-            forLoop.declareVar(EPTypePremade.SET.getEPType(), "newData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getFirst")))
-                .declareVar(EPTypePremade.SET.getEPType(), "oldData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getSecond")));
+            forLoop.declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "newData", cast(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, exprDotMethod(ref("pair"), "getFirst")))
+                .declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "oldData", cast(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, exprDotMethod(ref("pair"), "getSecond")));
 
             if (forge.isUnidirectional()) {
                 forLoop.exprDotMethod(ref("this"), "clear");
@@ -775,8 +776,8 @@ public class ResultSetProcessorRowPerGroupImpl {
 
         {
             CodegenBlock forEach = method.getBlock().forEach(UniformPair.EPTYPE, "pair", REF_JOINEVENTSSET);
-            forEach.declareVar(EPTypePremade.SET.getEPType(), "newData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getFirst")))
-                .declareVar(EPTypePremade.SET.getEPType(), "oldData", cast(EPTypePremade.SET.getEPType(), exprDotMethod(ref("pair"), "getSecond")));
+            forEach.declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "newData", cast(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, exprDotMethod(ref("pair"), "getFirst")))
+                .declareVar(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "oldData", cast(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, exprDotMethod(ref("pair"), "getSecond")));
 
             if (forge.isUnidirectional()) {
                 forEach.exprDotMethod(ref("this"), "clear");

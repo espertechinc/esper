@@ -15,10 +15,10 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprEnumerationEv
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
-public class ExprEvalStreamNumEnumCollEval implements ExprEvaluator {
+public class ExprEvalStreamNumEnumCollEventEval implements ExprEvaluator {
     private final ExprEnumerationEval enumeration;
 
-    public ExprEvalStreamNumEnumCollEval(ExprEnumerationEval enumeration) {
+    public ExprEvalStreamNumEnumCollEventEval(ExprEnumerationEval enumeration) {
         this.enumeration = enumeration;
     }
 

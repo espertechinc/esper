@@ -21,10 +21,10 @@ import com.espertech.esper.common.internal.epl.expression.core.*;
 
 import java.util.Collection;
 
-public class ExprEvalStreamNumEnumCollForge implements ExprForge {
+public class ExprEvalStreamNumEnumCollScalarForge implements ExprForge {
     private final ExprEnumerationForge enumeration;
 
-    public ExprEvalStreamNumEnumCollForge(ExprEnumerationForge enumeration) {
+    public ExprEvalStreamNumEnumCollScalarForge(ExprEnumerationForge enumeration) {
         this.enumeration = enumeration;
     }
 

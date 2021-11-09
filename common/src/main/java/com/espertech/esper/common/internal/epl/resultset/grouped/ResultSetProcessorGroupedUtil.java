@@ -36,6 +36,7 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.*;
 
 import static com.espertech.esper.common.internal.epl.resultset.codegen.ResultSetProcessorCodegenNames.MEMBER_EXPREVALCONTEXT;
+import static com.espertech.esper.common.internal.epl.util.EPTypeCollectionConst.EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN;
 import static com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCode.instblock;
 
 public class ResultSetProcessorGroupedUtil {
@@ -158,6 +159,6 @@ public class ResultSetProcessorGroupedUtil {
                     .blockEnd()
                     .methodReturn(ref("keys"));
         };
-        return instance.getMethods().addMethod(EPTypePremade.OBJECTARRAY.getEPType(), "generateGroupKeyArrayJoin", CodegenNamedParam.from(EPTypePremade.SET.getEPType(), "resultSet", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), "isNewData"), ResultSetProcessorRowPerEventImpl.class, classScope, code);
+        return instance.getMethods().addMethod(EPTypePremade.OBJECTARRAY.getEPType(), "generateGroupKeyArrayJoin", CodegenNamedParam.from(EPTYPE_SET_MULTIKEYARRAYOFKEYS_EVENTBEAN, "resultSet", EPTypePremade.BOOLEANPRIMITIVE.getEPType(), "isNewData"), ResultSetProcessorRowPerEventImpl.class, classScope, code);
     }
 }

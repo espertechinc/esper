@@ -38,6 +38,8 @@ import static com.espertech.esper.common.internal.context.module.EPStatementInit
 import static com.espertech.esper.common.internal.epl.agg.core.AggregationServiceCodegenNames.REF_AGGVISITOR;
 import static com.espertech.esper.common.internal.epl.agg.core.AggregationServiceCodegenNames.REF_GROUPKEY;
 import static com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenNames.*;
+import static com.espertech.esper.common.internal.epl.util.EPTypeCollectionConst.EPTYPE_LIST_AFFLOCALGROUPPAIR;
+import static com.espertech.esper.common.internal.epl.util.EPTypeCollectionConst.EPTYPE_MAPARRAY_OBJECT_AGGROW;
 import static com.espertech.esper.common.internal.metrics.instrumentation.InstrumentationCode.instblock;
 
 public class AggSvcLocalGroupByForge implements AggregationServiceFactoryForgeWMethodGen {
@@ -136,18 +138,18 @@ public class AggSvcLocalGroupByForge implements AggregationServiceFactoryForgeWM
     }
 
     public void ctorCodegen(CodegenCtor ctor, List<CodegenTypedParam> explicitMembers, CodegenClassScope classScope, AggregationClassNames classNames) {
-        explicitMembers.add(new CodegenTypedParam(EPTypePremade.MAPARRAY.getEPType(), MEMBER_AGGREGATORSPERLEVELANDGROUP.getRef()));
+        explicitMembers.add(new CodegenTypedParam(EPTYPE_MAPARRAY_OBJECT_AGGROW, MEMBER_AGGREGATORSPERLEVELANDGROUP.getRef()));
         ctor.getBlock().assignRef(MEMBER_AGGREGATORSPERLEVELANDGROUP, newArrayByLength(EPTypePremade.MAP.getEPType(), constant(localGroupByPlan.getAllLevelsForges().length)));
         for (int i = 0; i < localGroupByPlan.getAllLevelsForges().length; i++) {
             ctor.getBlock().assignArrayElement(MEMBER_AGGREGATORSPERLEVELANDGROUP, constant(i), newInstance(EPTypePremade.HASHMAP.getEPType()));
         }
 
-        explicitMembers.add(new CodegenTypedParam(AggregationRow.EPTYPE, MEMBER_AGGREGATORSTOPLEVEL.getRef()));
+        explicitMembers.add(new CodegenTypedParam(AggregationRow.EPTYPE, MEMBER_AGGREGATORSTOPLEVEL.getRef()).setFinal(false));
         if (hasGroupBy) {
-            explicitMembers.add(new CodegenTypedParam(AggregationRow.EPTYPE, MEMBER_CURRENTROW.getRef()));
+            explicitMembers.add(new CodegenTypedParam(AggregationRow.EPTYPE, MEMBER_CURRENTROW.getRef()).setFinal(false));
         }
 
-        explicitMembers.add(new CodegenTypedParam(EPTypePremade.LIST.getEPType(), MEMBER_REMOVEDKEYS.getRef()));
+        explicitMembers.add(new CodegenTypedParam(EPTYPE_LIST_AFFLOCALGROUPPAIR, MEMBER_REMOVEDKEYS.getRef()));
         ctor.getBlock().assignRef(MEMBER_REMOVEDKEYS, newInstance(EPTypePremade.ARRAYLIST.getEPType()));
     }
 

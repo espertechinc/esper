@@ -89,7 +89,7 @@ public class EnumAggregateScalar extends EnumForgeBasePlain {
         EPType innerType = innerExpression.getEvaluationType();
 
         ExprForgeCodegenSymbol scope = new ExprForgeCodegenSymbol(false, null);
-        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(initializationType, EnumAggregateScalar.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMS);
+        CodegenMethod methodNode = codegenMethodScope.makeChildWithScope(initializationType, EnumAggregateScalar.class, scope, codegenClassScope).addParam(EnumForgeCodegenNames.PARAMSCOLLOBJ);
 
         CodegenBlock block = methodNode.getBlock();
         block.declareVar(initializationType, "value", initialization.evaluateCodegen(initializationType, methodNode, scope, codegenClassScope))

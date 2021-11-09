@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import static com.espertech.esper.common.internal.bytecodemodel.core.CodeGenerationHelper.appendClassName;
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.traverseMultiple;
 
 public class CodegenExpressionNewInstanceInnerClass implements CodegenExpression {
@@ -26,7 +27,8 @@ public class CodegenExpressionNewInstanceInnerClass implements CodegenExpression
     }
 
     public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
-        builder.append("new ").append(innerName).append("(");
+        builder.append("new ");
+        appendClassName(builder, innerName).append("(");
         CodegenExpressionBuilder.renderExpressions(builder, params, imports, isInnerClass);
         builder.append(")");
     }

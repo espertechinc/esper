@@ -62,7 +62,7 @@ public class EventTableIndexRepository {
             String indexName,
             String indexModuleName,
             AgentInstanceContext agentInstanceContext,
-            DataInputOutputSerde<Object> optionalValueSerde) {
+            DataInputOutputSerde optionalValueSerde) {
 
         IndexMultiKey indexMultiKey = desc.toIndexMultiKey();
         if (desc.getHashPropsAsList().isEmpty() && desc.getBtreePropsAsList().isEmpty() && desc.getAdvancedIndexProvisionDesc() == null) {
@@ -122,7 +122,7 @@ public class EventTableIndexRepository {
         return tableIndexesRefCount;
     }
 
-    public void validateAddExplicitIndex(String explicitIndexName, String explicitIndexModuleName, QueryPlanIndexItem explicitIndexDesc, EventType eventType, Iterable<EventBean> dataWindowContents, AgentInstanceContext agentInstanceContext, boolean allowIndexExists, DataInputOutputSerde<Object> optionalValueSerde)
+    public void validateAddExplicitIndex(String explicitIndexName, String explicitIndexModuleName, QueryPlanIndexItem explicitIndexDesc, EventType eventType, Iterable<EventBean> dataWindowContents, AgentInstanceContext agentInstanceContext, boolean allowIndexExists, DataInputOutputSerde optionalValueSerde)
             throws ExprValidationException {
         if (explicitIndexes.containsKey(new NameAndModule(explicitIndexName, explicitIndexModuleName))) {
             if (allowIndexExists) {
@@ -134,7 +134,7 @@ public class EventTableIndexRepository {
         addExplicitIndex(explicitIndexName, explicitIndexModuleName, explicitIndexDesc, eventType, dataWindowContents, agentInstanceContext, optionalValueSerde);
     }
 
-    public void addExplicitIndex(String explicitIndexName, String explicitIndexModuleName, QueryPlanIndexItem desc, EventType eventType, Iterable<EventBean> dataWindowContents, AgentInstanceContext agentInstanceContext, DataInputOutputSerde<Object> optionalSerde) {
+    public void addExplicitIndex(String explicitIndexName, String explicitIndexModuleName, QueryPlanIndexItem desc, EventType eventType, Iterable<EventBean> dataWindowContents, AgentInstanceContext agentInstanceContext, DataInputOutputSerde optionalSerde) {
         Pair<IndexMultiKey, EventTableAndNamePair> pair = addExplicitIndexOrReuse(desc, dataWindowContents, eventType, explicitIndexName, explicitIndexModuleName, agentInstanceContext, optionalSerde);
         explicitIndexes.put(new NameAndModule(explicitIndexName, explicitIndexModuleName), pair.getSecond().getEventTable());
     }
@@ -151,7 +151,7 @@ public class EventTableIndexRepository {
         return entry.getTable();
     }
 
-    private Pair<IndexMultiKey, EventTableAndNamePair> addIndex(QueryPlanIndexItem indexItem, Iterable<EventBean> prefilledEvents, EventType indexedType, String indexName, String indexModuleName, AgentInstanceContext agentInstanceContext, DataInputOutputSerde<Object> optionalValueSerde) {
+    private Pair<IndexMultiKey, EventTableAndNamePair> addIndex(QueryPlanIndexItem indexItem, Iterable<EventBean> prefilledEvents, EventType indexedType, String indexName, String indexModuleName, AgentInstanceContext agentInstanceContext, DataInputOutputSerde optionalValueSerde) {
 
         // not resolved as full match and not resolved as unique index match, allocate
         IndexMultiKey indexPropKey = indexItem.toIndexMultiKey();

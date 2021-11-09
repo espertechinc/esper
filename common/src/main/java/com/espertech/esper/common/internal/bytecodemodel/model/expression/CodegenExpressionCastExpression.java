@@ -44,9 +44,9 @@ public class CodegenExpressionCastExpression implements CodegenExpression {
     public void render(StringBuilder builder, Map<Class, String> imports, boolean isInnerClass) {
         builder.append("((");
         if (clazz != null) {
-            appendClassName(builder, clazz, imports);
+            appendClassName(builder, clazz, imports, false); // Disallow array-type-parameterized
         } else {
-            builder.append(typeName);
+            appendClassName(builder, typeName);
         }
         builder.append(")");
         expression.render(builder, imports, isInnerClass);

@@ -8,11 +8,13 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.compiler.internal.util;
+package com.espertech.esper.compiler.internal.compiler.janino;
 
+import com.espertech.esper.common.internal.compile.compiler.CompilerAbstractionCompilationContext;
 import com.espertech.esper.common.internal.bytecodemodel.core.CodegenClass;
 import com.espertech.esper.common.internal.compile.stage3.ModuleCompileTimeServices;
 import com.espertech.esper.common.internal.context.util.ByteArrayProvidingClassLoader;
+import com.espertech.esper.compiler.internal.util.CodegenClassGenerator;
 import org.codehaus.janino.ClassLoaderIClassLoader;
 import org.codehaus.janino.Parser;
 import org.codehaus.janino.Scanner;
@@ -30,13 +32,12 @@ import static com.espertech.esper.compiler.internal.util.CodeGenerationUtil.code
 public class JaninoCompiler {
     private final static Logger log = LoggerFactory.getLogger(JaninoCompiler.class);
 
-    protected static void compile(CodegenClass clazz, Map<String, byte[]> classpath, Map<String, byte[]> output, ModuleCompileTimeServices compileTimeServices) {
-        boolean withCodeLogging = compileTimeServices.getConfiguration().getCompiler().getLogging().isEnableCode();
-        String code = CodegenClassGenerator.compile(clazz);
-        compileInternal(code, clazz.getClassName(), classpath, output, withCodeLogging, compileTimeServices.getParentClassLoader(), true, null);
+    public static void compile(CodegenClass clazz, Map<String, byte[]> classpath, Map<String, byte[]> output, CompilerAbstractionCompilationContext context) {
+        String code = CodegenClassGenerator.generate(clazz);
+        compileInternal(code, clazz.getClassName(), classpath, output, context.isLogging(), context.getParentClassLoader(), true, null);
     }
 
-    protected static void compile(String code, String filenameWithoutExtension, Map<String, byte[]> classpath, Map<String, byte[]> output, Consumer<Object> compileResultConsumer, ModuleCompileTimeServices compileTimeServices) {
+    public static void compile(String code, String filenameWithoutExtension, Map<String, byte[]> classpath, Map<String, byte[]> output, Consumer<Object> compileResultConsumer, ModuleCompileTimeServices compileTimeServices) {
         boolean withCodeLogging = compileTimeServices.getConfiguration().getCompiler().getLogging().isEnableCode();
         compileInternal(code, filenameWithoutExtension, classpath, output, withCodeLogging, compileTimeServices.getParentClassLoader(), false, compileResultConsumer);
     }

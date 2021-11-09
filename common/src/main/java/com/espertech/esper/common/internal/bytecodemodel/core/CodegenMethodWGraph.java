@@ -64,7 +64,7 @@ public class CodegenMethodWGraph {
         if (footprint.getReturnType() != null) {
             appendClassName(builder, footprint.getReturnType(), imports);
         } else {
-            builder.append(footprint.getReturnTypeName());
+            appendClassName(builder, footprint.getReturnTypeName());
         }
         builder.append(" ").append(name);
         builder.append("(");

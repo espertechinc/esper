@@ -38,12 +38,12 @@ public class ExprClassStaticMethod {
         executions.add(new ExprClassStaticMethodCreateCompileVsRuntime());
         executions.add(new ExprClassStaticMethodLocalFAFQuery());
         executions.add(new ExprClassStaticMethodCreateFAFQuery());
-        executions.add(new ExprClassStaticMethodLocalWithPackageName());
-        executions.add(new ExprClassStaticMethodCreateClassWithPackageName());
         executions.add(new ExprClassStaticMethodLocalAndCreateClassTogether());
-        executions.add(new ExprClassInvalidCompile());
         executions.add(new ExprClassDocSamples());
+        executions.add(new ExprClassInvalidCompile());
+        executions.add(new ExprClassStaticMethodCreateClassWithPackageName());
         executions.add(new ExprClassCompilerInlinedClassInspectionOption());
+        executions.add(new ExprClassStaticMethodLocalWithPackageName());
         return executions;
     }
 
@@ -238,7 +238,7 @@ public class ExprClassStaticMethod {
 
             // invalid class
             env.tryInvalidCompile("inlined_class \"\"\" x \"\"\" select * from SupportBean",
-                    "Failed to compile class: Line 1, Column 2: One of 'class enum interface @' expected instead of 'x' for class [\"\"\" x \"\"\"]");
+                    "Failed to compile an inlined-class: Line 1, Column 2: One of 'class enum interface @' expected instead of 'x' for class [\"\"\" x \"\"\"]");
 
             // invalid already deployed
             RegressionPath path = new RegressionPath();
@@ -249,11 +249,11 @@ public class ExprClassStaticMethod {
 
             // duplicate local class
             String eplDuplLocal = "inlined_class \"\"\" class MyDuplicate{} \"\"\" inlined_class \"\"\" class MyDuplicate{} \"\"\" select * from SupportBean";
-            env.tryInvalidCompile(eplDuplLocal, "Duplicate class by name 'MyDuplicate'");
+            env.tryInvalidCompile(eplDuplLocal, "Failed to compile an inlined-class: Duplicate class by name 'MyDuplicate'");
 
             // duplicate local class and create-class class
             String eplDuplLocalAndCreate = "inlined_class \"\"\" class MyDuplicate{} \"\"\" create inlined_class \"\"\" class MyDuplicate{} \"\"\"";
-            env.tryInvalidCompile(eplDuplLocalAndCreate, "Duplicate class by name 'MyDuplicate'");
+            env.tryInvalidCompile(eplDuplLocalAndCreate, "Failed to compile an inlined-class: Duplicate class by name 'MyDuplicate'");
 
             // duplicate create-class class
             String eplDuplCreate = "create inlined_class \"\"\" public class MyDuplicate{} \"\"\";\n" +

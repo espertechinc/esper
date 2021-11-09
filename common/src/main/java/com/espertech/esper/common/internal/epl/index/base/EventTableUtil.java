@@ -31,7 +31,7 @@ public class EventTableUtil {
      * @param isFireAndForget      indicates fire-and-forget
      * @return table build
      */
-    public static EventTable buildIndex(AgentInstanceContext agentInstanceContext, int indexedStreamNum, QueryPlanIndexItem item, EventType eventType, boolean unique, String optionalIndexName, DataInputOutputSerde<Object> optionalValueSerde, boolean isFireAndForget) {
+    public static EventTable buildIndex(AgentInstanceContext agentInstanceContext, int indexedStreamNum, QueryPlanIndexItem item, EventType eventType, boolean unique, String optionalIndexName, DataInputOutputSerde optionalValueSerde, boolean isFireAndForget) {
         String[] indexProps = item.getHashProps();
         EPTypeClass[] indexTypes = item.getHashPropTypes();
         EventPropertyValueGetter indexGetter = item.getHashGetter();

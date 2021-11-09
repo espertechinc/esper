@@ -60,6 +60,35 @@ public class EPTypeClassParameterized extends EPTypeClass {
     }
 
     /**
+     * Ctor.
+     *
+     * @param typeClass  the type
+     * @param parameter single type parameter
+     */
+    public EPTypeClassParameterized(Class<?> typeClass, EPTypeClass parameter) {
+        super(typeClass);
+        if (parameter == null) {
+            throw new IllegalStateException("Null type parameter provided");
+        }
+        this.parameters = new EPTypeClass[] {parameter};
+    }
+
+    /**
+     * Ctor.
+     *
+     * @param typeClass  the type
+     * @param parameterOne single type parameter
+     * @param parameterTwo single type parameter
+     */
+    public EPTypeClassParameterized(Class<?> typeClass, EPTypeClass parameterOne, EPTypeClass parameterTwo) {
+        super(typeClass);
+        if (parameterOne == null || parameterTwo == null) {
+            throw new IllegalStateException("Null type parameter provided");
+        }
+        this.parameters = new EPTypeClass[] {parameterOne, parameterTwo};
+    }
+
+    /**
      * Build an instance using the type and the single non-null type parameter provided.
      * <p>
      * For example, use <code>from(List.class, String.class)</code> to build <code>List&lt;String&gt;</code>.

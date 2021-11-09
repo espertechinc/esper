@@ -95,6 +95,10 @@ public class TestSuiteClientCompile extends TestCase {
         RegressionRunner.run(session, ClientCompilePathCache.executions());
     }
 
+    public void testClientCompileToolCompiler() {
+        RegressionRunner.run(session, ClientCompileToolCompiler.executions());
+    }
+
     private static void configure(Configuration configuration) {
 
         for (Class clazz : new Class[]{SupportBean.class, SupportMarketDataBean.class, SupportBean_S0.class, SupportBean_S1.class,

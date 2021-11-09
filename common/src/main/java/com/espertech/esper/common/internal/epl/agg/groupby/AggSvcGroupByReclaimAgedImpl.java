@@ -58,10 +58,10 @@ public class AggSvcGroupByReclaimAgedImpl {
     }
 
     public static void ctorCodegenReclaim(CodegenCtor ctor, List<CodegenTypedParam> explicitMembers, CodegenClassScope classScope, CodegenExpression maxAgeFactory, CodegenExpression frequencyFactory) {
-        explicitMembers.add(new CodegenTypedParam(EPTypePremade.LONGBOXED.getEPType(), REF_NEXTSWEEPTIME.getRef()));
-        explicitMembers.add(new CodegenTypedParam(AggregationRowRemovedCallback.EPTYPE, REF_REMOVEDCALLBACK.getRef()));
-        explicitMembers.add(new CodegenTypedParam(EPTypePremade.LONGPRIMITIVE.getEPType(), REF_CURRENTMAXAGE.getRef()));
-        explicitMembers.add(new CodegenTypedParam(EPTypePremade.LONGPRIMITIVE.getEPType(), REF_CURRENTRECLAIMFREQUENCY.getRef()));
+        explicitMembers.add(new CodegenTypedParam(EPTypePremade.LONGBOXED.getEPType(), REF_NEXTSWEEPTIME.getRef()).setFinal(false));
+        explicitMembers.add(new CodegenTypedParam(AggregationRowRemovedCallback.EPTYPE, REF_REMOVEDCALLBACK.getRef()).setFinal(false));
+        explicitMembers.add(new CodegenTypedParam(EPTypePremade.LONGPRIMITIVE.getEPType(), REF_CURRENTMAXAGE.getRef()).setFinal(false));
+        explicitMembers.add(new CodegenTypedParam(EPTypePremade.LONGPRIMITIVE.getEPType(), REF_CURRENTRECLAIMFREQUENCY.getRef()).setFinal(false));
         explicitMembers.add(new CodegenTypedParam(AggSvcGroupByReclaimAgedEvalFunc.EPTYPE, REF_EVALUATORFUNCTIONMAXAGE.getRef()));
         explicitMembers.add(new CodegenTypedParam(AggSvcGroupByReclaimAgedEvalFunc.EPTYPE, REF_EVALUATIONFUNCTIONFREQUENCY.getRef()));
         ctor.getBlock().assignRef(REF_CURRENTMAXAGE, constant(DEFAULT_MAX_AGE_MSEC))
