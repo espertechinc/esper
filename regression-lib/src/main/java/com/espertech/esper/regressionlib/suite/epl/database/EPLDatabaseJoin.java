@@ -40,7 +40,6 @@ public class EPLDatabaseJoin {
 
     public static List<RegressionExecution> executions() {
         List<RegressionExecution> execs = new ArrayList<>();
-        /*
         execs.add(new EPLDatabaseMySQLDatabaseConnection());
         execs.add(new EPLDatabaseSimpleJoinLeft());
         execs.add(new EPLDatabase2HistoricalStar());
@@ -61,7 +60,6 @@ public class EPLDatabaseJoin {
         execs.add(new EPLDatabasePropertyResolution());
         execs.add(new EPLDatabaseRestartStatement());
         execs.add(new EPLDatabaseSimpleJoinRight());
-        */
         execs.add(new EPLDatabaseJoinIndexNullType());
         return execs;
     }
