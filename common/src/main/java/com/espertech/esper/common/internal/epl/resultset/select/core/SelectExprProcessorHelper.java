@@ -929,6 +929,22 @@ public class SelectExprProcessorHelper {
                         // use the provided override-type if there is one
                         if (args.getOptionalInsertIntoEventType() != null) {
                             resultEventType = insertIntoTargetType;
+                            Map<String, Object> propertyTypes = EventTypeUtility.getPropertyTypesNonPrimitive(selPropertyTypes);
+                            Function<EventTypeApplicationType, EventTypeMetadata> metadata = appType -> new EventTypeMetadata(args.getOptionalInsertIntoEventType().getName(), moduleName, EventTypeTypeClass.STREAM, appType, NameAccessModifier.PRIVATE, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
+                            EventType proposed;
+                            if (resultEventType instanceof MapEventType) {
+                                proposed = BaseNestableEventUtil.makeMapTypeCompileTime(metadata.apply(EventTypeApplicationType.MAP), propertyTypes, null, null, null, null, args.getBeanEventTypeFactoryPrivate(), args.getEventTypeCompileTimeResolver());
+                            } else if (resultEventType instanceof ObjectArrayEventType) {
+                                proposed = BaseNestableEventUtil.makeOATypeCompileTime(metadata.apply(EventTypeApplicationType.OBJECTARR), propertyTypes, null, null, null, null, args.getBeanEventTypeFactoryPrivate(), args.getEventTypeCompileTimeResolver());
+                            } else if (resultEventType instanceof JsonEventType) {
+                                EventTypeForgablesPair pair = JsonEventTypeUtility.makeJsonTypeCompileTimeNewType(metadata.apply(EventTypeApplicationType.JSON), propertyTypes, null, null, args.getStatementRawInfo(), args.getCompileTimeServices());
+                                proposed = pair.getEventType();
+                            } else if (resultEventType instanceof AvroSchemaEventType) {
+                                proposed = args.getEventTypeAvroHandler().newEventTypeFromNormalized(metadata.apply(EventTypeApplicationType.AVRO), null, args.getBeanEventTypeFactoryPrivate().getEventBeanTypedEventFactory(), propertyTypes, args.getAnnotations(), null, null, null, args.getStatementName());
+                            } else {
+                                throw new IllegalStateException("Unrecognized event type " + resultEventType.getMetadata().getApplicationType());
+                            }
+                            EventTypeUtility.compareExistingType(proposed, resultEventType);
                         } else if (existingType instanceof AvroSchemaEventType) {
                             args.getEventTypeAvroHandler().avroCompat(existingType, selPropertyTypes);
                             resultEventType = existingType;

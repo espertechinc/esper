@@ -102,7 +102,46 @@ public class InfraNWTableFAF implements IndexBackingTableInfo {
         execs.add(new InfraSelectDistinct(true));
         execs.add(new InfraSelectDistinct(false));
 
+        execs.add(new InfraInvalidInsert(EventRepresentationChoice.MAP));
+        execs.add(new InfraInvalidInsert(EventRepresentationChoice.OBJECTARRAY));
+        execs.add(new InfraInvalidInsert(EventRepresentationChoice.JSON));
+        execs.add(new InfraInvalidInsert(EventRepresentationChoice.AVRO));
+
         return execs;
+    }
+
+    private static class InfraInvalidInsert implements RegressionExecution {
+        private final EventRepresentationChoice representation;
+
+        public InfraInvalidInsert(EventRepresentationChoice representation) {
+            this.representation = representation;
+        }
+
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            String eplNamedWindow =
+                    "create " + representation.getName() + " schema MySchema(id string);\n" +
+                    "@public create window MyWindow#keepall as MySchema;\n";
+            env.compile(eplNamedWindow, path);
+
+            String expected = "Event type named 'MyWindow' has already been declared with differing column name or type information: ";
+            if (representation != EventRepresentationChoice.AVRO) {
+                expected += "Type by name 'MyWindow' in property 'id' expected String but receives Integer";
+            } else {
+                expected += "Avro schema does not match for type";
+            }
+            env.tryInvalidCompileFAF(path, "insert into MyWindow select 1 as id", expected);
+        }
+
+        public EnumSet<RegressionFlag> flags() {
+            return EnumSet.of(RegressionFlag.COMPILEROPS);
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                    "representation=" + representation +
+                    '}';
+        }
     }
 
     private static class InfraSelectDistinct implements RegressionExecution {

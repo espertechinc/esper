@@ -313,7 +313,8 @@ public class AvroEventType implements AvroSchemaEventType, EventTypeSPI {
 
         AvroEventType otherAvro = (AvroEventType) other;
         if (!otherAvro.avroSchema.equals(avroSchema)) {
-            return new ExprValidationException("Avro schema does not match for type '" + other.getName() + "'");
+            return new ExprValidationException("Avro schema does not match for type '" + other.getName() + "': " +
+                    avroSchema.toString() + " versus " + otherAvro.avroSchema.toString());
         }
 
         return null;
