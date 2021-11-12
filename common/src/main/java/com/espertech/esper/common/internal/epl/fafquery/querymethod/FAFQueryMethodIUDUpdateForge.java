@@ -68,7 +68,7 @@ public class FAFQueryMethodIUDUpdateForge extends FAFQueryMethodIUDBaseForge {
         // make updater
         try {
             boolean copyOnWrite = processor instanceof FireAndForgetProcessorNamedWindowForge;
-            updateHelper = EventBeanUpdateHelperForgeFactory.make(processor.getNamedWindowOrTableName(),
+            updateHelper = EventBeanUpdateHelperForgeFactory.make(processor.getProcessorName(),
                 (EventTypeSPI) processor.getEventTypeRSPInputEvents(), updateSpec.getAssignments(), aliasName, null, copyOnWrite,
                 statementRawInfo.getStatementName(), services.getEventTypeAvroHandler());
         } catch (ExprValidationException e) {

@@ -41,7 +41,7 @@ import static com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQu
 /**
  * Starts and provides the stop method for EPL statements.
  */
-public abstract class FAFQueryMethodIUDBase implements FAFQueryMethod {
+public abstract class FAFQueryMethodIUDBase implements FAFQueryMethod, FAFQueryMethodSessionPrepared, FAFQuerySessionUnprepared {
     private String contextName;
     private FireAndForgetProcessor processor;
     private InternalEventRouteDest internalEventRouteDest;
@@ -90,11 +90,30 @@ public abstract class FAFQueryMethodIUDBase implements FAFQueryMethod {
 
     protected abstract EventBean[] execute(FireAndForgetInstance fireAndForgetProcessorInstance);
 
-    public void ready(StatementContextRuntimeServices services) {
-        if (!subselects.isEmpty()) {
-            initializeSubselects(services, annotations, subselects);
-        }
-        eventProcessingRWLock = services.getEventProcessingRWLock();
+    public FAFQuerySessionUnprepared readyUnprepared(StatementContextRuntimeServices services) {
+        ready(services);
+        return this;
+    }
+
+    public FAFQueryMethodSessionPrepared readyPrepared(StatementContextRuntimeServices services) {
+        ready(services);
+        return this;
+    }
+
+    public FAFQueryMethodSessionPrepared prepared() {
+        return this;
+    }
+
+    public FAFQuerySessionUnprepared unprepared() {
+        return this;
+    }
+
+    public void init() {
+        // no action required
+    }
+
+    public void close() {
+        // no action required
     }
 
     public EPPreparedQueryResult execute(AtomicBoolean serviceStatusProvider, FAFQueryMethodAssignerSetter assignerSetter, ContextPartitionSelector[] contextPartitionSelectors, ContextManagementService contextManagementService) {
@@ -196,5 +215,12 @@ public abstract class FAFQueryMethodIUDBase implements FAFQueryMethod {
 
         // assign
         assignerSetter.assign(new StatementAIFactoryAssignmentsImpl(null, null, null, subselectActivations, tableAccessEvals, null));
+    }
+
+    private void ready(StatementContextRuntimeServices services) {
+        if (!subselects.isEmpty()) {
+            initializeSubselects(services, annotations, subselects);
+        }
+        eventProcessingRWLock = services.getEventProcessingRWLock();
     }
 }

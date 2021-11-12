@@ -12,14 +12,14 @@ package com.espertech.esper.common.internal.epl.historical.method.poll;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.Map;
 
 public class MethodConversionStrategyCollectionMap extends MethodConversionStrategyCollection {
     public final static EPTypeClass EPTYPE = new EPTypeClass(MethodConversionStrategyCollectionMap.class);
 
-    protected EventBean getEventBean(Object value, AgentInstanceContext agentInstanceContext) {
-        return agentInstanceContext.getEventBeanTypedEventFactory().adapterForTypedMap((Map) value, eventType);
+    protected EventBean getEventBean(Object value, ExprEvaluatorContext exprEvaluatorContext) {
+        return exprEvaluatorContext.getEventBeanTypedEventFactory().adapterForTypedMap((Map) value, eventType);
     }
 }

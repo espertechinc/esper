@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.epl.historical.method.poll;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +24,7 @@ public class MethodConversionStrategyScript extends MethodConversionStrategyBase
     public final static EPTypeClass EPTYPE = new EPTypeClass(MethodConversionStrategyScript.class);
     private final static Logger log = LoggerFactory.getLogger(MethodConversionStrategyScript.class);
 
-    public List<EventBean> convert(Object invocationResult, MethodTargetStrategy origin, AgentInstanceContext agentInstanceContext) {
+    public List<EventBean> convert(Object invocationResult, MethodTargetStrategy origin, ExprEvaluatorContext exprEvaluatorContext) {
         if (!(invocationResult instanceof EventBean[])) {
             log.warn("Script expected return type EventBean[] does not match result " + invocationResult == null ? "null" : invocationResult.getClass().getName());
             return Collections.emptyList();

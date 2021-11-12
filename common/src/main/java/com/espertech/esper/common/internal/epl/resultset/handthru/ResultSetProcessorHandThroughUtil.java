@@ -30,10 +30,10 @@ public class ResultSetProcessorHandThroughUtil {
      * @param events               - input events
      * @param isNewData            - indicates whether we are dealing with new data (istream) or old data (rstream)
      * @param isSynthesize         - set to true to indicate that synthetic events are required for an iterator result set
-     * @param agentInstanceContext context
+     * @param exprEvaluatorContext context
      * @return output events, one for each input event
      */
-    public static EventBean[] getSelectEventsNoHavingHandThruView(SelectExprProcessor exprProcessor, EventBean[] events, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext agentInstanceContext) {
+    public static EventBean[] getSelectEventsNoHavingHandThruView(SelectExprProcessor exprProcessor, EventBean[] events, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         if (events == null) {
             return null;
         }
@@ -42,7 +42,7 @@ public class ResultSetProcessorHandThroughUtil {
         EventBean[] eventsPerStream = new EventBean[1];
         for (int i = 0; i < events.length; i++) {
             eventsPerStream[0] = events[i];
-            result[i] = exprProcessor.process(eventsPerStream, isNewData, isSynthesize, agentInstanceContext);
+            result[i] = exprProcessor.process(eventsPerStream, isNewData, isSynthesize, exprEvaluatorContext);
         }
 
         return result;

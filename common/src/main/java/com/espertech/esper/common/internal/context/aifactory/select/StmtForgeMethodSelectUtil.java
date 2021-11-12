@@ -222,7 +222,7 @@ public class StmtForgeMethodSelectUtil {
                 DBStatementStreamSpec sqlStreamSpec = (DBStatementStreamSpec) streamSpec;
                 SQLColumnTypeConversion typeConversionHook = (SQLColumnTypeConversion) ClasspathImportUtil.getAnnotationHook(statementSpec.getAnnotations(), HookType.SQLCOL, SQLColumnTypeConversion.class, services.getClasspathImportServiceCompileTime());
                 SQLOutputRowConversion outputRowConversionHook = (SQLOutputRowConversion) ClasspathImportUtil.getAnnotationHook(statementSpec.getAnnotations(), HookType.SQLROW, SQLOutputRowConversion.class, services.getClasspathImportServiceCompileTime());
-                HistoricalEventViewableDatabaseForge viewable = HistoricalEventViewableDatabaseForgeFactory.createDBStatementView(stream, sqlStreamSpec, typeConversionHook, outputRowConversionHook, base, services);
+                HistoricalEventViewableDatabaseForge viewable = HistoricalEventViewableDatabaseForgeFactory.createDBStatementView(stream, sqlStreamSpec, typeConversionHook, outputRowConversionHook, base.getStatementRawInfo(), services);
                 streamEventTypes[stream] = viewable.getEventType();
                 viewForges[stream] = Collections.emptyList();
                 viewableActivatorForges[stream] = new ViewableActivatorHistoricalForge(viewable);
@@ -299,7 +299,7 @@ public class StmtForgeMethodSelectUtil {
                 continue;
             }
             scheduleHandleCallbackProviders.add(new ScheduleHandleTracked(new CallbackAttributionStream(stream), historicalEventViewable));
-            List<StmtClassForgeableFactory> forgeables = historicalEventViewable.validate(typeService, base, services);
+            List<StmtClassForgeableFactory> forgeables = historicalEventViewable.validate(typeService, base.getStatementSpec().getRaw().getSqlParameters(), base.getStatementRawInfo(), services);
             additionalForgeables.addAll(forgeables);
             historicalViewableDesc.setHistorical(stream, historicalEventViewable.getRequiredStreams());
             if (historicalEventViewable.getRequiredStreams().contains(stream)) {

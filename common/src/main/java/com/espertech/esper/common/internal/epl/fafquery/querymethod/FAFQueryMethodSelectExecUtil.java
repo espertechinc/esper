@@ -69,9 +69,9 @@ public class FAFQueryMethodSelectExecUtil {
         return pair.getFirst();
     }
 
-    static Collection<EventBean> filtered(Collection<EventBean> snapshot, ExprEvaluator filterExpressions, AgentInstanceContext agentInstanceContext) {
+    static Collection<EventBean> filtered(Collection<EventBean> snapshot, ExprEvaluator filterExpressions, ExprEvaluatorContext exprEvaluatorContext) {
         ArrayDeque<EventBean> deque = new ArrayDeque<>(Math.min(snapshot.size(), 16));
-        ExprNodeUtilityEvaluate.applyFilterExpressionIterable(snapshot.iterator(), filterExpressions, agentInstanceContext, deque);
+        ExprNodeUtilityEvaluate.applyFilterExpressionIterable(snapshot.iterator(), filterExpressions, exprEvaluatorContext, deque);
         return deque;
     }
 

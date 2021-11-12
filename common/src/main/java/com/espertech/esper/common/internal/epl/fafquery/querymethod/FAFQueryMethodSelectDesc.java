@@ -129,12 +129,12 @@ public class FAFQueryMethodSelectDesc {
         // resolve types and processors
         for (int i = 0; i < numStreams; i++) {
             final StreamSpecCompiled streamSpec = statementSpec.getStreamSpecs()[i];
-            processors[i] = FireAndForgetProcessorForgeFactory.validateResolveProcessor(streamSpec);
+            processors[i] = FireAndForgetProcessorForgeFactory.validateResolveProcessor(streamSpec, statementSpec, statementRawInfo, services);
             if (numStreams > 1 && processors[i].getContextName() != null) {
                 throw new ExprValidationException("Joins against named windows that are under context are not supported");
             }
 
-            String streamName = processors[i].getNamedWindowOrTableName();
+            String streamName = processors[i].getProcessorName();
             if (streamSpec.getOptionalStreamName() != null) {
                 streamName = streamSpec.getOptionalStreamName();
             }
@@ -146,9 +146,17 @@ public class FAFQueryMethodSelectDesc {
             if (streamSpec instanceof NamedWindowConsumerStreamSpec) {
                 NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) streamSpec;
                 consumerFilterExprs = namedSpec.getFilterExpressions();
-            } else {
+            } else if (streamSpec instanceof TableQueryStreamSpec) {
                 TableQueryStreamSpec tableSpec = (TableQueryStreamSpec) streamSpec;
                 consumerFilterExprs = tableSpec.getFilterExpressions();
+            } else {
+                consumerFilterExprs = Collections.emptyList();
+                if (i > 0) {
+                    throw new ExprValidationException("Join between SQL query results in fire-and-forget is not supported");
+                }
+                if (contextName != null) {
+                    throw new ExprValidationException("Context specification for SQL queries in fire-and-forget is not supported");
+                }
             }
             consumerFilters[i] = ExprNodeUtilityMake.connectExpressionsByLogicalAndWhenNeeded(consumerFilterExprs);
         }

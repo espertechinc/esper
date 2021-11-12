@@ -43,7 +43,9 @@ public interface EPFireAndForgetService {
 
     /**
      * Prepare an unparameterized fire-and-forget query before execution and for repeated execution.
-     *
+     * <p>
+     *     Call {@link EPFireAndForgetPreparedQuery#close()} when done executing queries.
+     * </p>
      * @param compiled is the compiled EPL query to prepare
      * @return proxy to execute upon, that also provides the event type of the returned results
      */
@@ -52,6 +54,9 @@ public interface EPFireAndForgetService {
     /**
      * Prepare a parameterized fire-and-forget query for repeated parameter setting and execution.
      * Set all values on the returned holder then execute using {@link #executeQuery(EPFireAndForgetPreparedQueryParameterized)}.
+     * <p>
+     *     Call {@link EPFireAndForgetPreparedQueryParameterized#close()} when done executing queries.
+     * </p>
      *
      * @param compiled is the compiled EPL query to prepare
      * @return parameter holder upon which to set values

@@ -15,6 +15,7 @@ import com.espertech.esper.common.internal.context.aifactory.core.ModuleIncident
 import com.espertech.esper.common.internal.context.module.StatementReadyCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.StatementContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.script.core.ScriptEvaluator;
 
 public class MethodTargetStrategyScript implements MethodTargetStrategy, MethodTargetStrategyFactory, StatementReadyCallback {
@@ -30,8 +31,8 @@ public class MethodTargetStrategyScript implements MethodTargetStrategy, MethodT
         return this;
     }
 
-    public Object invoke(Object lookupValues, AgentInstanceContext agentInstanceContext) {
-        return scriptEvaluator.evaluate(lookupValues, agentInstanceContext);
+    public Object invoke(Object lookupValues, ExprEvaluatorContext exprEvaluatorContext) {
+        return scriptEvaluator.evaluate(lookupValues, exprEvaluatorContext);
     }
 
     public String getPlan() {

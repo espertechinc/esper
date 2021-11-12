@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.epl.historical.indexingstrategy;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 
 import java.util.List;
@@ -33,8 +33,8 @@ public interface PollResultIndexingStrategy {
      * @param pollResult           result of a poll operation
      * @param isActiveCache        true to indicate that caching is active and therefore index building makes sense as
      *                             the index structure is not a throw-away.
-     * @param agentInstanceContext statement context
+     * @param exprEvaluatorContext statement context
      * @return indexed collection of poll results
      */
-    EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, AgentInstanceContext agentInstanceContext);
+    EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, ExprEvaluatorContext exprEvaluatorContext);
 }

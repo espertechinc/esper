@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.historical.indexingstrategy;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 
 import java.util.List;
@@ -29,7 +29,7 @@ public class PollResultIndexingStrategyNoIndex implements PollResultIndexingStra
     private PollResultIndexingStrategyNoIndex() {
     }
 
-    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, AgentInstanceContext agentInstanceContext) {
+    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, ExprEvaluatorContext exprEvaluatorContext) {
         return new EventTable[]{new UnindexedEventTableList(pollResult, -1)};
     }
 }

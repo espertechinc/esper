@@ -20,7 +20,7 @@ import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
 import com.espertech.esper.common.internal.compile.stage1.spec.MethodStreamSpec;
-import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
+import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
@@ -36,6 +36,7 @@ import com.espertech.esper.common.internal.util.ClassHelperPrint;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.constant;
 
@@ -53,10 +54,10 @@ public class HistoricalEventViewableMethodForge extends HistoricalEventViewableF
         this.metadata = metadata;
     }
 
-    public List<StmtClassForgeableFactory> validate(StreamTypeService typeService, StatementBaseInfo base, StatementCompileTimeServices services)
+    public List<StmtClassForgeableFactory> validate(StreamTypeService typeService, Map<Integer, List<ExprNode>> sqlParameters, StatementRawInfo rawInfo, StatementCompileTimeServices services)
             throws ExprValidationException {
         // validate and visit
-        ExprValidationContext validationContext = new ExprValidationContextBuilder(typeService, base.getStatementRawInfo(), services).withAllowBindingConsumption(true).build();
+        ExprValidationContext validationContext = new ExprValidationContextBuilder(typeService, rawInfo, services).withAllowBindingConsumption(true).build();
 
         ExprNodeIdentifierAndStreamRefVisitor visitor = new ExprNodeIdentifierAndStreamRefVisitor(true);
         final List<ExprNode> validatedInputParameters = new ArrayList<ExprNode>();
@@ -88,7 +89,7 @@ public class HistoricalEventViewableMethodForge extends HistoricalEventViewableF
             ExprNodeUtilMethodDesc desc = ExprNodeUtilityResolve.resolveMethodAllowWildcardAndStream(
                     metadata.getMethodProviderClass().getName(), metadata.isStaticMethod() ? null : ClassHelperGenericType.getClassEPType(metadata.getMethodProviderClass()),
                     methodStreamSpec.getMethodName(), validatedInputParameters, false, null, handler, methodStreamSpec.getMethodName(),
-                    base.getStatementRawInfo(), services);
+                    rawInfo, services);
             this.inputParamEvaluators = desc.getChildForges();
             targetMethod = desc.getReflectionMethod();
         } else {
@@ -97,7 +98,7 @@ public class HistoricalEventViewableMethodForge extends HistoricalEventViewableF
         }
 
         // plan multikey
-        MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(inputParamEvaluators, false, base.getStatementRawInfo(), services.getSerdeResolver());
+        MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(inputParamEvaluators, false, rawInfo, services.getSerdeResolver());
         this.multiKeyClassRef = multiKeyPlan.getClassRef();
 
         Pair<MethodTargetStrategyForge, MethodConversionStrategyForge> strategies = PollExecStrategyPlanner.plan(metadata, targetMethod, eventType);

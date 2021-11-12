@@ -20,7 +20,7 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionRef;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlan;
 import com.espertech.esper.common.internal.compile.multikey.MultiKeyPlanner;
-import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
+import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
@@ -49,15 +49,15 @@ public class HistoricalEventViewableDatabaseForge extends HistoricalEventViewabl
         this.outputTypes = outputTypes;
     }
 
-    public List<StmtClassForgeableFactory> validate(StreamTypeService typeService, StatementBaseInfo base, StatementCompileTimeServices services)
+    public List<StmtClassForgeableFactory> validate(StreamTypeService typeService, Map<Integer, List<ExprNode>> sqlParameters, StatementRawInfo rawInfo, StatementCompileTimeServices services)
             throws ExprValidationException {
 
         int count = 0;
-        ExprValidationContext validationContext = new ExprValidationContextBuilder(typeService, base.getStatementRawInfo(), services)
+        ExprValidationContext validationContext = new ExprValidationContextBuilder(typeService, rawInfo, services)
                 .withAllowBindingConsumption(true).build();
         ExprNode[] inputParamNodes = new ExprNode[inputParameters.length];
         for (String inputParam : inputParameters) {
-            ExprNode raw = findSQLExpressionNode(streamNum, count, base.getStatementSpec().getRaw().getSqlParameters());
+            ExprNode raw = findSQLExpressionNode(streamNum, count, sqlParameters);
             if (raw == null) {
                 throw new ExprValidationException("Internal error find expression for historical stream parameter " + count + " stream " + streamNum);
             }
@@ -76,7 +76,7 @@ public class HistoricalEventViewableDatabaseForge extends HistoricalEventViewabl
         this.inputParamEvaluators = ExprNodeUtilityQuery.getForges(inputParamNodes);
 
         // plan multikey
-        MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(inputParamEvaluators, false, base.getStatementRawInfo(), services.getSerdeResolver());
+        MultiKeyPlan multiKeyPlan = MultiKeyPlanner.planMultiKey(inputParamEvaluators, false, rawInfo, services.getSerdeResolver());
         this.multiKeyClassRef = multiKeyPlan.getClassRef();
 
         return multiKeyPlan.getMultiKeyForgeables();

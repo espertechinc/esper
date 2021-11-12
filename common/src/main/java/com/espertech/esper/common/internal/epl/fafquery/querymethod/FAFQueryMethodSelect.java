@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.context.mgr.ContextManagementService;
 import com.espertech.esper.common.internal.context.util.StatementContextRuntimeServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.common.internal.epl.fafquery.processor.FireAndForgetProcessor;
+import com.espertech.esper.common.internal.epl.fafquery.processor.FireAndForgetProcessorDB;
 import com.espertech.esper.common.internal.epl.join.base.JoinSetComposerPrototype;
 import com.espertech.esper.common.internal.epl.join.querygraph.QueryGraph;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorFactoryProvider;
@@ -105,7 +106,18 @@ public class FAFQueryMethodSelect implements FAFQueryMethod {
         return resultSetProcessorFactoryProvider.getResultEventType();
     }
 
-    public void ready(StatementContextRuntimeServices svc) {
+    public FAFQuerySessionUnprepared readyUnprepared(StatementContextRuntimeServices services) {
+        ready(false, services);
+        return new FAFQueryMethodSelectSessionUnprepared(this);
+    }
+
+    public FAFQueryMethodSessionPrepared readyPrepared(StatementContextRuntimeServices services) {
+        ready(true, services);
+        selectExec.prepare(this);
+        return new FAFQueryMethodSelectSessionPrepared(this);
+    }
+
+    private void ready(boolean prepared, StatementContextRuntimeServices svc) {
         boolean hasContext = false;
         for (int i = 0; i < processors.length; i++) {
             hasContext |= processors[i].getContextName() != null;
@@ -115,7 +127,13 @@ public class FAFQueryMethodSelect implements FAFQueryMethod {
             if (processors.length == 0) {
                 selectExec = new FAFQueryMethodSelectExecNoContextNoFromClause(svc);
             } else if (processors.length == 1) {
-                if (!hasContext) {
+                if (processors[0] instanceof FireAndForgetProcessorDB) {
+                    if (!prepared) {
+                        selectExec = new FAFQueryMethodSelectExecDBUnprepared(svc);
+                    } else {
+                        selectExec = new FAFQueryMethodSelectExecDBPrepared(svc);
+                    }
+                } else if (!hasContext) {
                     selectExec = FAFQueryMethodSelectExecNoContextNoJoin.INSTANCE;
                 } else {
                     selectExec = FAFQueryMethodSelectExecSomeContextNoJoin.INSTANCE;

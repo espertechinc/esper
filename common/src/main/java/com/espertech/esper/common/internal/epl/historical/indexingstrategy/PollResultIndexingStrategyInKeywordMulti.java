@@ -13,7 +13,7 @@ package com.espertech.esper.common.internal.epl.historical.indexingstrategy;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.index.hash.PropertyHashedEventTableFactory;
 
@@ -27,15 +27,15 @@ public class PollResultIndexingStrategyInKeywordMulti implements PollResultIndex
     private EventPropertyValueGetter[] valueGetters;
     private PropertyHashedEventTableFactory[] factories;
 
-    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, AgentInstanceContext agentInstanceContext) {
+    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, ExprEvaluatorContext exprEvaluatorContext) {
         if (!isActiveCache) {
             return new EventTable[]{new UnindexedEventTableList(pollResult, streamNum)};
         }
 
         EventTable[] tables = new EventTable[valueGetters.length];
         for (int i = 0; i < valueGetters.length; i++) {
-            tables[i] = factories[i].makeEventTables(agentInstanceContext, null)[0];
-            tables[i].add(pollResult.toArray(new EventBean[pollResult.size()]), agentInstanceContext);
+            tables[i] = factories[i].makeEventTables(exprEvaluatorContext, null)[0];
+            tables[i].add(pollResult.toArray(new EventBean[pollResult.size()]), exprEvaluatorContext);
         }
         return tables;
     }

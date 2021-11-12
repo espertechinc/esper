@@ -86,6 +86,11 @@ public abstract class RegressionEnvironmentBase implements RegressionEnvironment
         return runtime().getFireAndForgetService().executeQuery(compiled);
     }
 
+    public EPFireAndForgetQueryResult compileExecuteFAF(String query) {
+        EPCompiled compiled = compileFAF(query, new RegressionPath());
+        return runtime().getFireAndForgetService().executeQuery(compiled);
+    }
+
     public void compileExecuteFAFNoResult(String query, RegressionPath path) {
         compileExecuteFAF(query, path);
     }

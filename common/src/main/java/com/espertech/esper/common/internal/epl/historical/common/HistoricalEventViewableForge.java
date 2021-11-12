@@ -13,19 +13,21 @@ package com.espertech.esper.common.internal.epl.historical.common;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
-import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
+import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
+import com.espertech.esper.common.internal.epl.expression.core.ExprNode;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.schedule.ScheduleHandleCallbackProvider;
 
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 
 public interface HistoricalEventViewableForge extends ScheduleHandleCallbackProvider {
-    List<StmtClassForgeableFactory> validate(StreamTypeService typeService, StatementBaseInfo base, StatementCompileTimeServices services) throws ExprValidationException;
+    List<StmtClassForgeableFactory> validate(StreamTypeService typeService, Map<Integer, List<ExprNode>> sqlParameters, StatementRawInfo rawInfo, StatementCompileTimeServices services) throws ExprValidationException;
 
     /**
      * Returns the a set of stream numbers of all streams that provide property values

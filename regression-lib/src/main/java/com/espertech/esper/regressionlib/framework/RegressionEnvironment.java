@@ -115,6 +115,7 @@ public interface RegressionEnvironment {
     RegressionEnvironment undeploy(String deploymentId);
 
     EPFireAndForgetQueryResult compileExecuteFAF(String query, RegressionPath path);
+    EPFireAndForgetQueryResult compileExecuteFAF(String query);
     void compileExecuteFAFNoResult(String query, RegressionPath path);
 
     EPFireAndForgetQueryResult compileExecuteFAF(EPStatementObjectModel model, RegressionPath path);

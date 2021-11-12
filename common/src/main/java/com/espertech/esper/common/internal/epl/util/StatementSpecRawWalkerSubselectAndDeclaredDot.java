@@ -21,6 +21,7 @@ import com.espertech.esper.common.internal.epl.pattern.filter.EvalFilterForgeNod
 import com.espertech.esper.common.internal.epl.pattern.observer.EvalObserverForgeNode;
 
 import java.util.List;
+import java.util.Map;
 
 public class StatementSpecRawWalkerSubselectAndDeclaredDot {
 
@@ -64,6 +65,16 @@ public class StatementSpecRawWalkerSubselectAndDeclaredDot {
 
         // walk FAF
         walkFAFSpec(spec.getFireAndForgetSpec(), visitor);
+
+        // walk SQL-parameters
+        Map<Integer, List<ExprNode>> sqlParams = spec.getSqlParameters();
+        if (sqlParams != null) {
+            for (Map.Entry<Integer, List<ExprNode>> entry : sqlParams.entrySet()) {
+                for (ExprNode node : entry.getValue()) {
+                    node.accept(visitor);
+                }
+            }
+        }
     }
 
     private static void walkFAFSpec(FireAndForgetSpec fireAndForgetSpec, ExprNodeSubselectDeclaredDotVisitor visitor) {

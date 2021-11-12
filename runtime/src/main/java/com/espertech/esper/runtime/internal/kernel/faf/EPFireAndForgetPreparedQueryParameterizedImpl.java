@@ -13,8 +13,8 @@ package com.espertech.esper.runtime.internal.kernel.faf;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.fireandforget.EPFireAndForgetPreparedQueryParameterized;
 import com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQueryInformationals;
-import com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQueryMethod;
 import com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQueryMethodAssignerSetter;
+import com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQueryMethodSessionPrepared;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -25,16 +25,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class EPFireAndForgetPreparedQueryParameterizedImpl implements EPFireAndForgetPreparedQueryParameterized {
     private final AtomicBoolean serviceProviderStatus;
     private final FAFQueryMethodAssignerSetter fields;
-    private final FAFQueryMethod queryMethod;
+    private final FAFQueryMethodSessionPrepared prepared;
     private final Class[] types;
     private final Map<String, Integer> names;
 
     private Set<Integer> unsatisfiedParamsOneOffset;
 
-    public EPFireAndForgetPreparedQueryParameterizedImpl(AtomicBoolean serviceProviderStatus, FAFQueryMethodAssignerSetter fields, FAFQueryMethod queryMethod, FAFQueryInformationals queryInformationals) {
+    public EPFireAndForgetPreparedQueryParameterizedImpl(AtomicBoolean serviceProviderStatus, FAFQueryMethodAssignerSetter fields, FAFQueryMethodSessionPrepared prepared, FAFQueryInformationals queryInformationals) {
         this.serviceProviderStatus = serviceProviderStatus;
         this.fields = fields;
-        this.queryMethod = queryMethod;
+        this.prepared = prepared;
         this.types = queryInformationals.getSubstitutionParamsTypes();
         this.names = queryInformationals.getSubstitutionParamsNames();
         if (types != null && types.length > 0) {
@@ -88,8 +88,8 @@ public class EPFireAndForgetPreparedQueryParameterizedImpl implements EPFireAndF
         return fields;
     }
 
-    public FAFQueryMethod getQueryMethod() {
-        return queryMethod;
+    public FAFQueryMethodSessionPrepared getPrepared() {
+        return prepared;
     }
 
     public AtomicBoolean getServiceProviderStatus() {
@@ -120,5 +120,9 @@ public class EPFireAndForgetPreparedQueryParameterizedImpl implements EPFireAndF
         if (unsatisfiedParamsOneOffset.isEmpty()) {
             unsatisfiedParamsOneOffset = Collections.emptySet();
         }
+    }
+
+    public void close() {
+        prepared.close();
     }
 }

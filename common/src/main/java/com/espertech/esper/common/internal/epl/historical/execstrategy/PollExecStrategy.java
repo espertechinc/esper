@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.historical.execstrategy;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.List;
 
@@ -30,10 +30,10 @@ public interface PollExecStrategy {
      * Poll events using the keys provided.
      *
      * @param lookupValues         is keys for exeuting a query or such
-     * @param agentInstanceContext context
+     * @param exprEvaluatorContext context
      * @return a list of events for the keys
      */
-    public List<EventBean> poll(Object lookupValues, AgentInstanceContext agentInstanceContext);
+    public List<EventBean> poll(Object lookupValues, ExprEvaluatorContext exprEvaluatorContext);
 
     /**
      * Indicate we are done polling and can release resources.

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.common.internal.epl.fafquery.querymethod;
 
+import com.espertech.esper.common.internal.compile.stage1.spec.DBStatementStreamSpec;
 import com.espertech.esper.common.internal.compile.stage1.spec.NamedWindowConsumerStreamSpec;
 import com.espertech.esper.common.internal.compile.stage1.spec.StreamSpecCompiled;
 import com.espertech.esper.common.internal.compile.stage1.spec.TableQueryStreamSpec;
@@ -23,7 +24,7 @@ public class FAFQueryMethodHelper {
     protected static void validateFAFQuery(StatementSpecCompiled statementSpec) throws ExprValidationException {
         for (int i = 0; i < statementSpec.getStreamSpecs().length; i++) {
             StreamSpecCompiled streamSpec = statementSpec.getStreamSpecs()[i];
-            if (!(streamSpec instanceof NamedWindowConsumerStreamSpec || streamSpec instanceof TableQueryStreamSpec)) {
+            if (!(streamSpec instanceof NamedWindowConsumerStreamSpec || streamSpec instanceof TableQueryStreamSpec || streamSpec instanceof DBStatementStreamSpec)) {
                 throw new ExprValidationException("On-demand queries require tables or named windows and do not allow event streams or patterns");
             }
             if (streamSpec.getViewSpecs().length != 0) {

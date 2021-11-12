@@ -11,10 +11,10 @@
 package com.espertech.esper.common.internal.epl.historical.method.poll;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.List;
 
 public interface MethodConversionStrategy {
-    List<EventBean> convert(Object invocationResult, MethodTargetStrategy origin, AgentInstanceContext agentInstanceContext);
+    List<EventBean> convert(Object invocationResult, MethodTargetStrategy origin, ExprEvaluatorContext exprEvaluatorContext);
 }

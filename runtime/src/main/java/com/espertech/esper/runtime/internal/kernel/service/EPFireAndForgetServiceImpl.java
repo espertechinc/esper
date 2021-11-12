@@ -17,10 +17,7 @@ import com.espertech.esper.common.client.fireandforget.EPFireAndForgetPreparedQu
 import com.espertech.esper.common.client.fireandforget.EPFireAndForgetPreparedQueryParameterized;
 import com.espertech.esper.common.client.fireandforget.EPFireAndForgetQueryResult;
 import com.espertech.esper.common.internal.context.query.FAFProvider;
-import com.espertech.esper.common.internal.epl.fafquery.querymethod.EPPreparedQueryResult;
-import com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQueryMethod;
-import com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQueryMethodProvider;
-import com.espertech.esper.common.internal.epl.fafquery.querymethod.FAFQueryMethodUtil;
+import com.espertech.esper.common.internal.epl.fafquery.querymethod.*;
 import com.espertech.esper.runtime.client.EPFireAndForgetService;
 import com.espertech.esper.runtime.internal.kernel.faf.EPFireAndForgetPreparedQueryParameterizedImpl;
 import com.espertech.esper.runtime.internal.kernel.faf.EPPreparedQueryImpl;
@@ -54,16 +51,16 @@ public class EPFireAndForgetServiceImpl implements EPFireAndForgetService {
         FAFQueryMethodProvider queryMethodProvider = fafProvider.getQueryMethodProvider();
         EPRuntimeHelperFAF.validateSubstitutionParams(queryMethodProvider);
         FAFQueryMethod queryMethod = queryMethodProvider.getQueryMethod();
-        queryMethod.ready(services.getStatementContextRuntimeServices());
-        return new EPPreparedQueryImpl(serviceStatusProvider, queryMethodProvider, queryMethod, services);
+        FAFQueryMethodSessionPrepared prepared = queryMethod.readyPrepared(services.getStatementContextRuntimeServices());
+        return new EPPreparedQueryImpl(serviceStatusProvider, queryMethodProvider, prepared, services);
     }
 
     public EPFireAndForgetPreparedQueryParameterized prepareQueryWithParameters(EPCompiled compiled) {
         FAFProvider fafProvider = EPRuntimeHelperFAF.queryMethod(compiled, services);
         FAFQueryMethodProvider queryMethodProvider = fafProvider.getQueryMethodProvider();
         FAFQueryMethod queryMethod = queryMethodProvider.getQueryMethod();
-        queryMethod.ready(services.getStatementContextRuntimeServices());
-        return new EPFireAndForgetPreparedQueryParameterizedImpl(serviceStatusProvider, queryMethodProvider.getSubstitutionFieldSetter(), queryMethod, queryMethodProvider.getQueryInformationals());
+        FAFQueryMethodSessionPrepared prepared = queryMethod.readyPrepared(services.getStatementContextRuntimeServices());
+        return new EPFireAndForgetPreparedQueryParameterizedImpl(serviceStatusProvider, queryMethodProvider.getSubstitutionFieldSetter(), prepared, queryMethodProvider.getQueryInformationals());
     }
 
     public EPFireAndForgetQueryResult executeQuery(EPFireAndForgetPreparedQueryParameterized parameterizedQuery) {
@@ -83,7 +80,7 @@ public class EPFireAndForgetServiceImpl implements EPFireAndForgetService {
         if (impl.getServiceProviderStatus() != serviceStatusProvider) {
             throw new EPException("Service provider has already been destroyed and reallocated");
         }
-        return new EPQueryResultImpl(impl.getQueryMethod().execute(serviceStatusProvider, impl.getFields(), selectors, services.getContextManagementService()));
+        return new EPQueryResultImpl(impl.getPrepared().execute(serviceStatusProvider, impl.getFields(), selectors, services.getContextManagementService()));
     }
 
 
@@ -92,8 +89,8 @@ public class EPFireAndForgetServiceImpl implements EPFireAndForgetService {
         FAFQueryMethodProvider queryMethodProvider = fafProvider.getQueryMethodProvider();
         EPRuntimeHelperFAF.validateSubstitutionParams(queryMethodProvider);
         FAFQueryMethod queryMethod = queryMethodProvider.getQueryMethod();
-        queryMethod.ready(services.getStatementContextRuntimeServices());
-        EPPreparedQueryResult result = queryMethod.execute(serviceStatusProvider, queryMethodProvider.getSubstitutionFieldSetter(), contextPartitionSelectors, services.getContextManagementService());
+        FAFQuerySessionUnprepared unprepared = queryMethod.readyUnprepared(services.getStatementContextRuntimeServices());
+        EPPreparedQueryResult result = unprepared.execute(serviceStatusProvider, queryMethodProvider.getSubstitutionFieldSetter(), contextPartitionSelectors, services.getContextManagementService());
         return new EPQueryResultImpl(result);
     }
 }

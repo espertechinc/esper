@@ -20,7 +20,7 @@ import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializ
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
 public interface FireAndForgetProcessorForge {
-    String getNamedWindowOrTableName();
+    String getProcessorName();
 
     String getContextName();
 

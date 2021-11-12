@@ -11,7 +11,7 @@
 package com.espertech.esper.common.internal.epl.historical.method.poll;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -19,9 +19,9 @@ import java.util.Collections;
 import java.util.List;
 
 public abstract class MethodConversionStrategyArray extends MethodConversionStrategyBase {
-    protected abstract EventBean getEventBean(Object value, AgentInstanceContext agentInstanceContext);
+    protected abstract EventBean getEventBean(Object value, ExprEvaluatorContext exprEvaluatorContext);
 
-    public List<EventBean> convert(Object invocationResult, MethodTargetStrategy origin, AgentInstanceContext agentInstanceContext) {
+    public List<EventBean> convert(Object invocationResult, MethodTargetStrategy origin, ExprEvaluatorContext exprEvaluatorContext) {
         int length = Array.getLength(invocationResult);
         if (length == 0) {
             return Collections.emptyList();
@@ -29,7 +29,7 @@ public abstract class MethodConversionStrategyArray extends MethodConversionStra
         if (length == 1) {
             Object value = Array.get(invocationResult, 0);
             if (checkNonNullArrayValue(value, origin)) {
-                EventBean event = getEventBean(value, agentInstanceContext);
+                EventBean event = getEventBean(value, exprEvaluatorContext);
                 return Collections.singletonList(event);
             }
             return Collections.emptyList();
@@ -38,7 +38,7 @@ public abstract class MethodConversionStrategyArray extends MethodConversionStra
         for (int i = 0; i < length; i++) {
             Object value = Array.get(invocationResult, i);
             if (checkNonNullArrayValue(value, origin)) {
-                EventBean event = getEventBean(value, agentInstanceContext);
+                EventBean event = getEventBean(value, exprEvaluatorContext);
                 rowResult.add(event);
             }
         }

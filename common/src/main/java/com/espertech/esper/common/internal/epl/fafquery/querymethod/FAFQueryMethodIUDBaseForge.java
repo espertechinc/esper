@@ -92,10 +92,11 @@ public abstract class FAFQueryMethodIUDBaseForge implements FAFQueryMethodForge 
 
         // obtain processor
         StreamSpecCompiled streamSpec = spec.getStreamSpecs()[0];
-        processor = FireAndForgetProcessorForgeFactory.validateResolveProcessor(streamSpec);
+        StatementBaseInfo base = new StatementBaseInfo(compilable, spec, null, statementRawInfo, null);
+        processor = FireAndForgetProcessorForgeFactory.validateResolveProcessor(streamSpec, spec, base.getStatementRawInfo(), services);
 
         // obtain name and type
-        String processorName = processor.getNamedWindowOrTableName();
+        String processorName = processor.getProcessorName();
         EventType eventType = processor.getEventTypeRSPInputEvents();
 
         // determine alias
@@ -105,7 +106,6 @@ public abstract class FAFQueryMethodIUDBaseForge implements FAFQueryMethodForge 
         }
 
         // activate subselect activations
-        StatementBaseInfo base = new StatementBaseInfo(compilable, spec, null, statementRawInfo, null);
         List<NamedWindowConsumerStreamSpec> subqueryNamedWindowConsumers = new ArrayList<>();
         SubSelectActivationDesc subSelectActivationDesc = SubSelectHelperActivations.createSubSelectActivation(false, Collections.emptyList(), subqueryNamedWindowConsumers, base, services);
         Map<ExprSubselectNode, SubSelectActivationPlan> subselectActivation = subSelectActivationDesc.getSubselects();

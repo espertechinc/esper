@@ -16,7 +16,7 @@ import com.espertech.esper.common.client.hook.type.SQLColumnValueContext;
 import com.espertech.esper.common.client.hook.type.SQLInputParameterContext;
 import com.espertech.esper.common.client.hook.type.SQLOutputRowValueContext;
 import com.espertech.esper.common.internal.collection.Pair;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.historical.execstrategy.PollExecStrategy;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
 import com.espertech.esper.common.internal.metrics.audit.AuditPath;
@@ -33,16 +33,15 @@ import java.util.*;
  */
 public class PollExecStrategyDBQuery implements PollExecStrategy {
     private static final Logger JDBC_PERF_LOG = LoggerFactory.getLogger(AuditPath.JDBC_LOG);
-    private static final Logger log = LoggerFactory.getLogger(PollExecStrategyDBQuery.class);
 
     private final HistoricalEventViewableDatabaseFactory factory;
-    private final AgentInstanceContext agentInstanceContext;
+    private final ExprEvaluatorContext exprEvaluatorContext;
     private final ConnectionCache connectionCache;
     private Pair<Connection, PreparedStatement> resources;
 
-    public PollExecStrategyDBQuery(HistoricalEventViewableDatabaseFactory factory, AgentInstanceContext agentInstanceContext, ConnectionCache connectionCache) {
+    public PollExecStrategyDBQuery(HistoricalEventViewableDatabaseFactory factory, ExprEvaluatorContext exprEvaluatorContext, ConnectionCache connectionCache) {
         this.factory = factory;
-        this.agentInstanceContext = agentInstanceContext;
+        this.exprEvaluatorContext = exprEvaluatorContext;
         this.connectionCache = connectionCache;
     }
 
@@ -58,7 +57,7 @@ public class PollExecStrategyDBQuery implements PollExecStrategy {
         connectionCache.destroy();
     }
 
-    public List<EventBean> poll(Object lookupValues, AgentInstanceContext agentInstanceContext) {
+    public List<EventBean> poll(Object lookupValues, ExprEvaluatorContext exprEvaluatorContext) {
         List<EventBean> result;
         try {
             result = execute(resources.getSecond(), lookupValues);
@@ -120,13 +119,13 @@ public class PollExecStrategyDBQuery implements PollExecStrategy {
             try {
                 resultSet = preparedStatement.executeQuery();
             } catch (SQLException ex) {
-                throw new EPException("Error executing statement '" + factory.preparedStatementText + '\'', ex);
+                throw new EPException("Error executing statement '" + factory.preparedStatementText + "': " + ex.getMessage(), ex);
             }
             long endTimeNS = System.nanoTime();
             long endTimeMS = System.currentTimeMillis();
             JDBC_PERF_LOG.info("Statement '" + factory.preparedStatementText + "' delta nanosec " + (endTimeNS - startTimeNS) +
-                " delta msec " + (endTimeMS - startTimeMS) +
-                " parameters " + Arrays.toString(parameters));
+                    " delta msec " + (endTimeMS - startTimeMS) +
+                    " parameters " + Arrays.toString(parameters));
         } else {
             try {
                 resultSet = preparedStatement.executeQuery();
@@ -177,14 +176,14 @@ public class PollExecStrategyDBQuery implements PollExecStrategy {
 
                 EventBean eventBeanRow = null;
                 if (factory.outputRowConversionHook == null) {
-                    eventBeanRow = agentInstanceContext.getEventBeanTypedEventFactory().adapterForTypedMap(row, factory.getEventType());
+                    eventBeanRow = exprEvaluatorContext.getEventBeanTypedEventFactory().adapterForTypedMap(row, factory.getEventType());
                 } else {
                     rowContext.setValues(row);
                     rowContext.setRowNum(rowNum);
                     rowContext.setResultSet(resultSet);
                     Object rowData = factory.outputRowConversionHook.getOutputRow(rowContext);
                     if (rowData != null) {
-                        eventBeanRow = agentInstanceContext.getEventBeanTypedEventFactory().adapterForTypedBean(rowData, (BeanEventType) factory.getEventType());
+                        eventBeanRow = exprEvaluatorContext.getEventBeanTypedEventFactory().adapterForTypedBean(rowData, (BeanEventType) factory.getEventType());
                     }
                 }
 

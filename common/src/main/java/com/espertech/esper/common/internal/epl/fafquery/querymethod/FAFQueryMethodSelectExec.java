@@ -15,7 +15,11 @@ import com.espertech.esper.common.internal.context.mgr.ContextManagementService;
 import com.espertech.esper.common.internal.epl.fafquery.processor.FireAndForgetProcessor;
 
 public interface FAFQueryMethodSelectExec {
+    default void prepare(FAFQueryMethodSelect fafQueryMethodSelect) {}
+
     EPPreparedQueryResult execute(FAFQueryMethodSelect select, ContextPartitionSelector[] contextPartitionSelectors, FAFQueryMethodAssignerSetter assignerSetter, ContextManagementService contextManagementService);
 
     void releaseTableLocks(FireAndForgetProcessor[] processors);
+
+    default void close() {};
 }

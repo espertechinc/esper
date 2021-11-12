@@ -98,6 +98,10 @@ public class TestSuiteEPLDatabase extends TestCase {
         RegressionRunner.run(session, EPLDatabaseNoJoinIterate.executions());
     }
 
+    public void testEPLDatabaseFAF() {
+        RegressionRunner.run(session, EPLDatabaseFAF.executions());
+    }
+
     private static void configure(Configuration configuration) {
         for (Class clazz : new Class[]{SupportBean.class, SupportBeanTwo.class, SupportBean_A.class,
             SupportBeanRange.class, SupportBean_S0.class, SupportBeanComplexProps.class}) {

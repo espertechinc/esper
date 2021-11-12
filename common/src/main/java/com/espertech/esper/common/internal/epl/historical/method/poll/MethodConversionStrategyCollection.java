@@ -11,14 +11,14 @@
 package com.espertech.esper.common.internal.epl.historical.method.poll;
 
 import com.espertech.esper.common.client.EventBean;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.*;
 
 public abstract class MethodConversionStrategyCollection extends MethodConversionStrategyBase {
-    protected abstract EventBean getEventBean(Object value, AgentInstanceContext agentInstanceContext);
+    protected abstract EventBean getEventBean(Object value, ExprEvaluatorContext exprEvaluatorContext);
 
-    public List<EventBean> convert(Object invocationResult, MethodTargetStrategy origin, AgentInstanceContext agentInstanceContext) {
+    public List<EventBean> convert(Object invocationResult, MethodTargetStrategy origin, ExprEvaluatorContext exprEvaluatorContext) {
         Collection collection = (Collection) invocationResult;
         int length = collection.size();
         if (length == 0) {
@@ -27,7 +27,7 @@ public abstract class MethodConversionStrategyCollection extends MethodConversio
         if (length == 1) {
             Object value = collection.iterator().next();
             if (checkNonNullArrayValue(value, origin)) {
-                EventBean event = getEventBean(value, agentInstanceContext);
+                EventBean event = getEventBean(value, exprEvaluatorContext);
                 return Collections.singletonList(event);
             }
             return Collections.emptyList();
@@ -37,7 +37,7 @@ public abstract class MethodConversionStrategyCollection extends MethodConversio
         for (; it.hasNext(); ) {
             Object value = it.next();
             if (checkNonNullArrayValue(value, origin)) {
-                EventBean event = getEventBean(value, agentInstanceContext);
+                EventBean event = getEventBean(value, exprEvaluatorContext);
                 rowResult.add(event);
             }
         }

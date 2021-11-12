@@ -25,7 +25,7 @@ import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.internal.compile.stage1.spec.DBStatementStreamSpec;
-import com.espertech.esper.common.internal.compile.stage3.StatementBaseInfo;
+import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
 import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.historical.database.connection.DatabaseConfigException;
@@ -49,7 +49,7 @@ public class HistoricalEventViewableDatabaseForgeFactory {
      */
     public static final String SAMPLE_WHERECLAUSE_PLACEHOLDER = "$ESPER-SAMPLE-WHERE";
 
-    public static HistoricalEventViewableDatabaseForge createDBStatementView(int streamNum, DBStatementStreamSpec sqlStreamSpec, SQLColumnTypeConversion columnTypeConversionHook, SQLOutputRowConversion outputRowConversionHook, StatementBaseInfo base, StatementCompileTimeServices services)
+    public static HistoricalEventViewableDatabaseForge createDBStatementView(int streamNum, DBStatementStreamSpec sqlStreamSpec, SQLColumnTypeConversion columnTypeConversionHook, SQLOutputRowConversion outputRowConversionHook, StatementRawInfo raw, StatementCompileTimeServices services)
         throws ExprValidationException {
 
         // Parse the SQL for placeholders and text fragments
@@ -182,7 +182,7 @@ public class HistoricalEventViewableDatabaseForgeFactory {
 
         EventType eventType;
         String eventTypeName = services.getEventTypeNameGeneratorStatement().getAnonymousDBHistorical(streamNum);
-        Function<EventTypeApplicationType, EventTypeMetadata> metadata = appType -> new EventTypeMetadata(eventTypeName, base.getModuleName(), EventTypeTypeClass.DBDERIVED, appType, NameAccessModifier.TRANSIENT, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
+        Function<EventTypeApplicationType, EventTypeMetadata> metadata = appType -> new EventTypeMetadata(eventTypeName, raw.getModuleName(), EventTypeTypeClass.DBDERIVED, appType, NameAccessModifier.TRANSIENT, EventTypeBusModifier.NONBUS, false, EventTypeIdPair.unassigned());
         if (outputRowConversionHook == null) {
             eventType = BaseNestableEventUtil.makeMapTypeCompileTime(metadata.apply(EventTypeApplicationType.MAP), eventTypeFields, null, null, null, null, services.getBeanEventTypeFactoryPrivate(), services.getEventTypeCompileTimeResolver());
         } else {

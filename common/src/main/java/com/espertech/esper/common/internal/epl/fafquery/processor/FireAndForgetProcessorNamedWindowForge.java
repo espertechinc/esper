@@ -30,7 +30,7 @@ public class FireAndForgetProcessorNamedWindowForge implements FireAndForgetProc
         this.namedWindow = namedWindow;
     }
 
-    public String getNamedWindowOrTableName() {
+    public String getProcessorName() {
         return namedWindow.getEventType().getName();
     }
 

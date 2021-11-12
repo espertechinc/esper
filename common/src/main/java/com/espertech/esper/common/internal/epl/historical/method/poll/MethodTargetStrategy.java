@@ -10,10 +10,10 @@
  */
 package com.espertech.esper.common.internal.epl.historical.method.poll;
 
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 
 public interface MethodTargetStrategy {
-    Object invoke(Object lookupValues, AgentInstanceContext agentInstanceContext);
+    Object invoke(Object lookupValues, ExprEvaluatorContext exprEvaluatorContext);
 
     String getPlan();
 }

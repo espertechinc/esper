@@ -16,6 +16,7 @@ import com.espertech.esper.common.internal.context.aifactory.core.ModuleIncident
 import com.espertech.esper.common.internal.context.module.StatementReadyCallback;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.StatementContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.util.ClassHelperPrint;
 
 import java.lang.reflect.InvocationTargetException;
@@ -39,7 +40,7 @@ public class MethodTargetStrategyStaticMethod implements MethodTargetStrategy, M
         return this;
     }
 
-    public Object invoke(Object lookupValues, AgentInstanceContext agentInstanceContext) {
+    public Object invoke(Object lookupValues, ExprEvaluatorContext exprEvaluatorContext) {
         try {
             switch (invokeType) {
                 case NOPARAM:

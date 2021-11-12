@@ -13,7 +13,7 @@ package com.espertech.esper.common.internal.epl.historical.indexingstrategy;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyValueGetter;
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.index.sorted.PropertySortedEventTableFactory;
 
@@ -28,13 +28,13 @@ public class PollResultIndexingStrategySorted implements PollResultIndexingStrat
     private EPTypeClass valueType;
     private PropertySortedEventTableFactory factory;
 
-    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, AgentInstanceContext agentInstanceContext) {
+    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, ExprEvaluatorContext exprEvaluatorContext) {
         if (!isActiveCache) {
             return new EventTable[]{new UnindexedEventTableList(pollResult, streamNum)};
         }
-        EventTable[] tables = factory.makeEventTables(agentInstanceContext, null);
+        EventTable[] tables = factory.makeEventTables(exprEvaluatorContext, null);
         for (EventTable table : tables) {
-            table.add(pollResult.toArray(new EventBean[pollResult.size()]), agentInstanceContext);
+            table.add(pollResult.toArray(new EventBean[pollResult.size()]), exprEvaluatorContext);
         }
         return tables;
     }

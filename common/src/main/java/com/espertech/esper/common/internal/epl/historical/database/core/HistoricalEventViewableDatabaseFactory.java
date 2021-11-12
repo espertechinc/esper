@@ -12,18 +12,24 @@ package com.espertech.esper.common.internal.epl.historical.database.core;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.annotation.HookType;
+import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.hook.type.SQLColumnTypeConversion;
 import com.espertech.esper.common.client.hook.type.SQLOutputRowConversion;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.context.aifactory.core.ModuleIncidentals;
 import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.StatementContext;
+import com.espertech.esper.common.internal.context.util.StatementContextRuntimeServices;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.historical.common.HistoricalEventViewable;
 import com.espertech.esper.common.internal.epl.historical.common.HistoricalEventViewableFactoryBase;
 import com.espertech.esper.common.internal.epl.historical.database.connection.DatabaseConfigException;
+import com.espertech.esper.common.internal.epl.historical.database.connection.DatabaseConfigServiceRuntime;
+import com.espertech.esper.common.internal.settings.ClasspathImportServiceRuntime;
 import com.espertech.esper.common.internal.settings.ClasspathImportUtil;
 
+import java.lang.annotation.Annotation;
 import java.util.Map;
 
 /**
@@ -41,16 +47,20 @@ public class HistoricalEventViewableDatabaseFactory extends HistoricalEventViewa
     protected SQLOutputRowConversion outputRowConversionHook;
     protected boolean enableJDBCLogging;
 
+    public void ready(StatementContext statementContext, ModuleIncidentals moduleIncidentals, boolean recovery) {
+        setupHooks(statementContext.getAnnotations(), statementContext.getClasspathImportServiceRuntime());
+    }
+
     public HistoricalEventViewable activate(AgentInstanceContext agentInstanceContext) {
-        ConnectionCache connectionCache;
-        try {
-            connectionCache = agentInstanceContext.getDatabaseConfigService().getConnectionCache(databaseName, preparedStatementText);
-        } catch (DatabaseConfigException e) {
-            throw new EPException("Failed to obtain connection cache: " + e.getMessage(), e);
-        }
+        ConnectionCache connectionCache = init(agentInstanceContext.getDatabaseConfigService(), agentInstanceContext.getConfigSnapshot());
         PollExecStrategyDBQuery pollExecStrategy = new PollExecStrategyDBQuery(this, agentInstanceContext, connectionCache);
-        this.enableJDBCLogging = agentInstanceContext.getConfigSnapshot().getCommon().getLogging().isEnableJDBC();
         return new HistoricalEventViewableDatabase(this, pollExecStrategy, agentInstanceContext);
+    }
+
+    public PollExecStrategyDBQuery activateFireAndForget(ExprEvaluatorContext exprEvaluatorContext, StatementContextRuntimeServices services) {
+        setupHooks(exprEvaluatorContext.getAnnotations(), services.getClasspathImportServiceRuntime());
+        ConnectionCache connectionCache = init(services.getDatabaseConfigService(), services.getConfigSnapshot());
+        return new PollExecStrategyDBQuery(this, exprEvaluatorContext, connectionCache);
     }
 
     public void setDatabaseName(String databaseName) {
@@ -77,12 +87,21 @@ public class HistoricalEventViewableDatabaseFactory extends HistoricalEventViewa
         this.outputRowConversionHook = outputRowConversionHook;
     }
 
-    public void ready(StatementContext statementContext, ModuleIncidentals moduleIncidentals, boolean recovery) {
+    private void setupHooks(Annotation[] annotations, ClasspathImportServiceRuntime classpathImportService) {
         try {
-            columnTypeConversionHook = (SQLColumnTypeConversion) ClasspathImportUtil.getAnnotationHook(statementContext.getAnnotations(), HookType.SQLCOL, SQLColumnTypeConversion.class, statementContext.getClasspathImportServiceRuntime());
-            outputRowConversionHook = (SQLOutputRowConversion) ClasspathImportUtil.getAnnotationHook(statementContext.getAnnotations(), HookType.SQLROW, SQLOutputRowConversion.class, statementContext.getClasspathImportServiceRuntime());
+            columnTypeConversionHook = (SQLColumnTypeConversion) ClasspathImportUtil.getAnnotationHook(annotations, HookType.SQLCOL, SQLColumnTypeConversion.class, classpathImportService);
+            outputRowConversionHook = (SQLOutputRowConversion) ClasspathImportUtil.getAnnotationHook(annotations, HookType.SQLROW, SQLOutputRowConversion.class, classpathImportService);
         } catch (ExprValidationException e) {
             throw new EPException("Failed to obtain annotation-defined sql-related hook: " + e.getMessage(), e);
+        }
+    }
+
+    private ConnectionCache init(DatabaseConfigServiceRuntime databaseConfigService, Configuration configSnapshot) {
+        this.enableJDBCLogging = configSnapshot.getCommon().getLogging().isEnableJDBC();
+        try {
+            return databaseConfigService.getConnectionCache(databaseName, preparedStatementText);
+        } catch (DatabaseConfigException e) {
+            throw new EPException("Failed to obtain connection cache: " + e.getMessage(), e);
         }
     }
 }

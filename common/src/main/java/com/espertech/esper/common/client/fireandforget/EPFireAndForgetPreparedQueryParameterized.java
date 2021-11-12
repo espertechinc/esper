@@ -37,5 +37,14 @@ public interface EPFireAndForgetPreparedQueryParameterized {
      * @throws EPException if the substitution parameter could not be set
      */
     public void setObject(String parameterName, Object value) throws EPException;
+
+    /**
+     * Releases resources.
+     * <p>
+     *     Required for use with fire-and-forget queries that use SQL queries i.e. "from SQL:db [query]".
+     *     Optional for all other EPL queries.
+     * </p>
+     */
+    public void close();
 }
 

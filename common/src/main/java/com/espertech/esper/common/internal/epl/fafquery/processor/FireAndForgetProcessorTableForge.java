@@ -29,7 +29,7 @@ public class FireAndForgetProcessorTableForge implements FireAndForgetProcessorF
         this.table = table;
     }
 
-    public String getNamedWindowOrTableName() {
+    public String getProcessorName() {
         return table.getTableName();
     }
 

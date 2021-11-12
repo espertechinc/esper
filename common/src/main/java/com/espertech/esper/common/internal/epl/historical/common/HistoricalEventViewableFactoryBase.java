@@ -40,7 +40,6 @@ public abstract class HistoricalEventViewableFactoryBase implements HistoricalEv
         return eventType;
     }
 
-
     public void setStreamNumber(int streamNumber) {
         this.streamNumber = streamNumber;
     }

@@ -12,7 +12,7 @@ package com.espertech.esper.common.internal.epl.historical.indexingstrategy;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.type.EPTypeClass;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
+import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.index.base.EventTable;
 import com.espertech.esper.common.internal.epl.index.base.EventTableOrganization;
 import com.espertech.esper.common.internal.epl.index.base.EventTableOrganizationType;
@@ -26,14 +26,14 @@ public class PollResultIndexingStrategyMulti implements PollResultIndexingStrate
     private int streamNum;
     private PollResultIndexingStrategy[] indexingStrategies;
 
-    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, AgentInstanceContext agentInstanceContext) {
+    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, ExprEvaluatorContext exprEvaluatorContext) {
         if (!isActiveCache) {
             return new EventTable[]{new UnindexedEventTableList(pollResult, streamNum)};
         }
 
         EventTable[] tables = new EventTable[indexingStrategies.length];
         for (int i = 0; i < indexingStrategies.length; i++) {
-            tables[i] = indexingStrategies[i].index(pollResult, isActiveCache, agentInstanceContext)[0];
+            tables[i] = indexingStrategies[i].index(pollResult, isActiveCache, exprEvaluatorContext)[0];
         }
         EventTableOrganization organization = new EventTableOrganization(null, false, false, streamNum, null, EventTableOrganizationType.MULTIINDEX);
         return new EventTable[]{new MultiIndexEventTable(tables, organization)};

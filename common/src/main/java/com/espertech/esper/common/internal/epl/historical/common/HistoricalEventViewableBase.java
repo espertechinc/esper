@@ -14,7 +14,6 @@ import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.collection.IterablesArrayIterator;
-import com.espertech.esper.common.internal.context.util.AgentInstanceContext;
 import com.espertech.esper.common.internal.context.util.AgentInstanceStopServices;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.historical.datacache.HistoricalDataCache;
@@ -35,7 +34,7 @@ import java.util.List;
 public abstract class HistoricalEventViewableBase implements Viewable, HistoricalEventViewable {
     protected final HistoricalEventViewableFactoryBase factory;
     protected final PollExecStrategy pollExecStrategy;
-    protected final AgentInstanceContext agentInstanceContext;
+    protected final ExprEvaluatorContext exprEvaluatorContext;
     protected HistoricalDataCache dataCache;
     protected View child;
 
@@ -46,10 +45,10 @@ public abstract class HistoricalEventViewableBase implements Viewable, Historica
         NULL_ROWS[0] = new EventBean[1];
     }
 
-    public HistoricalEventViewableBase(HistoricalEventViewableFactoryBase factory, PollExecStrategy pollExecStrategy, AgentInstanceContext agentInstanceContext) {
+    public HistoricalEventViewableBase(HistoricalEventViewableFactoryBase factory, PollExecStrategy pollExecStrategy, ExprEvaluatorContext exprEvaluatorContext) {
         this.factory = factory;
         this.pollExecStrategy = pollExecStrategy;
-        this.agentInstanceContext = agentInstanceContext;
+        this.exprEvaluatorContext = exprEvaluatorContext;
     }
 
     public void stop(AgentInstanceStopServices services) {
@@ -66,7 +65,7 @@ public abstract class HistoricalEventViewableBase implements Viewable, Historica
     }
 
     private static final PollResultIndexingStrategy ITERATOR_INDEXING_STRATEGY = new PollResultIndexingStrategy() {
-        public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, AgentInstanceContext agentInstanceContext) {
+        public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, ExprEvaluatorContext exprEvaluatorContext) {
             return new EventTable[]{new UnindexedEventTableList(pollResult, -1)};
         }
     };
@@ -121,10 +120,10 @@ public abstract class HistoricalEventViewableBase implements Viewable, Historica
                     }
 
                     // Poll using the polling execution strategy and lookup values
-                    List<EventBean> pollResult = pollExecStrategy.poll(lookupValue, agentInstanceContext);
+                    List<EventBean> pollResult = pollExecStrategy.poll(lookupValue, this.exprEvaluatorContext);
 
                     // index the result, if required, using an indexing strategy
-                    EventTable[] indexTable = indexingStrategy.index(pollResult, dataCache.isActive(), agentInstanceContext);
+                    EventTable[] indexTable = indexingStrategy.index(pollResult, dataCache.isActive(), this.exprEvaluatorContext);
 
                     // assign to row
                     resultPerInputRow[row] = indexTable;
@@ -156,7 +155,7 @@ public abstract class HistoricalEventViewableBase implements Viewable, Historica
     }
 
     public Iterator<EventBean> iterator() {
-        EventTable[][] tablesPerRow = poll(NULL_ROWS, ITERATOR_INDEXING_STRATEGY, agentInstanceContext);
+        EventTable[][] tablesPerRow = poll(NULL_ROWS, ITERATOR_INDEXING_STRATEGY, exprEvaluatorContext);
         return new IterablesArrayIterator(tablesPerRow);
     }
 

@@ -39,4 +39,13 @@ public interface EPFireAndForgetPreparedQuery {
      * @return event type
      */
     public EventType getEventType();
+
+    /**
+     * Releases resources.
+     * <p>
+     *     Required for use with fire-and-forget queries that use SQL queries i.e. "from SQL:db [query]".
+     *     Optional for all other EPL queries.
+     * </p>
+     */
+    public void close();
 }

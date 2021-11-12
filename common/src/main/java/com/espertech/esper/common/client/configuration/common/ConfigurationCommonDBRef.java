@@ -639,7 +639,7 @@ public class ConfigurationCommonDBRef implements Serializable {
          * Obtain output column metadata by executing a sample query statement at statement
          * compilation time. The sample statement
          * returns the same columns as the statement executed during event processing.
-         * See the documentation for the generation or specication of the sample query statement.
+         * See the documentation for the generation or specification of the sample query statement.
          */
         SAMPLE
     }
