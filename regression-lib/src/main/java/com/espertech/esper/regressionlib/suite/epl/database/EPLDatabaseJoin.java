@@ -17,13 +17,17 @@ import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
+import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanTwo;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
+import com.espertech.esper.regressionlib.support.client.SupportPortableDeploySubstitutionParams;
 import com.espertech.esper.regressionlib.support.util.SupportDatabaseService;
+import com.espertech.esper.runtime.client.DeploymentOptions;
+import com.espertech.esper.runtime.client.option.StatementSubstitutionParameterOption;
 
 import java.math.BigDecimal;
 import java.sql.*;
@@ -61,6 +65,7 @@ public class EPLDatabaseJoin {
         execs.add(new EPLDatabaseRestartStatement());
         execs.add(new EPLDatabaseSimpleJoinRight());
         execs.add(new EPLDatabaseJoinIndexNullType());
+        execs.add(new EPLDatabaseSubstitutionParameter());
         return execs;
     }
 
@@ -463,13 +468,36 @@ public class EPLDatabaseJoin {
             }
 
             /**
-             * Using JNDI to get a connectiong (for J2EE containers or outside)
+             * Using JNDI to get a connection (for J2EE containers or outside)
              */
             /**
              InitialContext ctx = new InitialContext();
              DataSource ds = (DataSource)ctx.lookup("java:comp/env/jdbc/MySQLDB");
              Connection connection = ds.getConnection();
              */
+        }
+    }
+
+    private static class EPLDatabaseSubstitutionParameter implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select * from sql:MyDBPlain['select * from mytesttable where myint = ${?:myint:int}']";
+            EPStatementObjectModel model = env.eplToModel(epl);
+            EPCompiled compiledFromSODA = env.compile(model, new CompilerArguments().setConfiguration(env.getConfiguration()));
+            EPCompiled compiled = env.compile(epl);
+
+            assertDeploy(env, compiled, 10, "A");
+            assertDeploy(env, compiledFromSODA, 50, "E");
+            assertDeploy(env, compiled, 30, "C");
+        }
+
+        private void assertDeploy(RegressionEnvironment env, EPCompiled compiled, int myint, String expected) {
+            StatementSubstitutionParameterOption values = new SupportPortableDeploySubstitutionParams().add("myint", myint);
+            DeploymentOptions options = new DeploymentOptions().setStatementSubstitutionParameter(values);
+            env.deploy(compiled, options);
+
+            env.assertPropsPerRowIterator("s0", new String[] {"myvarchar"}, new Object[][] {{expected}});
+
+            env.undeployAll();
         }
     }
 

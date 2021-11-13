@@ -924,10 +924,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
                         throw ASTWalkException.from("Failed to compile SQL parameter '" + expression + "': " + e.getExpression(), e);
                     }
 
-                    if ((raw.getSubstitutionParameters() != null) && (raw.getSubstitutionParameters().size() > 0)) {
-                        throw ASTWalkException.from("EPL substitution parameters are not allowed in SQL ${...} expressions, consider using a variable instead");
-                    }
-
+                    substitutionParamNodes.addAll(raw.getSubstitutionParameters());
                     statementSpec.getTableExpressions().addAll(raw.getTableExpressions());
                     statementSpec.getReferencedVariables().addAll(raw.getReferencedVariables());
 

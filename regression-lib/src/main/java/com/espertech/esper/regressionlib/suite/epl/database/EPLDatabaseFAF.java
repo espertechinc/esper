@@ -38,7 +38,7 @@ public class EPLDatabaseFAF {
         execs.add(new EPLDatabaseFAFSimple());
         execs.add(new EPLDatabaseFAFHook());
         execs.add(new EPLDatabaseFAFPrepareExecutePerformance());
-        execs.add(new EPLDatabaseFAFSubstitutionParamEPLSelect());
+        execs.add(new EPLDatabaseFAFSubstitutionParam());
         execs.add(new EPLDatabaseFAFDistinct());
         execs.add(new EPLDatabaseFAFWhereClause());
         execs.add(new EPLDatabaseFAFVariable());
@@ -88,24 +88,24 @@ public class EPLDatabaseFAF {
         }
     }
 
-    private static class EPLDatabaseFAFSubstitutionParamEPLSelect extends RegressionExecutionFAFOnly {
+    private static class EPLDatabaseFAFSubstitutionParam extends RegressionExecutionFAFOnly {
         public void run(RegressionEnvironment env) {
 
-            String epl = "select myvarchar as c0, ?:id:int as c1 from sql:MyDBPooled ['select myvarchar from mytesttable where myint = 10']";
+            String epl = "select myvarchar as c0, ?:selectValue:int as c1 from sql:MyDBPooled ['select myvarchar from mytesttable where myint = ${?:filterValue:int}']";
             EPCompiled compiled = env.compileFAF(epl, new RegressionPath());
             EPFireAndForgetPreparedQueryParameterized parameterized = env.runtime().getFireAndForgetService().prepareQueryWithParameters(compiled);
 
-            assertQuery(env, parameterized, 1);
-            assertQuery(env, parameterized, 2);
+            assertQuery(env, parameterized, 1, 10, "A");
+            assertQuery(env, parameterized, 2, 60, "F");
 
             parameterized.close();
         }
 
-        private void assertQuery(RegressionEnvironment env, EPFireAndForgetPreparedQueryParameterized parameterized, int param) {
-            parameterized.setObject("id", param);
+        private void assertQuery(RegressionEnvironment env, EPFireAndForgetPreparedQueryParameterized parameterized, int selectValue, int filterValue, String expected) {
+            parameterized.setObject("selectValue", selectValue);
+            parameterized.setObject("filterValue", filterValue);
             EventBean row = env.runtime().getFireAndForgetService().executeQuery(parameterized).getArray()[0];
-            assertEquals("A", row.get("c0"));
-            assertEquals(param, row.get("c1"));
+            EPAssertionUtil.assertProps(row, "c0,c1".split(","), new Object[] {expected, selectValue});
         }
     }
 

@@ -532,4 +532,11 @@ public class StatementSpecRaw {
     public void setCreateClassProvided() {
 
     }
+
+    public void addSubstitutionParameters(List<ExprSubstitutionNode> toAdd) {
+        if (substitutionParameters == null) {
+            substitutionParameters = new ArrayList<>(toAdd.size());
+        }
+        substitutionParameters.addAll(toAdd);
+    }
 }

@@ -2969,10 +2969,7 @@ public class StatementSpecMapper {
                     throw new EPException("Failed to compile SQL parameter '" + expression + "': " + e.getExpression(), e);
                 }
 
-                if ((rawSqlExpr.getSubstitutionParameters() != null) && (rawSqlExpr.getSubstitutionParameters().size() > 0)) {
-                    throw new EPException("EPL substitution parameters are not allowed in SQL ${...} expressions, consider using a variable instead");
-                }
-
+                mapContext.getSubstitutionNodes().addAll(rawSqlExpr.getSubstitutionParameters());
                 mapContext.getVariableNames().addAll(rawSqlExpr.getReferencedVariables());
                 mapContext.getTableExpressions().addAll(rawSqlExpr.getTableExpressions());
 
