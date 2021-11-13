@@ -17,17 +17,13 @@ import com.espertech.esper.common.client.soda.*;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
-import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
 import com.espertech.esper.regressionlib.support.bean.SupportBeanTwo;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
-import com.espertech.esper.regressionlib.support.client.SupportPortableDeploySubstitutionParams;
 import com.espertech.esper.regressionlib.support.util.SupportDatabaseService;
-import com.espertech.esper.runtime.client.DeploymentOptions;
-import com.espertech.esper.runtime.client.option.StatementSubstitutionParameterOption;
 
 import java.math.BigDecimal;
 import java.sql.*;
@@ -65,15 +61,14 @@ public class EPLDatabaseJoin {
         execs.add(new EPLDatabaseRestartStatement());
         execs.add(new EPLDatabaseSimpleJoinRight());
         execs.add(new EPLDatabaseJoinIndexNullType());
-        execs.add(new EPLDatabaseSubstitutionParameter());
         return execs;
     }
 
     private static class EPLDatabase3Stream implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select * from SupportBean#lastevent sb, SupportBeanTwo#lastevent sbt, " +
-                "sql:MyDBWithRetain ['select myint from mytesttable'] as s1 " +
-                "  where sb.theString = sbt.stringTwo and s1.myint = sbt.intPrimitiveTwo";
+                    "sql:MyDBWithRetain ['select myint from mytesttable'] as s1 " +
+                    "  where sb.theString = sbt.stringTwo and s1.myint = sbt.intPrimitiveTwo";
             env.compileDeploy(stmtText).addListener("s0");
             assertStatelessStmt(env, "s0", false);
 
@@ -97,8 +92,8 @@ public class EPLDatabaseJoin {
     private static class EPLDatabaseTimeBatch implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select " + ALL_FIELDS + " from " +
-                " sql:MyDBWithRetain ['select " + ALL_FIELDS + " from mytesttable \n\r where ${intPrimitive} = mytesttable.mybigint'] as s0," +
-                "SupportBean#time_batch(10 sec) as s1";
+                    " sql:MyDBWithRetain ['select " + ALL_FIELDS + " from mytesttable \n\r where ${intPrimitive} = mytesttable.mybigint'] as s0," +
+                    "SupportBean#time_batch(10 sec) as s1";
             env.compileDeploy(stmtText).addListener("s0");
             runtestTimeBatch(env);
         }
@@ -108,9 +103,9 @@ public class EPLDatabaseJoin {
         public void run(RegressionEnvironment env) {
             String[] fields = "intPrimitive,myint,myvarchar".split(",");
             String stmtText = "@name('s0') select intPrimitive, myint, myvarchar from " +
-                "SupportBean#keepall as s0, " +
-                " sql:MyDBWithRetain ['select myint from mytesttable where ${intPrimitive} = mytesttable.mybigint'] as s1," +
-                " sql:MyDBWithRetain ['select myvarchar from mytesttable where ${intPrimitive} = mytesttable.mybigint'] as s2 ";
+                    "SupportBean#keepall as s0, " +
+                    " sql:MyDBWithRetain ['select myint from mytesttable where ${intPrimitive} = mytesttable.mybigint'] as s1," +
+                    " sql:MyDBWithRetain ['select myvarchar from mytesttable where ${intPrimitive} = mytesttable.mybigint'] as s2 ";
             env.compileDeploy(stmtText).addListener("s0");
 
             env.assertPropsPerRowIterator("s0", fields, null);
@@ -137,13 +132,13 @@ public class EPLDatabaseJoin {
         public void run(RegressionEnvironment env) {
             String[] fields = "a,b,c,d".split(",");
             String stmtText = "@name('s0') select theString as a, intPrimitive as b, s1.myvarchar as c, s2.myvarchar as d from " +
-                "SupportBean#keepall as s0 " +
-                " inner join " +
-                " sql:MyDBWithRetain ['select myvarchar from mytesttable where ${intPrimitive} <> mytesttable.mybigint'] as s1 " +
-                " on s1.myvarchar=s0.theString " +
-                " inner join " +
-                " sql:MyDBWithRetain ['select myvarchar from mytesttable where ${intPrimitive} <> mytesttable.myint'] as s2 " +
-                " on s2.myvarchar=s0.theString ";
+                    "SupportBean#keepall as s0 " +
+                    " inner join " +
+                    " sql:MyDBWithRetain ['select myvarchar from mytesttable where ${intPrimitive} <> mytesttable.mybigint'] as s1 " +
+                    " on s1.myvarchar=s0.theString " +
+                    " inner join " +
+                    " sql:MyDBWithRetain ['select myvarchar from mytesttable where ${intPrimitive} <> mytesttable.myint'] as s2 " +
+                    " on s2.myvarchar=s0.theString ";
             env.compileDeploy(stmtText).addListener("s0");
 
             env.assertPropsPerRowIterator("s0", fields, null);
@@ -169,8 +164,8 @@ public class EPLDatabaseJoin {
             env.compileDeploy("@public create variable int queryvar", path);
             env.compileDeploy("on SupportBean set queryvar=intPrimitive", path);
             String stmtText = "@name('s0') select myint from " +
-                " sql:MyDBWithRetain ['select myint from mytesttable where ${queryvar} = mytesttable.mybigint'] as s0, " +
-                "SupportBean_A#keepall as s1";
+                    " sql:MyDBWithRetain ['select myint from mytesttable where ${queryvar} = mytesttable.mybigint'] as s0, " +
+                    "SupportBean_A#keepall as s1";
             env.compileDeploy(stmtText, path).addListener("s0");
 
             sendSupportBeanEvent(env, 5);
@@ -180,8 +175,8 @@ public class EPLDatabaseJoin {
             env.undeployModuleContaining("s0");
 
             stmtText = "@name('s0') select myint from " +
-                "SupportBean_A#keepall as s1, " +
-                "sql:MyDBWithRetain ['select myint from mytesttable where ${queryvar} = mytesttable.mybigint'] as s0";
+                    "SupportBean_A#keepall as s1, " +
+                    "sql:MyDBWithRetain ['select myint from mytesttable where ${queryvar} = mytesttable.mybigint'] as s0";
             env.compileDeploy(stmtText, path).addListener("s0");
 
             sendSupportBeanEvent(env, 6);
@@ -201,13 +196,13 @@ public class EPLDatabaseJoin {
             EPStatementObjectModel model = new EPStatementObjectModel();
             model.setSelectClause(SelectClause.create(fields));
             FromClause fromClause = FromClause.create(
-                SQLStream.create("MyDBWithRetain", sql, "s0"),
-                FilterStream.create(SupportBean.class.getSimpleName(), "s1").addView(View.create("time_batch", Expressions.constant(10))
-                ));
+                    SQLStream.create("MyDBWithRetain", sql, "s0"),
+                    FilterStream.create(SupportBean.class.getSimpleName(), "s1").addView(View.create("time_batch", Expressions.constant(10))
+                    ));
             model.setFromClause(fromClause);
             SerializableObjectCopier.copyMayFail(model);
             assertEquals("select mybigint, myint, myvarchar, mychar, mybool, mynumeric, mydecimal, mydouble, myreal from sql:MyDBWithRetain[\"select mybigint, myint, myvarchar, mychar, mybool, mynumeric, mydecimal, mydouble, myreal from mytesttable where ${intPrimitive} = mytesttable.mybigint\"] as s0, " + "SupportBean#time_batch(10) as s1",
-                model.toEPL());
+                    model.toEPL());
 
             model.setAnnotations(Collections.singletonList(AnnotationPart.nameAnnotation("s0")));
             env.compileDeploy(model).addListener("s0");
@@ -218,8 +213,8 @@ public class EPLDatabaseJoin {
     private static class EPLDatabaseTimeBatchCompile implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select " + ALL_FIELDS + " from " +
-                " sql:MyDBWithRetain ['select " + ALL_FIELDS + " from mytesttable where ${intPrimitive} = mytesttable.mybigint'] as s0," +
-                "SupportBean#time_batch(10 sec) as s1";
+                    " sql:MyDBWithRetain ['select " + ALL_FIELDS + " from mytesttable where ${intPrimitive} = mytesttable.mybigint'] as s0," +
+                    "SupportBean#time_batch(10 sec) as s1";
 
             EPStatementObjectModel model = env.eplToModel(stmtText);
             SerializableObjectCopier.copyMayFail(model);
@@ -231,10 +226,10 @@ public class EPLDatabaseJoin {
     private static class EPLDatabaseInvalidSQL implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select myvarchar from " +
-                " sql:MyDBWithRetain ['select mychar,, from mytesttable where '] as s0," +
-                "SupportBeanComplexProps as s1";
+                    " sql:MyDBWithRetain ['select mychar,, from mytesttable where '] as s0," +
+                    "SupportBeanComplexProps as s1";
             env.tryInvalidCompile(stmtText,
-                "Error in statement 'select mychar,, from mytesttable where ', failed to obtain result metadata, consider turning off metadata interrogation via configuration, please check the statement, reason: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ' from mytesttable where' at line 1");
+                    "Error in statement 'select mychar,, from mytesttable where ', failed to obtain result metadata, consider turning off metadata interrogation via configuration, please check the statement, reason: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ' from mytesttable where' at line 1");
         }
     }
 
@@ -243,7 +238,7 @@ public class EPLDatabaseJoin {
             String sqlOne = "sql:MyDBWithRetain ['select myvarchar from mytesttable where ${mychar} = mytesttable.mybigint']";
             String sqlTwo = "sql:MyDBWithRetain ['select mychar from mytesttable where ${myvarchar} = mytesttable.mybigint']";
             String stmtText = "@name('s0') select s0.myvarchar as s0Name, s1.mychar as s1Name from " +
-                sqlOne + " as s0, " + sqlTwo + "  as s1";
+                    sqlOne + " as s0, " + sqlTwo + "  as s1";
 
             env.tryInvalidCompile(stmtText, "Circular dependency detected between historical streams");
         }
@@ -252,25 +247,25 @@ public class EPLDatabaseJoin {
     private static class EPLDatabaseInvalidPropertyEvent implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select myvarchar from " +
-                " sql:MyDBWithRetain ['select mychar from mytesttable where ${s1.xxx[0]} = mytesttable.mybigint'] as s0," +
-                "SupportBeanComplexProps as s1";
+                    " sql:MyDBWithRetain ['select mychar from mytesttable where ${s1.xxx[0]} = mytesttable.mybigint'] as s0," +
+                    "SupportBeanComplexProps as s1";
             env.tryInvalidCompile(stmtText, "Failed to validate from-clause database-access parameter expression 's1.xxx[0]': Failed to resolve property 's1.xxx[0]' to a stream or nested property in a stream");
 
             stmtText = "@name('s0') select myvarchar from " +
-                " sql:MyDBWithRetain ['select mychar from mytesttable where ${} = mytesttable.mybigint'] as s0," +
-                "SupportBeanComplexProps as s1";
+                    " sql:MyDBWithRetain ['select mychar from mytesttable where ${} = mytesttable.mybigint'] as s0," +
+                    "SupportBeanComplexProps as s1";
             env.tryInvalidCompile(stmtText,
-                "Missing expression within ${...} in SQL statement [");
+                    "Missing expression within ${...} in SQL statement [");
         }
     }
 
     private static class EPLDatabaseInvalidPropertyHistorical implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select myvarchar from " +
-                " sql:MyDBWithRetain ['select myvarchar from mytesttable where ${myvarchar} = mytesttable.mybigint'] as s0," +
-                "SupportBeanComplexProps as s1";
+                    " sql:MyDBWithRetain ['select myvarchar from mytesttable where ${myvarchar} = mytesttable.mybigint'] as s0," +
+                    "SupportBeanComplexProps as s1";
             env.tryInvalidCompile(stmtText,
-                "Invalid expression 'myvarchar' resolves to the historical data itself");
+                    "Invalid expression 'myvarchar' resolves to the historical data itself");
         }
     }
 
@@ -286,34 +281,34 @@ public class EPLDatabaseJoin {
         public void run(RegressionEnvironment env) {
             String sql = "sql:MyDBWithRetain ['select myvarchar from mytesttable where ${intPrimitive} = mytesttable.myint']#time(30 sec)";
             String stmtText = "@name('s0') select myvarchar as s0Name from " +
-                sql + " as s0, " + "SupportBean as s1";
+                    sql + " as s0, " + "SupportBean as s1";
             env.tryInvalidCompile(stmtText,
-                "Historical data joins do not allow views onto the data, view 'time' is not valid in this context");
+                    "Historical data joins do not allow views onto the data, view 'time' is not valid in this context");
         }
     }
 
     private static class EPLDatabaseStreamNamesAndRename implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select s1.a as mybigint, " +
-                " s1.b as myint," +
-                " s1.c as myvarchar," +
-                " s1.d as mychar," +
-                " s1.e as mybool," +
-                " s1.f as mynumeric," +
-                " s1.g as mydecimal," +
-                " s1.h as mydouble," +
-                " s1.i as myreal " +
-                " from SupportBean_S0 as s0," +
-                " sql:MyDBWithRetain ['select mybigint as a, " +
-                " myint as b," +
-                " myvarchar as c," +
-                " mychar as d," +
-                " mybool as e," +
-                " mynumeric as f," +
-                " mydecimal as g," +
-                " mydouble as h," +
-                " myreal as i " +
-                "from mytesttable where ${id} = mytesttable.mybigint'] as s1";
+                    " s1.b as myint," +
+                    " s1.c as myvarchar," +
+                    " s1.d as mychar," +
+                    " s1.e as mybool," +
+                    " s1.f as mynumeric," +
+                    " s1.g as mydecimal," +
+                    " s1.h as mydouble," +
+                    " s1.i as myreal " +
+                    " from SupportBean_S0 as s0," +
+                    " sql:MyDBWithRetain ['select mybigint as a, " +
+                    " myint as b," +
+                    " myvarchar as c," +
+                    " mychar as d," +
+                    " mybool as e," +
+                    " mynumeric as f," +
+                    " mydecimal as g," +
+                    " mydouble as h," +
+                    " myreal as i " +
+                    "from mytesttable where ${id} = mytesttable.mybigint'] as s1";
             env.compileDeploy(stmtText).addListener("s0");
 
             sendEventS0(env, 1);
@@ -328,8 +323,8 @@ public class EPLDatabaseJoin {
             env.advanceTime(0);
 
             String stmtText = "@name('s0') select mychar from " +
-                " sql:MyDBWithRetain ['select mychar from mytesttable where mytesttable.mybigint = 2'] as s0," +
-                " pattern [every timer:interval(5 sec) ]";
+                    " sql:MyDBWithRetain ['select mychar from mytesttable where mytesttable.mybigint = 2'] as s0," +
+                    " pattern [every timer:interval(5 sec) ]";
             env.compileDeploy(stmtText).addListener("s0");
 
             env.advanceTime(5000);
@@ -345,8 +340,8 @@ public class EPLDatabaseJoin {
             RegressionPath path = new RegressionPath();
             env.compileDeploy("@public create variable long VarLastTimestamp = 0", path);
             String epl = "@Name('Poll every 5 seconds') insert into PollStream" +
-                " select * from pattern[every timer:interval(5 sec)]," +
-                " sql:MyDBWithRetain ['select mychar from mytesttable where mytesttable.mybigint > ${VarLastTimestamp}'] as s0";
+                    " select * from pattern[every timer:interval(5 sec)]," +
+                    " sql:MyDBWithRetain ['select mychar from mytesttable where mytesttable.mybigint > ${VarLastTimestamp}'] as s0";
             EPStatementObjectModel model = env.eplToModel(epl);
             env.compileDeploy(model, path);
             env.undeployAll();
@@ -356,8 +351,8 @@ public class EPLDatabaseJoin {
     private static class EPLDatabasePropertyResolution implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select " + ALL_FIELDS + " from " +
-                " sql:MyDBWithRetain ['select " + ALL_FIELDS + " from mytesttable where ${s1.arrayProperty[0]} = mytesttable.mybigint'] as s0," +
-                "SupportBeanComplexProps as s1";
+                    " sql:MyDBWithRetain ['select " + ALL_FIELDS + " from mytesttable where ${s1.arrayProperty[0]} = mytesttable.mybigint'] as s0," +
+                    "SupportBeanComplexProps as s1";
             // s1.arrayProperty[0] returns 10 for that bean
             env.compileDeploy(stmtText).addListener("s0");
 
@@ -378,7 +373,7 @@ public class EPLDatabaseJoin {
 
             env.sendEventMap(Collections.emptyMap(), "InputEvent");
             env.assertListenerNotInvoked("s0");
-            
+
             env.undeployAll();
         }
     }
@@ -386,8 +381,8 @@ public class EPLDatabaseJoin {
     private static class EPLDatabaseSimpleJoinLeft implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select " + ALL_FIELDS + " from " +
-                "SupportBean_S0 as s0," +
-                " sql:MyDBWithRetain ['select " + ALL_FIELDS + " from mytesttable where ${id} = mytesttable.mybigint'] as s1";
+                    "SupportBean_S0 as s0," +
+                    " sql:MyDBWithRetain ['select " + ALL_FIELDS + " from mytesttable where ${id} = mytesttable.mybigint'] as s1";
             env.compileDeploy(stmtText).addListener("s0");
 
             sendEventS0(env, 1);
@@ -400,8 +395,8 @@ public class EPLDatabaseJoin {
     private static class EPLDatabaseRestartStatement implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select mychar from " +
-                "SupportBean_S0 as s0," +
-                " sql:MyDBWithRetain ['select mychar from mytesttable where ${id} = mytesttable.mybigint'] as s1";
+                    "SupportBean_S0 as s0," +
+                    " sql:MyDBWithRetain ['select mychar from mytesttable where ${id} = mytesttable.mybigint'] as s1";
             EPCompiled compiled = env.compile(stmtText);
             env.deploy(compiled);
 
@@ -423,8 +418,8 @@ public class EPLDatabaseJoin {
     private static class EPLDatabaseSimpleJoinRight implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String stmtText = "@name('s0') select " + ALL_FIELDS + " from " +
-                " sql:MyDBWithRetain ['select " + ALL_FIELDS + " from mytesttable where ${id} = mytesttable.mybigint'] as s0," +
-                "SupportBean_S0 as s1";
+                    " sql:MyDBWithRetain ['select " + ALL_FIELDS + " from mytesttable where ${id} = mytesttable.mybigint'] as s0," +
+                    "SupportBean_S0 as s1";
             env.compileDeploy(stmtText).addListener("s0");
 
             env.assertStatement("s0", statement -> {
@@ -475,29 +470,6 @@ public class EPLDatabaseJoin {
              DataSource ds = (DataSource)ctx.lookup("java:comp/env/jdbc/MySQLDB");
              Connection connection = ds.getConnection();
              */
-        }
-    }
-
-    private static class EPLDatabaseSubstitutionParameter implements RegressionExecution {
-        public void run(RegressionEnvironment env) {
-            String epl = "@name('s0') select * from sql:MyDBPlain['select * from mytesttable where myint = ${?:myint:int}']";
-            EPStatementObjectModel model = env.eplToModel(epl);
-            EPCompiled compiledFromSODA = env.compile(model, new CompilerArguments().setConfiguration(env.getConfiguration()));
-            EPCompiled compiled = env.compile(epl);
-
-            assertDeploy(env, compiled, 10, "A");
-            assertDeploy(env, compiledFromSODA, 50, "E");
-            assertDeploy(env, compiled, 30, "C");
-        }
-
-        private void assertDeploy(RegressionEnvironment env, EPCompiled compiled, int myint, String expected) {
-            StatementSubstitutionParameterOption values = new SupportPortableDeploySubstitutionParams().add("myint", myint);
-            DeploymentOptions options = new DeploymentOptions().setStatementSubstitutionParameter(values);
-            env.deploy(compiled, options);
-
-            env.assertPropsPerRowIterator("s0", new String[] {"myvarchar"}, new Object[][] {{expected}});
-
-            env.undeployAll();
         }
     }
 

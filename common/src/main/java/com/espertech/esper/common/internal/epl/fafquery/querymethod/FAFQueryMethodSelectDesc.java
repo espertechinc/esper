@@ -187,6 +187,11 @@ public class FAFQueryMethodSelectDesc {
         Map<ExprSubselectNode, SubSelectActivationPlan> subselectActivation = subSelectActivationDesc.getSubselects();
         additionalForgeables.addAll(subSelectActivationDesc.getAdditionalForgeables());
 
+        // validate dependent expressions which may have subselects themselves
+        for (int i = 0; i < numStreams; i++) {
+            processors[i].validateDependentExpr(statementSpec, statementRawInfo, services);
+        }
+
         SubSelectHelperForgePlan subSelectForgePlan = SubSelectHelperForgePlanner.planSubSelect(base, subselectActivation, namesPerStream, typesPerStream, eventTypeNames, services);
         subselectForges = subSelectForgePlan.getSubselects();
         additionalForgeables.addAll(subSelectForgePlan.getAdditionalForgeables());

@@ -33,8 +33,8 @@ public abstract class FAFQueryMethodSelectExecDBBase implements FAFQueryMethodSe
 
     public final EPPreparedQueryResult execute(FAFQueryMethodSelect select, ContextPartitionSelector[] contextPartitionSelectors, FAFQueryMethodAssignerSetter assignerSetter, ContextManagementService contextManagementService) {
         ExprEvaluatorContext exprEvaluatorContext = new FAFQueryMethodSelectNoFromExprEvaluatorContext(services, select);
-        Collection<EventBean> rows = executeInternal(exprEvaluatorContext, select);
         ResultSetProcessor resultSetProcessor = processorWithAssign(select.getResultSetProcessorFactoryProvider(), exprEvaluatorContext, null, assignerSetter, select.getTableAccesses(), select.getSubselects());
+        Collection<EventBean> rows = executeInternal(exprEvaluatorContext, select);
         if (select.getWhereClause() != null) {
             rows = filtered(rows, select.getWhereClause(), exprEvaluatorContext);
         }

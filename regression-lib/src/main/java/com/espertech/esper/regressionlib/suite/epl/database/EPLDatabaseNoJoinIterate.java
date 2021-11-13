@@ -10,10 +10,16 @@
  */
 package com.espertech.esper.regressionlib.suite.epl.database;
 
+import com.espertech.esper.common.client.EPCompiled;
+import com.espertech.esper.common.client.soda.EPStatementObjectModel;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
+import com.espertech.esper.regressionlib.support.client.SupportPortableDeploySubstitutionParams;
+import com.espertech.esper.runtime.client.DeploymentOptions;
+import com.espertech.esper.runtime.client.option.StatementSubstitutionParameterOption;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +33,8 @@ public class EPLDatabaseNoJoinIterate {
         execs.add(new EPLDatabaseExpressionPoll());
         execs.add(new EPLDatabaseVariablesPoll());
         execs.add(new EPLDatabaseNullSelect());
+        execs.add(new EPLDatabaseSubstitutionParameter());
+        execs.add(new EPLDatabaseSQLTextParamSubquery());
         return execs;
     }
 
@@ -68,10 +76,6 @@ public class EPLDatabaseNoJoinIterate {
             env.compileDeploy(stmtText, path);
             env.assertPropsPerRowIteratorAnyOrder("s0", new String[]{"myint"}, new Object[][]{{30}, {40}, {50}, {60}, {70}});
             env.undeployAll();
-
-            // Test substitution parameters
-            env.tryInvalidCompile("@name('s0') select myint from sql:MyDBWithTxnIso1WithReadOnly ['select myint from mytesttable where mytesttable.mybigint between ${?} and ${queryvar_int+?}'] order by myint",
-                "EPL substitution parameters are not allowed in SQL ${...} expressions, consider using a variable instead");
         }
     }
 
@@ -116,6 +120,51 @@ public class EPLDatabaseNoJoinIterate {
             env.assertPropsPerRowIteratorAnyOrder("s0", fields, new Object[][]{{4L, true}});
 
             env.undeployAll();
+        }
+    }
+    private static class EPLDatabaseSubstitutionParameter implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select * from sql:MyDBPlain['select * from mytesttable where myint = ${?:myint:int}']";
+            EPStatementObjectModel model = env.eplToModel(epl);
+            EPCompiled compiledFromSODA = env.compile(model, new CompilerArguments().setConfiguration(env.getConfiguration()));
+            EPCompiled compiled = env.compile(epl);
+
+            assertDeploy(env, compiled, 10, "A");
+            assertDeploy(env, compiledFromSODA, 50, "E");
+            assertDeploy(env, compiled, 30, "C");
+        }
+
+        private void assertDeploy(RegressionEnvironment env, EPCompiled compiled, int myint, String expected) {
+            StatementSubstitutionParameterOption values = new SupportPortableDeploySubstitutionParams().add("myint", myint);
+            DeploymentOptions options = new DeploymentOptions().setStatementSubstitutionParameter(values);
+            env.deploy(compiled, options);
+
+            env.assertPropsPerRowIterator("s0", new String[] {"myvarchar"}, new Object[][] {{expected}});
+
+            env.undeployAll();
+        }
+    }
+
+    private static class EPLDatabaseSQLTextParamSubquery implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            env.compileDeploy("@public create window MyWindow#lastevent as SupportBean;\n" +
+                    "on SupportBean merge MyWindow insert select *", path);
+
+            String epl = "@name('s0') select * from sql:MyDBPlain['select * from mytesttable where myint = ${(select intPrimitive from MyWindow)}']";
+            env.compileDeploy(epl, path);
+
+            env.assertPropsPerRowIterator("s0", new String[] {"myvarchar"}, new Object[0][]);
+
+            sendAssert(env, 30, "C");
+            sendAssert(env, 10, "A");
+
+            env.undeployAll();
+        }
+
+        private void sendAssert(RegressionEnvironment env, int intPrimitive, String expected) {
+            env.sendEventBean(new SupportBean("", intPrimitive));
+            env.assertPropsPerRowIterator("s0", new String[] {"myvarchar"}, new Object[][] {{expected}});
         }
     }
 

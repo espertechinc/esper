@@ -43,6 +43,7 @@ public class EPLDatabaseFAF {
         execs.add(new EPLDatabaseFAFWhereClause());
         execs.add(new EPLDatabaseFAFVariable());
         execs.add(new EPLDatabaseFAFSODA());
+        execs.add(new EPLDatabaseFAFSQLTextParamSubquery());
         execs.add(new EPLDatabaseFAFInvalid());
         return execs;
     }
@@ -158,6 +159,32 @@ public class EPLDatabaseFAF {
             EPAssertionUtil.assertPropsPerRow(rows, new String[]{"c0"}, new Object[][]{{"B"}, {"C"}});
         }
     }
+
+    private static class EPLDatabaseFAFSQLTextParamSubquery implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            env.compileDeploy("@public create window MyWindow#lastevent as SupportBean;\n" +
+                    "on SupportBean merge MyWindow insert select *", path);
+
+            String epl = "select * from sql:MyDBPlain['select * from mytesttable where myint = ${(select intPrimitive from MyWindow)}']";
+            EPCompiled compiled = env.compileFAF(epl, path);
+
+            EPFireAndForgetPreparedQuery prepared = env.runtime().getFireAndForgetService().prepareQuery(compiled);
+
+            sendAssert(env, prepared, 30, "C");
+            sendAssert(env, prepared, 10, "A");
+
+            env.undeployAll();
+            prepared.close();
+        }
+
+        private void sendAssert(RegressionEnvironment env, EPFireAndForgetPreparedQuery prepared, int intPrimitive, String expected) {
+            env.sendEventBean(new SupportBean("", intPrimitive));
+            EventBean[] result = prepared.execute().getArray();
+            EPAssertionUtil.assertPropsPerRow(result, new String[] {"myvarchar"}, new Object[][] {{expected}});
+        }
+    }
+
 
     private static class EPLDatabaseFAFInvalid extends RegressionExecutionFAFOnly {
         public void run(RegressionEnvironment env) {

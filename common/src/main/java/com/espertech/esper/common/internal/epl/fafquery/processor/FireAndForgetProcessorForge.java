@@ -15,7 +15,11 @@ import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
 import com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpression;
+import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
+import com.espertech.esper.common.internal.compile.stage2.StatementSpecCompiled;
+import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
 import com.espertech.esper.common.internal.context.aifactory.core.SAIFFInitializeSymbol;
+import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
 
@@ -41,4 +45,6 @@ public interface FireAndForgetProcessorForge {
         method.getBlock().methodReturn(ref("processors"));
         return localMethod(method);
     }
+
+    default void validateDependentExpr(StatementSpecCompiled statementSpec, StatementRawInfo raw, StatementCompileTimeServices services) throws ExprValidationException {};
 }

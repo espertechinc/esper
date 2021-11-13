@@ -47,6 +47,10 @@ public class FireAndForgetProcessorDBForge implements FireAndForgetProcessorForg
         SQLColumnTypeConversion typeConversionHook = (SQLColumnTypeConversion) ClasspathImportUtil.getAnnotationHook(annotations, HookType.SQLCOL, SQLColumnTypeConversion.class, services.getClasspathImportServiceCompileTime());
         SQLOutputRowConversion outputRowConversionHook = (SQLOutputRowConversion) ClasspathImportUtil.getAnnotationHook(annotations, HookType.SQLROW, SQLOutputRowConversion.class, services.getClasspathImportServiceCompileTime());
         dbAccessForge = HistoricalEventViewableDatabaseForgeFactory.createDBStatementView(0, sqlStreamSpec, typeConversionHook, outputRowConversionHook, raw, services);
+    }
+
+    @Override
+    public void validateDependentExpr(StatementSpecCompiled statementSpec, StatementRawInfo raw, StatementCompileTimeServices services) throws ExprValidationException {
         dbAccessForge.validate(new StreamTypeServiceImpl(true), statementSpec.getRaw().getSqlParameters(), raw, services);
     }
 
