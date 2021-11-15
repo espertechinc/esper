@@ -252,7 +252,11 @@ public class EPLInsertIntoPopulateUnderlying {
             env.tryInvalidCompile(text, "Event type named 'xmltype' has already been declared with differing column name or type information: Type by name 'xmltype' is not a compatible type (target type underlying is '" + Node.class.getName() + "') [insert into xmltype select 1 from SupportBean]");
 
             text = "insert into MyMap(dummy) select 1 from SupportBean";
-            env.tryInvalidCompile(text, "Event type named 'MyMap' has already been declared with differing column name or type information: Type by name 'MyMap' expects 10 properties but receives 1 properties [insert into MyMap(dummy) select 1 from SupportBean]");
+            env.tryInvalidCompile(text, "Event type named 'MyMap' has already been declared with differing column name or type information: Type by name 'MyMap' in property 'dummy' property name not found in target");
+
+            text = "@public create window MyWindow#keepall (c0 null, c1 int);\n" +
+                    "insert into MyWindow select 1 as c0 from SupportBean;\n";
+            env.tryInvalidCompile(text, "Event type named 'MyWindow' has already been declared with differing column name or type information: Type by name 'MyWindow' in property 'c0' expects a null-value but receives 'Integer'");
 
             // setter throws exception
             String stmtTextOne = "@name('s0') insert into SupportBeanErrorTestingTwo(value) select 'E1' from MyMap";

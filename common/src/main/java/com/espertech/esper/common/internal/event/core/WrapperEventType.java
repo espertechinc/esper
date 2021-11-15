@@ -360,7 +360,7 @@ public class WrapperEventType implements EventTypeSPI {
 
         EventTypeSPI otherUnderlying = (EventTypeSPI) other.underlyingEventType;
         EventTypeSPI thisUnderlying = (EventTypeSPI) this.underlyingEventType;
-        return otherUnderlying.equalsCompareType(thisUnderlying);
+        return thisUnderlying.equalsCompareType(otherUnderlying);
     }
 
     public EventTypeMetadata getMetadata() {

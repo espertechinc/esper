@@ -17,6 +17,7 @@ import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.client.util.StatementType;
 import com.espertech.esper.common.internal.support.EventRepresentationChoice;
 import com.espertech.esper.common.internal.support.SupportBean;
+import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
 import com.espertech.esper.regressionlib.framework.RegressionPath;
@@ -43,7 +44,44 @@ public class InfraNamedWindowInsertFrom {
         execs.add(new InfraInsertWhereOMStaggered());
         execs.add(new InfraInvalid());
         execs.add(new InfraVariantStream());
+        execs.add(new InfraNamedWindowInsertLenientPropCount(EventRepresentationChoice.MAP));
+        execs.add(new InfraNamedWindowInsertLenientPropCount(EventRepresentationChoice.OBJECTARRAY));
         return execs;
+    }
+
+    private static class InfraNamedWindowInsertLenientPropCount implements RegressionExecution {
+        private final EventRepresentationChoice rep;
+
+        public InfraNamedWindowInsertLenientPropCount(EventRepresentationChoice rep) {
+            this.rep = rep;
+        }
+
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            String epl =
+                    "@public create " + rep.getName() + " schema MyTwoColEvent(c0 string, c1 int);\n" +
+                    "@public @name('window') create window MyWindow#keepall as MyTwoColEvent;\n" +
+                    "insert into MyWindow select theString as c0 from SupportBean;\n" +
+                    "insert into MyWindow select id as c1 from SupportBean_S0;\n";
+            env.compileDeploy(epl, path);
+            String[] fields = "c0,c1".split(",");
+
+            env.sendEventBean(new SupportBean("E1", 0));
+            env.assertPropsPerRowIterator("window", fields, new Object[][] {{"E1", null}});
+
+            env.milestone(0);
+
+            env.sendEventBean(new SupportBean_S0(10));
+            env.assertPropsPerRowIterator("window", fields, new Object[][] {{"E1", null}, {null, 10}});
+
+            env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                    "rep=" + rep +
+                    '}';
+        }
     }
 
     private static class InfraCreateNamedAfterNamed implements RegressionExecution {

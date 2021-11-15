@@ -191,7 +191,7 @@ public class ExprCaseNode extends ExprNodeBase {
             mapResultType = childMapTypes.get(0);
             for (int i = 1; i < childMapTypes.size(); i++) {
                 Map<String, Object> other = childMapTypes.get(i);
-                ExprValidationException messageEquals = MapEventType.isDeepEqualsProperties("Case-when number " + i, mapResultType, other);
+                ExprValidationException messageEquals = MapEventType.isDeepEqualsProperties("Case-when number " + i, mapResultType, other, false);
                 if (messageEquals != null) {
                     throw new ExprValidationException("Incompatible case-when return types by new-operator in case-when number " + i + ": " + messageEquals.getMessage(), messageEquals);
                 }

@@ -24,14 +24,13 @@ import com.espertech.esper.common.client.util.EventTypeBusModifier;
 import com.espertech.esper.common.client.util.NameAccessModifier;
 import com.espertech.esper.common.client.util.StatementProperty;
 import com.espertech.esper.common.internal.event.bean.core.BeanEventType;
-import com.espertech.esper.common.internal.support.EventRepresentationChoice;
-import com.espertech.esper.common.internal.support.SupportBean;
-import com.espertech.esper.common.internal.support.SupportEventPropDesc;
-import com.espertech.esper.common.internal.support.SupportEventPropUtil;
+import com.espertech.esper.common.internal.support.*;
 import com.espertech.esper.common.internal.util.SerializableObjectCopier;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.regressionlib.framework.*;
 import com.espertech.esper.regressionlib.support.bean.*;
+import com.espertech.esper.regressionlib.support.bean.SupportBeanSimple;
+import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
@@ -71,7 +70,44 @@ public class EPLInsertInto {
         execs.add(new EPLInsertIntoUnnamedJoin());
         execs.add(new EPLInsertIntoTypeMismatchInvalid());
         execs.add(new EPLInsertIntoEventRepresentationsSimple());
+        execs.add(new EPLInsertIntoLenientPropCount(EventRepresentationChoice.MAP));
+        execs.add(new EPLInsertIntoLenientPropCount(EventRepresentationChoice.OBJECTARRAY));
+        execs.add(new EPLInsertIntoLenientPropCount(EventRepresentationChoice.JSON));
+        execs.add(new EPLInsertIntoLenientPropCount(EventRepresentationChoice.AVRO));
         return execs;
+    }
+
+    private static class EPLInsertIntoLenientPropCount implements RegressionExecution {
+        private final EventRepresentationChoice rep;
+
+        public EPLInsertIntoLenientPropCount(EventRepresentationChoice rep) {
+            this.rep = rep;
+        }
+
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            String epl =
+                    "@public create " + rep.getName() + " schema MyTwoColEvent(c0 string, c1 int);\n" +
+                    "insert into MyTwoColEvent select theString as c0 from SupportBean;\n" +
+                    "insert into MyTwoColEvent select id as c1 from SupportBean_S0;\n" +
+                    "@name('s0') select * from MyTwoColEvent";
+            env.compileDeploy(epl, path).addListener("s0");
+            String[] fields = "c0,c1".split(",");
+
+            env.sendEventBean(new SupportBean("E1", 0));
+            env.assertPropsNew("s0", fields, new Object[] {"E1", null});
+
+            env.sendEventBean(new SupportBean_S0(10));
+            env.assertPropsNew("s0", fields, new Object[] {null, 10});
+
+            env.undeployAll();
+        }
+
+        public String name() {
+            return this.getClass().getSimpleName() + "{" +
+                    "rep=" + rep +
+                    '}';
+        }
     }
 
     private static class EPLInsertIntoEventRepresentationsSimple implements RegressionExecution {

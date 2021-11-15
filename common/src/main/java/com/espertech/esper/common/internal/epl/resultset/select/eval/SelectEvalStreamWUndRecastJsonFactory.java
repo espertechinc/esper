@@ -67,10 +67,10 @@ public class SelectEvalStreamWUndRecastJsonFactory {
             JsonUnderlyingField fieldTarget = jsonResultType.getDetail().getFieldDescriptors().get(propertyName);
 
             if (fieldSource != null) {
-                Object setOneType = jsonStreamType.getTypes().get(propertyName);
-                Object setTwoType = jsonResultType.getTypes().get(propertyName);
-                boolean setTwoTypeFound = jsonResultType.getTypes().containsKey(propertyName);
-                ExprValidationException message = BaseNestableEventUtil.comparePropType(propertyName, setOneType, setTwoType, setTwoTypeFound, jsonResultType.getName());
+                Object setOneType = jsonResultType.getTypes().get(propertyName);
+                boolean setOneTypeFound = jsonResultType.getTypes().containsKey(propertyName);
+                Object setTwoType = jsonStreamType.getTypes().get(propertyName);
+                ExprValidationException message = BaseNestableEventUtil.comparePropType(propertyName, setOneType, setOneTypeFound, setTwoType, jsonResultType.getName());
                 if (message != null) {
                     throw new ExprValidationException(message.getMessage(), message);
                 }

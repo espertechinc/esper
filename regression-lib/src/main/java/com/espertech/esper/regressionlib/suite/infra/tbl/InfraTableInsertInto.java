@@ -45,7 +45,30 @@ public class InfraTableInsertInto {
         execs.add(new InfraInsertIntoFromNamedWindow());
         execs.add(new InfraInsertIntoSameModuleKeyed());
         execs.add(new InfraSplitStream());
+        execs.add(new InfraTableInsertIntoLenientPropCount());
         return execs;
+    }
+
+    private static class InfraTableInsertIntoLenientPropCount implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            String epl =
+                    "@public @name('table') create table MyTable(c0 string primary key, c1 int primary key);\n" +
+                    "insert into MyTable select theString as c0 from SupportBean;\n" +
+                    "insert into MyTable select id as c1 from SupportBean_S0;\n";
+            env.compileDeploy(epl, path);
+            String[] fields = "c0,c1".split(",");
+
+            env.sendEventBean(new SupportBean("E1", 0));
+            env.assertPropsPerRowIterator("table", fields, new Object[][] {{"E1", null}});
+
+            env.milestone(0);
+
+            env.sendEventBean(new SupportBean_S0(10));
+            env.assertPropsPerRowIteratorAnyOrder("table", fields, new Object[][] {{"E1", null}, {null, 10}});
+
+            env.undeployAll();
+        }
     }
 
     public static class InfraInsertIntoAndDelete implements RegressionExecution {

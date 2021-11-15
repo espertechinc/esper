@@ -630,7 +630,7 @@ public class BaseNestableEventUtil {
                 .methodReturn(ref("array"));
     }
 
-    public static ExprValidationException comparePropType(String propName, Object setOneType, Object setTwoType, boolean setTwoTypeFound, String otherName) {
+    public static ExprValidationException comparePropType(String propName, Object setOneType, boolean setOneTypeFound, Object setTwoType, String otherName) {
         // allow null for nested event types
         if (isNestedType(setOneType) && setTwoType == null) {
             return null;
@@ -638,14 +638,14 @@ public class BaseNestableEventUtil {
         if (isNestedType(setTwoType) && setOneType == null) {
             return null;
         }
-        if (!setTwoTypeFound) {
-            return new ExprValidationException("The property '" + propName + "' is not provided but required");
+        if (!setOneTypeFound) {
+            return new ExprValidationException("Type by name '" + otherName + "' in property '" + propName + "' property name not found in target");
         }
         if (setTwoType == null || setTwoType == EPTypeNull.INSTANCE) {
             return null;
         }
         if (setOneType == null || setOneType == EPTypeNull.INSTANCE) {
-            return new ExprValidationException("Type by name '" + otherName + "' in property '" + propName + "' incompatible with null-type or property name not found in target");
+            return new ExprValidationException("Type by name '" + otherName + "' in property '" + propName + "' expects a null-value but receives '" + setTwoType + "'");
         }
 
         if ((setTwoType instanceof EPTypeClass) && (setOneType instanceof EPTypeClass)) {
@@ -669,7 +669,7 @@ public class BaseNestableEventUtil {
                 return makeExpectedReceivedException(otherName, propName, boxedThis, boxedOther);
             }
         } else if ((setTwoType instanceof Map) && (setOneType instanceof Map)) {
-            ExprValidationException messageIsDeepEquals = BaseNestableEventType.isDeepEqualsProperties(propName, (Map<String, Object>) setOneType, (Map<String, Object>) setTwoType);
+            ExprValidationException messageIsDeepEquals = BaseNestableEventType.isDeepEqualsProperties(propName, (Map<String, Object>) setOneType, (Map<String, Object>) setTwoType, true);
             if (messageIsDeepEquals != null) {
                 return messageIsDeepEquals;
             }

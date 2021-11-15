@@ -715,7 +715,7 @@ public class SelectExprProcessorHelper {
                             if (insertIntoTargetType instanceof ObjectArrayEventType && eventType instanceof ObjectArrayEventType) {
                                 ObjectArrayEventType target = (ObjectArrayEventType) insertIntoTargetType;
                                 ObjectArrayEventType source = (ObjectArrayEventType) eventType;
-                                ExprValidationException msg = BaseNestableEventType.isDeepEqualsProperties(eventType.getName(), source.getTypes(), target.getTypes());
+                                ExprValidationException msg = BaseNestableEventType.isDeepEqualsProperties(eventType.getName(), source.getTypes(), target.getTypes(), false);
                                 if (msg == null) {
                                     SelectExprProcessorForge forge = new SelectEvalInsertCoercionObjectArray(insertIntoTargetType);
                                     return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType, additionalForgeables);
@@ -732,7 +732,7 @@ public class SelectExprProcessorHelper {
                             if (insertIntoTargetType instanceof JsonEventType && eventType instanceof JsonEventType) {
                                 JsonEventType source = (JsonEventType) eventType;
                                 JsonEventType target = (JsonEventType) insertIntoTargetType;
-                                ExprValidationException msg = BaseNestableEventType.isDeepEqualsProperties(eventType.getName(), source.getTypes(), target.getTypes());
+                                ExprValidationException msg = BaseNestableEventType.isDeepEqualsProperties(eventType.getName(), source.getTypes(), target.getTypes(), false);
                                 if (msg == null) {
                                     SelectExprProcessorForge forge = new SelectEvalInsertCoercionJson(source, target);
                                     return new SelectExprProcessorWInsertTarget(forge, insertIntoTargetType, additionalForgeables);
@@ -775,7 +775,7 @@ public class SelectExprProcessorHelper {
                         BeanEventType newBeanType = new BeanEventType(beanEventType.getStem(), metadata, beanEventTypeFactoryProtected, null, null, null, null);
                         resultEventType = newBeanType;
                         if (insertIntoTargetType != null) {
-                            EventTypeUtility.compareExistingType(insertIntoTargetType, newBeanType);
+                            EventTypeUtility.compareExistingType(newBeanType, insertIntoTargetType);
                         } else {
                             args.getEventTypeCompileTimeRegistry().newType(resultEventType);
                         }
@@ -784,7 +784,7 @@ public class SelectExprProcessorHelper {
                         WrapperEventType wrapperEventType = WrapperEventTypeUtil.makeWrapper(metadata, eventType, selPropertyTypes, null, beanEventTypeFactoryProtected, args.getEventTypeCompileTimeResolver());
                         resultEventType = wrapperEventType;
                         if (insertIntoTargetType != null) {
-                            EventTypeUtility.compareExistingType(insertIntoTargetType, wrapperEventType);
+                            EventTypeUtility.compareExistingType(wrapperEventType, insertIntoTargetType);
                         } else {
                             args.getEventTypeCompileTimeRegistry().newType(resultEventType);
                         }

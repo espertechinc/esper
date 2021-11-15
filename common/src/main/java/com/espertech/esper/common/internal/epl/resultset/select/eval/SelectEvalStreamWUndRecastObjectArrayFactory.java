@@ -64,10 +64,10 @@ public class SelectEvalStreamWUndRecastObjectArrayFactory {
             Integer indexTarget = oaResultType.getPropertiesIndexes().get(propertyName);
 
             if (indexSource != null) {
-                Object setOneType = oaStreamType.getTypes().get(propertyName);
-                Object setTwoType = oaResultType.getTypes().get(propertyName);
-                boolean setTwoTypeFound = oaResultType.getTypes().containsKey(propertyName);
-                ExprValidationException message = BaseNestableEventUtil.comparePropType(propertyName, setOneType, setTwoType, setTwoTypeFound, oaResultType.getName());
+                Object setOneType = oaResultType.getTypes().get(propertyName);
+                boolean setOneTypeFound = oaResultType.getTypes().containsKey(propertyName);
+                Object setTwoType = oaStreamType.getTypes().get(propertyName);
+                ExprValidationException message = BaseNestableEventUtil.comparePropType(propertyName, setOneType, setOneTypeFound, setTwoType, oaResultType.getName());
                 if (message != null) {
                     throw new ExprValidationException(message.getMessage(), message);
                 }

@@ -96,8 +96,8 @@ public class StatementAgentInstanceFactoryCreateTableForge {
         CodegenMethod convert = CodegenMethod.makeParentNode(EventBean.EPTYPE, this.getClass(), classScope).addParam(EventBean.EPTYPE, "event").addParam(ExprForgeCodegenNames.PARAMS);
         clazz.addMethod("convert", convert);
         convert.getBlock()
-            .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "data", exprDotMethod(ref("this"), "convertToUnd", ref("event"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))
-            .methodReturn(exprDotMethod(factory, "adapterForTypedObjectArray", ref("data"), eventType));
+                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "data", exprDotMethod(ref("this"), "convertToUnd", ref("event"), REF_EPS, REF_ISNEWDATA, REF_EXPREVALCONTEXT))
+                .methodReturn(exprDotMethod(factory, "adapterForTypedObjectArray", ref("data"), eventType));
 
         CodegenMethod convertToUnd = CodegenMethod.makeParentNode(EPTypePremade.OBJECTARRAY.getEPType(), this.getClass(), classScope).addParam(EventBean.EPTYPE, "event").addParam(ExprForgeCodegenNames.PARAMS);
         clazz.addMethod("convertToUnd", convertToUnd);

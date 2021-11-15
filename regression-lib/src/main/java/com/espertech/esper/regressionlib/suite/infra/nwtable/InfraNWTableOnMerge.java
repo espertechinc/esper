@@ -834,7 +834,7 @@ public class InfraNWTableOnMerge {
 
             epl = "on SupportBean_A as up merge ABCInfra as mv when not matched then insert (col) select 1";
             if (namedWindow) {
-                env.tryInvalidCompile(path, epl, "Validation failed in when-not-matched (clause 1): Event type named 'ABCInfra' has already been declared with differing column name or type information: The property 'val' is not provided but required [on SupportBean_A as up merge ABCInfra as mv when not matched then insert (col) select 1]");
+                env.tryInvalidCompile(path, epl, "Validation failed in when-not-matched (clause 1): Event type named 'ABCInfra' has already been declared with differing column name or type information: Type by name 'ABCInfra' in property 'col' property name not found in target");
             } else {
                 env.tryInvalidCompile(path, epl, "Validation failed in when-not-matched (clause 1): Column 'col' could not be assigned to any of the properties of the underlying type (missing column names, event property, setter method or constructor?) [");
             }

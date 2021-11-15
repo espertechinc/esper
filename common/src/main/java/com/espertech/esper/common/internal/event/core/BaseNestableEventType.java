@@ -215,26 +215,29 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
     /**
      * Compares two sets of properties and determines if they are the same, allowing for
      * boxed/unboxed types, and nested map types.
+     * <p>
+     *     Set-one is the predefined inserted-into existing type, set-two is the proposed insert-into select-output type
+     * </p>
      *
      * @param setOne    is the first set of properties
      * @param setTwo    is the second set of properties
      * @param otherName name of the type compared to
      * @return null if the property set is equivalent or message if not
      */
-    public static ExprValidationException isDeepEqualsProperties(String otherName, Map<String, Object> setOne, Map<String, Object> setTwo) {
+    public static ExprValidationException isDeepEqualsProperties(String otherName, Map<String, Object> setOne, Map<String, Object> setTwo, boolean lenientPropertyCount) {
         // Should have the same number of properties
-        if (setOne.size() != setTwo.size()) {
+        if (!lenientPropertyCount && setOne.size() != setTwo.size()) {
             return new ExprValidationException("Type by name '" + otherName + "' expects " + setOne.size() + " properties but receives " + setTwo.size() + " properties");
         }
 
         // Compare property by property
-        for (Map.Entry<String, Object> entry : setOne.entrySet()) {
+        for (Map.Entry<String, Object> entry : setTwo.entrySet()) {
             String propName = entry.getKey();
-            Object setTwoType = setTwo.get(entry.getKey());
-            boolean setTwoTypeFound = setTwo.containsKey(entry.getKey());
-            Object setOneType = entry.getValue();
+            Object setTwoType = entry.getValue();
+            Object setOneType = setOne.get(propName);
+            boolean setOneTypeFound = setOne.containsKey(propName);
 
-            ExprValidationException message = BaseNestableEventUtil.comparePropType(propName, setOneType, setTwoType, setTwoTypeFound, otherName);
+            ExprValidationException message = BaseNestableEventUtil.comparePropType(propName, setOneType, setOneTypeFound, setTwoType, otherName);
             if (message != null) {
                 return message;
             }
@@ -420,7 +423,7 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
         }
 
         BaseNestableEventType other = (BaseNestableEventType) otherType;
-        return isDeepEqualsProperties(otherType.getName(), other.nestableTypes, this.nestableTypes);
+        return isDeepEqualsProperties(otherType.getName(), other.nestableTypes, this.nestableTypes, true);
     }
 
     public ExprValidationException equalsCompareType(EventType otherEventType) {

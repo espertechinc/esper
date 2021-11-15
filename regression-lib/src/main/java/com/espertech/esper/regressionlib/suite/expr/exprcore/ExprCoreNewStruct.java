@@ -157,7 +157,7 @@ public class ExprCoreNewStruct {
             env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'case when true then new{col1=\"a\"} e...(54 chars)': Incompatible case-when return types by new-operator in case-when number 1: Type by name 'Case-when number 1' in property 'col1' expected String but receives Integer [select case when true then new { col1 = 'a' } else new { col1 = 1 } end from SupportBean]");
 
             epl = "select case when true then new { col1 = 'a' } else new { col2 = 'a' } end from SupportBean";
-            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'case when true then new{col1=\"a\"} e...(56 chars)': Incompatible case-when return types by new-operator in case-when number 1: The property 'col1' is not provided but required [select case when true then new { col1 = 'a' } else new { col2 = 'a' } end from SupportBean]");
+            env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'case when true then new{col1=\"a\"} e...(56 chars)': Incompatible case-when return types by new-operator in case-when number 1: Type by name 'Case-when number 1' in property 'col2' property name not found in target");
 
             epl = "select case when true then new { col1 = 'a', col1 = 'b' } end from SupportBean";
             env.tryInvalidCompile(epl, "Failed to validate select-clause expression 'case when true then new{col1=\"a\",co...(46 chars)': Failed to validate new-keyword property names, property 'col1' has already been declared [select case when true then new { col1 = 'a', col1 = 'b' } end from SupportBean]");

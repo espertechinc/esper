@@ -78,6 +78,12 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class EventTypeUtility {
 
+    /**
+     * Compare tyoes
+     * @param newEventType the proposed new type
+     * @param existingType the existing type
+     * @throws ExprValidationException
+     */
     public static void compareExistingType(EventType newEventType, EventType existingType) throws ExprValidationException {
         ExprValidationException compared = ((EventTypeSPI) newEventType).equalsCompareType(existingType);
         if (compared != null) {

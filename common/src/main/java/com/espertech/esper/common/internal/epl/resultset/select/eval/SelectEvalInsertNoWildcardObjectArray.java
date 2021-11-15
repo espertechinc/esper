@@ -28,14 +28,17 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class SelectEvalInsertNoWildcardObjectArray extends SelectEvalBase implements SelectExprProcessorForge {
 
+    private final int arraySize;
+
     public SelectEvalInsertNoWildcardObjectArray(SelectExprForgeContext selectExprForgeContext, EventType resultEventType) {
         super(selectExprForgeContext, resultEventType);
+        arraySize = resultEventType.getPropertyDescriptors().length;
     }
 
     public CodegenMethod processCodegen(CodegenExpression resultEventType, CodegenExpression eventBeanFactory, CodegenMethodScope codegenMethodScope, SelectExprProcessorCodegenSymbol selectSymbol, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethod methodNode = codegenMethodScope.makeChild(EventBean.EPTYPE, this.getClass(), codegenClassScope);
         CodegenBlock block = methodNode.getBlock()
-                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "result", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(this.context.getExprForges().length)));
+                .declareVar(EPTypePremade.OBJECTARRAY.getEPType(), "result", newArrayByLength(EPTypePremade.OBJECT.getEPType(), constant(arraySize)));
         for (int i = 0; i < this.context.getExprForges().length; i++) {
             CodegenExpression expression = CodegenLegoMayVoid.expressionMayVoid(EPTypePremade.OBJECT.getEPType(), this.context.getExprForges()[i], methodNode, exprSymbol, codegenClassScope);
             block.assignArrayElement("result", constant(i), expression);

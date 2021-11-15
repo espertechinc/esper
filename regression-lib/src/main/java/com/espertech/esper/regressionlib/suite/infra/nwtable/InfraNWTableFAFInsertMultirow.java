@@ -100,21 +100,21 @@ public class InfraNWTableFAFInsertMultirow implements IndexBackingTableInfo {
 
             String query = "insert into MyInfra values ('a', 1), ('b', 2)";
             env.compileExecuteFAF(query, path);
-            env.assertPropsPerRowIterator("infra", fields, new Object[][] {{"a", 1}, {"b", 2}});
+            env.assertPropsPerRowIterator("infra", fields, new Object[][]{{"a", 1}, {"b", 2}});
 
             // test SODA
             query = "insert into MyInfra values (\"c\", 3), (\"d\", 4)";
             EPStatementObjectModel model = env.eplToModel(query);
             assertEquals(query, model.toEPL());
             env.compileExecuteFAF(model, path);
-            env.assertPropsPerRowIterator("infra", fields, new Object[][] {{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}});
+            env.assertPropsPerRowIterator("infra", fields, new Object[][]{{"a", 1}, {"b", 2}, {"c", 3}, {"d", 4}});
 
             // test subquery
             env.compileExecuteFAF("delete from MyInfra", path);
             env.sendEventBean(new SupportBean("x", 50));
             env.compileExecuteFAF("insert into MyInfra values ('a', 1), " +
                     "((select theString from LastSupportBean), (select intPrimitive from LastSupportBean))", path);
-            env.assertPropsPerRowIterator("infra", fields, new Object[][] {{"a", 1}, {"x", 50}});
+            env.assertPropsPerRowIterator("infra", fields, new Object[][]{{"a", 1}, {"x", 50}});
 
             // test 1000 rows
             env.compileExecuteFAF("delete from MyInfra", path);
@@ -157,7 +157,7 @@ public class InfraNWTableFAFInsertMultirow implements IndexBackingTableInfo {
         for (int i = 0; i < size; i++) {
             buf.append(delimiter).append("('$1', $2)".replace("$1", "E" + i).replace("$2", Integer.toString(i)));
             delimiter = ",";
-            expected.add(new Object[] {"E" + i, i});
+            expected.add(new Object[]{"E" + i, i});
         }
         return new Pair<>(buf.toString(), expected.toArray(new Object[0][]));
     }

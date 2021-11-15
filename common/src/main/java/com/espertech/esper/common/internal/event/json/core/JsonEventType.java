@@ -230,10 +230,10 @@ public class JsonEventType extends BaseNestableEventType {
 
             String propName = propMeEntry.getKey();
             Object setOneType = this.nestableTypes.get(propName);
+            boolean setOneTypeFound = this.nestableTypes.containsKey(propName);
             Object setTwoType = other.nestableTypes.get(propName);
-            boolean setTwoTypeFound = other.nestableTypes.containsKey(propName);
 
-            ExprValidationException comparedMessage = BaseNestableEventUtil.comparePropType(propName, setOneType, setTwoType, setTwoTypeFound, other.getName());
+            ExprValidationException comparedMessage = BaseNestableEventUtil.comparePropType(propName, setOneType, setOneTypeFound, setTwoType, other.getName());
             if (comparedMessage != null) {
                 return false;
             }

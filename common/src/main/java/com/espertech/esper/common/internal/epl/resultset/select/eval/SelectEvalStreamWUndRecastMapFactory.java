@@ -47,7 +47,7 @@ public class SelectEvalStreamWUndRecastMapFactory {
         MapEventType mapStreamType = (MapEventType) eventTypes[streamNumber];
 
         // (A) fully assignment-compatible: same number, name and type of fields, no additional expressions: Straight repackage
-        ExprValidationException typeSameMssage = BaseNestableEventType.isDeepEqualsProperties(mapResultType.getName(), mapResultType.getTypes(), mapStreamType.getTypes());
+        ExprValidationException typeSameMssage = BaseNestableEventType.isDeepEqualsProperties(mapResultType.getName(), mapResultType.getTypes(), mapStreamType.getTypes(), false);
         if (typeSameMssage == null && selectExprForgeContext.getExprForges().length == 0) {
             return new MapInsertProcessorSimpleRepackage(selectExprForgeContext, streamNumber, targetType);
         }
@@ -63,10 +63,10 @@ public class SelectEvalStreamWUndRecastMapFactory {
             String propertyName = writeable.getPropertyName();
 
             if (mapStreamType.getTypes().containsKey(propertyName)) {
-                Object setOneType = mapStreamType.getTypes().get(propertyName);
-                Object setTwoType = mapResultType.getTypes().get(propertyName);
-                boolean setTwoTypeFound = mapResultType.getTypes().containsKey(propertyName);
-                ExprValidationException message = BaseNestableEventUtil.comparePropType(propertyName, setOneType, setTwoType, setTwoTypeFound, mapResultType.getName());
+                Object setOneType = mapResultType.getTypes().get(propertyName);
+                boolean setOneTypeFound = mapResultType.getTypes().containsKey(propertyName);
+                Object setTwoType = mapStreamType.getTypes().get(propertyName);
+                ExprValidationException message = BaseNestableEventUtil.comparePropType(propertyName, setOneType, setOneTypeFound, setTwoType, mapResultType.getName());
                 if (message != null) {
                     throw new ExprValidationException(message.getMessage(), message);
                 }
