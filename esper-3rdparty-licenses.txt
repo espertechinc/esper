@@ -1,12 +1,12 @@
 Esper-Compiler required libraries
 ==========================
 
-antlr-runtime-4.7.2.jar - ANTLR 4 License
+antlr-runtime-4.9.3.jar - ANTLR 4 License
 - runtime for ANTLR parser generator
 - required for compiler (not required for runtime)
 - see ANTRL 4 license in file dependencies/compiler/esper_3rdparties_compiler.license
 
-janino-3.1.0.jar and commons-compiler-3.1.0.jar - Janino License 
+janino-3.1.6.jar and commons-compiler-3.1.6.jar - Janino License 
 - required for compiler (not required for runtime)
 - see Janino license in file dependencies/compiler/esper_3rdparties_compiler.license
 

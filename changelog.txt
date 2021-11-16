@@ -1,6 +1,12 @@
 Esper Changelog
 ===================
 
+Changes in version 8.8.0
+------------------------
+  - The following dependent jar files are upgraded:
+    - ANTLR is now 4.9.3 (antlr4-runtime-4.9.3.jar, previously antlr-runtime-4.7.2.jar)  
+    - Janino is now 3.1.6 (commons-compiler-3.1.6.jar and janino-3.1.6.jar, previously *3.1.0.jar)  
+
 Changes in version 8.7.0
 ------------------------
   - Visual Studio Code Extension now has a debugging support, see https://marketplace.visualstudio.com/items?itemName=EsperTech.esperepl

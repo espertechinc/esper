@@ -40,7 +40,7 @@ public class ClientExtendUDFInlinedClass {
         return execs;
     }
 
-    // Note: Janino 3.1.0 does not support @Repeatable and does not support @Annos({@Anno, @Anno})
+    // Note: Janino does not support @Repeatable and does not support @Annos({@Anno, @Anno})
     private static class ClientExtendUDFOverloaded implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String epl = "@name('s0') inlined_class \"\"\"\n" +

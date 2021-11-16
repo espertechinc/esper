@@ -83,12 +83,12 @@ public class InfraTableOnMerge {
                     "  public class Helper {\n" +
                     "    public static double computeInitialValue(double alpha, double[] burnValues) {\n" +
                     "      double total = 0;\n" +
-                    "      for (double v : burnValues) {\n" +
-                    "        total = total + v;\n" +
+                    "      for (int i = 0; i < burnValues.length; i++) {\n" +
+                    "        total = total + burnValues[i];\n" +
                     "      }\n" +
                     "      double value = total / burnValues.length;\n" +
-                    "      for (double v : burnValues) {\n" +
-                    "        value = alpha * v + (1 - alpha) * value;\n" +
+                    "      for (int i = 0; i < burnValues.length; i++) {\n" +
+                    "        value = alpha * burnValues[i] + (1 - alpha) * value;\n" +
                     "      }\n" +
                     "      return value;" +
                     "    }\n" +
