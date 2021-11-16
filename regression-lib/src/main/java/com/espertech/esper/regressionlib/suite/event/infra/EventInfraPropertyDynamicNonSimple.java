@@ -20,7 +20,6 @@ import com.espertech.esper.regressionlib.support.bean.SupportBeanComplexProps;
 import com.espertech.esper.regressionlib.support.events.SupportEventInfra;
 import com.espertech.esper.regressionlib.support.events.ValueWithExistsFlag;
 import org.apache.avro.Schema;
-import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
 import org.w3c.dom.Node;
 

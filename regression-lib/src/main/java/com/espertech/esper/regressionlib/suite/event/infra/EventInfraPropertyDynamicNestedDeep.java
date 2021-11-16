@@ -23,9 +23,7 @@ import com.espertech.esper.regressionlib.support.bean.SupportBeanDynRoot;
 import com.espertech.esper.regressionlib.support.events.SupportEventInfra;
 import com.espertech.esper.regressionlib.support.events.ValueWithExistsFlag;
 import org.apache.avro.Schema;
-import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
-import org.apache.avro.generic.GenericRecord;
 import org.w3c.dom.Node;
 
 import java.io.Serializable;
