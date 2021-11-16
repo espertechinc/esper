@@ -84,7 +84,7 @@ public class EventInfraPropertyDynamicNonSimple implements RegressionExecution {
 
         // Avro
         Schema schema = env.runtimeAvroSchemaPreconfigured(AVRO_TYPENAME);
-        GenericData.Record datumOne = new GenericData.Record(SchemaBuilder.record(AVRO_TYPENAME).fields().endRecord());
+        GenericData.Record datumOne = new GenericData.Record(schema);
         GenericData.Record datumTwo = new GenericData.Record(schema);
         datumTwo.put("indexed", Arrays.asList(1, 2));
         datumTwo.put("mapped", twoEntryMap("keyOne", 3, "keyTwo", 4));

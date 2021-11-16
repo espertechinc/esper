@@ -57,18 +57,18 @@ public class EventAvroEventBean implements RegressionExecution {
 
         env.compileDeploy("@name('s0') select * from MyEvent", path).addListener("s0");
 
-        Schema schema = env.runtimeAvroSchemaByDeployment("schema", "MyEvent");
-        env.sendEventAvro(new GenericData.Record(schema), "MyEvent");
-        env.assertEqualsNew("s0", "a?.b", null);
-
         Schema innerSchema = record("InnerSchema").fields()
-            .name("b").type().stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString().noDefault()
-            .endRecord();
+                .name("b").type().stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString().noDefault()
+                .endRecord();
         GenericData.Record inner = new GenericData.Record(innerSchema);
         inner.put("b", "X");
         Schema recordSchema = record("RecordSchema").fields()
-            .name("a").type(innerSchema).noDefault()
-            .endRecord();
+                .name("a").type(innerSchema).noDefault()
+                .endRecord();
+
+        env.sendEventAvro(new GenericData.Record(recordSchema), "MyEvent");
+        env.assertEqualsNew("s0", "a?.b", null);
+
         GenericData.Record record = new GenericData.Record(recordSchema);
         record.put("a", inner);
         env.sendEventAvro(record, "MyEvent");

@@ -34,8 +34,8 @@
 		<puppycrawl.tools.checkstyle.version>8.29</puppycrawl.tools.checkstyle.version>
 
 		<antlr4-runtime.version>4.9.3</antlr4-runtime.version>
-		<avro.version>1.9.1</avro.version>
-		<avro.jackson.version>2.9.9</avro.jackson.version>
+		<avro.version>1.11.0</avro.version>
+		<avro.jackson.version>2.12.5</avro.jackson.version>
 		<janino.version>3.1.6</janino.version>
 		<log4j.version>1.2.17</log4j.version>
 		<mysql-connector-java.version>8.0.17</mysql-connector-java.version>

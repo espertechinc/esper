@@ -25,6 +25,7 @@ import com.espertech.esper.regressionlib.support.events.ValueWithExistsFlag;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericRecord;
 import org.w3c.dom.Node;
 
 import java.io.Serializable;
@@ -117,12 +118,9 @@ public class EventInfraPropertyDynamicNestedDeep implements RegressionExecution 
         GenericData.Record nestedDatum = new GenericData.Record(nestedSchema);
         nestedDatum.put("nestedValue", 100);
         nestedDatum.put("nestedNested", nestedNestedDatum);
-        Schema emptySchema = SchemaBuilder.record(EventInfraPropertyDynamicNestedDeep.AVRO_TYPENAME).fields().endRecord();
-        GenericData.Record emptyDatum = new GenericData.Record(emptySchema);
         Pair[] avroTests = new Pair[]{
             new Pair<>(nestedDatum, allExist(100, 100, 101, 101, 101, 101)),
-            new Pair<>(emptyDatum, notExists),
-            new Pair<>(null, notExists)
+            new Pair<>(new GenericData.Record(schema), notExists),
         };
         env.assertThat(() -> runAssertion(env, AVRO_TYPENAME, FAVRO, null, avroTests, Object.class, path));
 
@@ -245,11 +243,17 @@ public class EventInfraPropertyDynamicNestedDeep implements RegressionExecution 
 
     private static final SupportEventInfra.FunctionSendEvent FAVRO = (env, value, typename) -> {
         Schema schema = env.runtimeAvroSchemaPreconfigured(AVRO_TYPENAME);
-        Schema itemSchema = schema.getField("item").schema();
-        GenericData.Record itemDatum = new GenericData.Record(itemSchema);
-        itemDatum.put("nested", value);
-        GenericData.Record event = new GenericData.Record(schema);
-        event.put("item", itemDatum);
+        GenericData.Record valueRecord = (GenericData.Record) value;
+        GenericData.Record event;
+        if (valueRecord.getSchema().equals(schema)) {
+            event = valueRecord;
+        } else {
+            Schema itemSchema = schema.getField("item").schema();
+            GenericData.Record itemDatum = new GenericData.Record(itemSchema);
+            itemDatum.put("nested", value);
+            event = new GenericData.Record(schema);
+            event.put("item", itemDatum);
+        }
         env.sendEventAvro(event, typename);
     };
 

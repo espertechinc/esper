@@ -92,20 +92,18 @@ public class EventInfraGetterDynamicNestedDeep implements RegressionExecution {
         runAssertion(env, eplJsonProvided, json);
 
         // Avro
+        Schema leafSchema = SchemaBuilder.record("leaf").fields().name("id").type().stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString().noDefault().endRecord();
+        Schema innerSchema = SchemaBuilder.record("inner").fields().name("leaf").type(leafSchema).noDefault().endRecord();
+        Schema topSchema = SchemaBuilder.record("top").fields().name("property").type(innerSchema).noDefault().endRecord();
         Consumer<Nullable2Lvl> avro = val -> {
-            Schema emptySchema = SchemaBuilder.record("name").fields().endRecord();
             GenericData.Record event;
             if (val.isNullAtRoot()) {
-                event = new GenericData.Record(emptySchema);
+                event = new GenericData.Record(topSchema);
             } else if (val.isNullAtInner()) {
-                GenericData.Record inner = new GenericData.Record(emptySchema);
-                Schema topSchema = SchemaBuilder.record("name").fields().name("property").type(emptySchema).noDefault().endRecord();
+                GenericData.Record inner = new GenericData.Record(innerSchema);
                 event = new GenericData.Record(topSchema);
                 event.put("property", inner);
             } else {
-                Schema leafSchema = SchemaBuilder.record("leaf").fields().name("id").type().stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString().noDefault().endRecord();
-                Schema innerSchema = SchemaBuilder.record("inner").fields().name("leaf").type(leafSchema).noDefault().endRecord();
-                Schema topSchema = SchemaBuilder.record("top").fields().name("property").type(innerSchema).noDefault().endRecord();
                 GenericData.Record leaf = new GenericData.Record(leafSchema);
                 leaf.put("id", val.id);
                 GenericData.Record inner = new GenericData.Record(innerSchema);

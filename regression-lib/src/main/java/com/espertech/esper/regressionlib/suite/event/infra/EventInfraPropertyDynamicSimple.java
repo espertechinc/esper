@@ -84,13 +84,13 @@ public class EventInfraPropertyDynamicSimple implements RegressionExecution {
 
         // Avro
         Schema avroSchema = env.runtimeAvroSchemaPreconfigured(AVRO_TYPENAME);
-        GenericData.Record datumEmpty = new GenericData.Record(SchemaBuilder.record(AVRO_TYPENAME).fields().endRecord());
+        GenericData.Record datumEmpty = new GenericData.Record(avroSchema);
         GenericData.Record datumOne = new GenericData.Record(avroSchema);
         datumOne.put("id", 101);
         GenericData.Record datumTwo = new GenericData.Record(avroSchema);
         datumTwo.put("id", null);
         Pair[] avroTests = new Pair[]{
-            new Pair<>(datumEmpty, notExists()),
+            new Pair<>(datumEmpty, exists(null)),
             new Pair<>(datumOne, exists(101)),
             new Pair<>(datumTwo, exists(null))
         };

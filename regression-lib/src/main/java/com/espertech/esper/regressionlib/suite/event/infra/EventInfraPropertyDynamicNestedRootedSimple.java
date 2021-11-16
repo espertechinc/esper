@@ -109,7 +109,7 @@ public class EventInfraPropertyDynamicNestedRootedSimple implements RegressionEx
         datumOne.put("simpleProperty", "abc");
         datumOne.put("nested", nestedDatum);
         Pair[] avroTests = new Pair[]{
-            new Pair<>(new GenericData.Record(SchemaBuilder.record(AVRO_TYPENAME).fields().endRecord()), NOT_EXISTS),
+            new Pair<>(new GenericData.Record(avroSchema), new ValueWithExistsFlag[]{exists(null), notExists(), notExists()}),
             new Pair<>(datumNull, new ValueWithExistsFlag[]{exists(null), notExists(), notExists()}),
             new Pair<>(datumOne, allExist("abc", 100, 101)),
         };

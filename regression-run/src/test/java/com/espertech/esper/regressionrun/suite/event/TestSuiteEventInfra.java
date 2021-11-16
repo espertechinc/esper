@@ -564,6 +564,8 @@ public class TestSuiteEventInfra extends TestCase {
         Schema s1 = SchemaBuilder.record(EventInfraPropertyDynamicNestedRootedNonSimple.AVRO_TYPENAME + "_1").fields()
             .name("indexed").type().unionOf().nullType().and().intType().and().array().items().intType().endUnion().noDefault()
             .name("mapped").type().unionOf().nullType().and().intType().and().map().values().intType().endUnion().noDefault()
+            .name("arrayProperty").type().unionOf().nullType().and().intType().and().array().items().intType().endUnion().noDefault()
+            .name("mapProperty").type().unionOf().nullType().and().intType().and().map().values().intType().endUnion().noDefault()
             .endRecord();
         Schema avroSchema = SchemaBuilder.record(EventInfraPropertyDynamicNestedRootedNonSimple.AVRO_TYPENAME).fields()
             .name("item").type().unionOf().intType().and().type(s1).endUnion().noDefault()
