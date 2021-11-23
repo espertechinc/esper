@@ -44,6 +44,7 @@ public class SupportConfigFactory {
                 config.getCompiler().getLogging().setEnableCode(true);
             }
         }
+        config.getCommon().getEventMeta().setEnableXMLXSD(true);
         return config;
     }
 }

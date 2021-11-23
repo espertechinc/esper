@@ -207,7 +207,12 @@
 							<groupId>xerces</groupId>
 							<artifactId>xercesImpl</artifactId>
 							<version>${xerces2j.version}</version>
-						</artifactItem>
+						</artifactItem>					
+						<artifactItem>
+							<groupId>xml-apis</groupId>
+							<artifactId>xml-apis</artifactId>
+							<version>${xerces2j-xmlapis.version}</version>
+						</artifactItem>					
 					</artifactItems>
 				</configuration>
 			</plugin>		
