@@ -82,6 +82,8 @@ import com.espertech.esper.common.internal.event.core.EventTypeResolvingBeanFact
 import com.espertech.esper.common.internal.event.eventtypefactory.EventTypeFactory;
 import com.espertech.esper.common.internal.event.eventtyperepo.*;
 import com.espertech.esper.common.internal.event.render.EPRenderEventServiceImpl;
+import com.espertech.esper.common.internal.event.xml.EventTypeXMLXSDHandler;
+import com.espertech.esper.common.internal.event.xml.EventTypeXMLXSDHandlerFactory;
 import com.espertech.esper.common.internal.event.xml.XMLFragmentEventTypeFactory;
 import com.espertech.esper.common.internal.filterspec.FilterBooleanExpressionFactory;
 import com.espertech.esper.common.internal.filterspec.FilterSharedBoolExprRepository;
@@ -208,6 +210,7 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
         EPServicesHA epServicesHA = initHA(epRuntime.getURI(), configs, runtimeEnvContext, eventProcessingRWLock, runtimeSettingsService, options, classLoaderParent);
 
         EventTypeAvroHandler eventTypeAvroHandler = makeEventTypeAvroHandler(classpathImportServiceRuntime, configs.getCommon().getEventMeta().getAvroSettings(), epServicesHA.getRuntimeExtensionServices());
+        EventTypeXMLXSDHandler eventTypeXMLXSDHandler = EventTypeXMLXSDHandlerFactory.resolve(classpathImportServiceRuntime, configs.getCommon().getEventMeta(), EventTypeXMLXSDHandler.HANDLER_IMPL);
         Map<String, EPTypeClass> resolvedBeanEventTypes = BeanEventTypeRepoUtil.resolveBeanEventTypes(configs.getCommon().getEventTypeNames(), classpathImportServiceRuntime);
         EventBeanTypedEventFactory eventBeanTypedEventFactory = makeEventBeanTypedEventFactory(eventTypeAvroHandler);
         BeanEventTypeStemService beanEventTypeStemService = BeanEventTypeRepoUtil.makeBeanEventTypeStemService(configs, resolvedBeanEventTypes, eventBeanTypedEventFactory);
@@ -217,8 +220,8 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
         EventTypeRepositoryBeanTypeUtil.buildBeanTypes(beanEventTypeStemService, eventTypeRepositoryPreconfigured, resolvedBeanEventTypes, beanEventTypeFactoryPrivate, configs.getCommon().getEventTypesBean());
         EventTypeRepositoryMapTypeUtil.buildMapTypes(eventTypeRepositoryPreconfigured, configs.getCommon().getMapTypeConfigurations(), configs.getCommon().getEventTypesMapEvents(), configs.getCommon().getEventTypesNestableMapEvents(), beanEventTypeFactoryPrivate, classpathImportServiceRuntime);
         EventTypeRepositoryOATypeUtil.buildOATypes(eventTypeRepositoryPreconfigured, configs.getCommon().getObjectArrayTypeConfigurations(), configs.getCommon().getEventTypesNestableObjectArrayEvents(), beanEventTypeFactoryPrivate, classpathImportServiceRuntime);
-        XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory = new XMLFragmentEventTypeFactory(beanEventTypeFactoryPrivate, null, eventTypeRepositoryPreconfigured);
-        EventTypeRepositoryXMLTypeUtil.buildXMLTypes(eventTypeRepositoryPreconfigured, configs.getCommon().getEventTypesXMLDOM(), beanEventTypeFactoryPrivate, xmlFragmentEventTypeFactory, classpathImportServiceRuntime);
+        XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory = new XMLFragmentEventTypeFactory(beanEventTypeFactoryPrivate, null, eventTypeRepositoryPreconfigured, eventTypeXMLXSDHandler);
+        EventTypeRepositoryXMLTypeUtil.buildXMLTypes(eventTypeRepositoryPreconfigured, configs.getCommon().getEventTypesXMLDOM(), beanEventTypeFactoryPrivate, xmlFragmentEventTypeFactory, classpathImportServiceRuntime, eventTypeXMLXSDHandler);
         EventTypeRepositoryAvroTypeUtil.buildAvroTypes(eventTypeRepositoryPreconfigured, configs.getCommon().getEventTypesAvro(), eventTypeAvroHandler, beanEventTypeFactoryPrivate.getEventBeanTypedEventFactory());
         EventTypeRepositoryVariantStreamUtil.buildVariantStreams(eventTypeRepositoryPreconfigured, configs.getCommon().getVariantStreams(), eventTypeFactory);
 
@@ -374,6 +377,7 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
                 eventTypeRepositoryPreconfigured,
                 eventTypeResolvingBeanFactory,
                 eventTypeSerdeRepository,
+                eventTypeXMLXSDHandler,
                 exceptionHandlingService,
                 expressionResultCacheSharable,
                 filterBooleanExpressionFactory,

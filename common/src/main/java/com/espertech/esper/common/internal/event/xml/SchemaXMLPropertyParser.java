@@ -36,14 +36,15 @@ public class SchemaXMLPropertyParser {
      * The propertyName String may be simple, nested, indexed or mapped.
      *
      * @param propertyName               is the event property name
-     * @param namespace                  is the default namespace
-     * @param schemaModel                is the schema model
      * @param xPathFactory               is the xpath factory instance to use
      * @param rootElementName            is the name of the root element
+     * @param namespace                  is the default namespace
+     * @param schemaModel                is the schema model
      * @param eventBeanTypedEventFactory for type lookup and creation
      * @param xmlEventType               the resolving type
      * @param isAllowFragment            whether fragmenting is allowed
      * @param defaultNamespace           default namespace
+     * @param xmlxsdHandler
      * @return xpath expression
      * @throws EPException is there are XPath errors
      */
@@ -55,7 +56,8 @@ public class SchemaXMLPropertyParser {
                                                             EventBeanTypedEventFactory eventBeanTypedEventFactory,
                                                             BaseXMLEventType xmlEventType,
                                                             boolean isAllowFragment,
-                                                            String defaultNamespace) throws EPException {
+                                                            String defaultNamespace,
+                                                            EventTypeXMLXSDHandler xmlxsdHandler) throws EPException {
         if (log.isDebugEnabled()) {
             log.debug("Determining XPath expression for property '" + propertyName + "'");
         }
@@ -96,7 +98,7 @@ public class SchemaXMLPropertyParser {
         Pair<String, QName> pair = null;
 
         if (!(property instanceof NestedProperty)) {
-            pair = makeProperty(rootComplexElement, property, ctx, true, isDynamic, defaultNamespacePrefix);
+            pair = makeProperty(rootComplexElement, property, ctx, true, isDynamic, defaultNamespacePrefix, xmlxsdHandler);
             if (pair == null) {
                 throw new PropertyAccessException("Failed to locate property '" + propertyName + "' in schema");
             }
@@ -107,7 +109,7 @@ public class SchemaXMLPropertyParser {
             for (int i = 0; i < indexLast + 1; i++) {
                 boolean isLast = i == indexLast;
                 Property propertyNested = nestedProperty.getProperties().get(i);
-                pair = makeProperty(parentComplexElement, propertyNested, ctx, isLast, isDynamic, defaultNamespacePrefix);
+                pair = makeProperty(parentComplexElement, propertyNested, ctx, isLast, isDynamic, defaultNamespacePrefix, xmlxsdHandler);
                 if (pair == null) {
                     throw new PropertyAccessException("Failed to locate property '" + propertyName + "' nested property part '" + property.getPropertyNameAtomic() + "' in schema");
                 }
@@ -153,7 +155,7 @@ public class SchemaXMLPropertyParser {
 
         EPTypeClass resultType;
         if (!isDynamic) {
-            resultType = SchemaUtil.toReturnType(item);
+            resultType = SchemaUtil.toReturnType(item, xmlxsdHandler);
         } else {
             resultType = EPTypePremade.NODE.getEPType();
         }
@@ -165,21 +167,21 @@ public class SchemaXMLPropertyParser {
         return new XPathPropertyGetter(xmlEventType, propertyName, xPath, expr, pair.getSecond(), resultType, fragmentFactory);
     }
 
-    private static Pair<String, QName> makeProperty(SchemaElementComplex parent, Property property, XPathNamespaceContext ctx, boolean isLast, boolean isDynamic, String defaultNamespacePrefix) {
+    private static Pair<String, QName> makeProperty(SchemaElementComplex parent, Property property, XPathNamespaceContext ctx, boolean isLast, boolean isDynamic, String defaultNamespacePrefix, EventTypeXMLXSDHandler xmlxsdHandler) {
         String text = property.getPropertyNameAtomic();
         SchemaItem obj = SchemaUtil.findPropertyMapping(parent, text);
         if ((obj instanceof SchemaElementSimple) || (obj instanceof SchemaElementComplex)) {
-            return makeElementProperty((SchemaElement) obj, property, ctx, isLast, isDynamic, defaultNamespacePrefix);
+            return makeElementProperty((SchemaElement) obj, property, ctx, isLast, isDynamic, defaultNamespacePrefix, xmlxsdHandler);
         } else if (obj != null) {
-            return makeAttributeProperty((SchemaItemAttribute) obj, property, ctx);
+            return makeAttributeProperty((SchemaItemAttribute) obj, property, ctx, xmlxsdHandler);
         } else if (isDynamic) {
-            return makeElementProperty(null, property, ctx, isLast, isDynamic, defaultNamespacePrefix);
+            return makeElementProperty(null, property, ctx, isLast, isDynamic, defaultNamespacePrefix, xmlxsdHandler);
         } else {
             return null;
         }
     }
 
-    private static Pair<String, QName> makeAttributeProperty(SchemaItemAttribute attribute, Property property, XPathNamespaceContext ctx) {
+    private static Pair<String, QName> makeAttributeProperty(SchemaItemAttribute attribute, Property property, XPathNamespaceContext ctx, EventTypeXMLXSDHandler xmlxsdHandler) {
         String prefix = ctx.getPrefix(attribute.getNamespace());
         if (prefix == null) {
             prefix = "";
@@ -188,7 +190,7 @@ public class SchemaXMLPropertyParser {
         }
 
         if (isAnySimpleProperty(property)) {
-            QName type = SchemaUtil.simpleTypeToQName(attribute.getXsSimpleType());
+            QName type = xmlxsdHandler.simpleTypeToQName(attribute.getXsSimpleType());
             String path = "/@" + prefix + property.getPropertyNameAtomic();
             return new Pair<String, QName>(path, type);
         }
@@ -199,16 +201,16 @@ public class SchemaXMLPropertyParser {
         throw new RuntimeException("Indexed properties not applicable to attributes");
     }
 
-    private static Pair<String, QName> makeElementProperty(SchemaElement schemaElement, Property property, XPathNamespaceContext ctx, boolean isAlone, boolean isDynamic, String defaultNamespacePrefix) {
+    private static Pair<String, QName> makeElementProperty(SchemaElement schemaElement, Property property, XPathNamespaceContext ctx, boolean isAlone, boolean isDynamic, String defaultNamespacePrefix, EventTypeXMLXSDHandler xmlxsdHandler) {
         QName type;
         if (isDynamic) {
             type = XPathConstants.NODE;
         } else if (schemaElement instanceof SchemaElementSimple) {
-            type = SchemaUtil.simpleTypeToQName(((SchemaElementSimple) schemaElement).getXsSimpleType());
+            type = xmlxsdHandler.simpleTypeToQName(((SchemaElementSimple) schemaElement).getXsSimpleType());
         } else {
             SchemaElementComplex complex = (SchemaElementComplex) schemaElement;
             if (complex.getOptionalSimpleType() != null) {
-                type = SchemaUtil.simpleTypeToQName(complex.getOptionalSimpleType());
+                type = xmlxsdHandler.simpleTypeToQName(complex.getOptionalSimpleType());
             } else {
                 // The result is a node
                 type = XPathConstants.NODE;

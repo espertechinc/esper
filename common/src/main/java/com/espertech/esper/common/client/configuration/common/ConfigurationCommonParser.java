@@ -523,6 +523,7 @@ public class ConfigurationCommonParser {
 
     private static void handleEventMeta(ConfigurationCommon common, Element parentElement) {
         DOMElementIterator nodeIterator = new DOMElementIterator(parentElement.getChildNodes());
+        parseOptionalBoolean(parentElement, "enable-xmlxsd", value -> common.getEventMeta().setEnableXMLXSD(value));
         while (nodeIterator.hasNext()) {
             Element subElement = nodeIterator.next();
             if (subElement.getNodeName().equals("class-property-resolution")) {

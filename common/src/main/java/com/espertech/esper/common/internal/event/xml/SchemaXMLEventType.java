@@ -55,8 +55,9 @@ public class SchemaXMLEventType extends BaseXMLEventType {
     private final boolean isPropertyExpressionXPath;
     private final String representsFragmentOfProperty;
     private final String representsOriginalTypeName;
+    private final EventTypeXMLXSDHandler xmlxsdHandler;
 
-    public SchemaXMLEventType(EventTypeMetadata eventTypeMetadata, ConfigurationCommonEventTypeXMLDOM config, SchemaModel schemaModel, String representsFragmentOfProperty, String representsOriginalTypeName, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventTypeNameResolver eventTypeResolver, XMLFragmentEventTypeFactory xmlEventTypeFactory) {
+    public SchemaXMLEventType(EventTypeMetadata eventTypeMetadata, ConfigurationCommonEventTypeXMLDOM config, SchemaModel schemaModel, String representsFragmentOfProperty, String representsOriginalTypeName, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventTypeNameResolver eventTypeResolver, XMLFragmentEventTypeFactory xmlEventTypeFactory, EventTypeXMLXSDHandler xmlxsdHandler) {
         super(eventTypeMetadata, config, eventBeanTypedEventFactory, eventTypeResolver, xmlEventTypeFactory);
 
         this.propertyGetterCache = new HashMap<String, EventPropertyGetterSPI>();
@@ -66,6 +67,7 @@ public class SchemaXMLEventType extends BaseXMLEventType {
         this.isPropertyExpressionXPath = config.isXPathPropertyExpr();
         this.representsFragmentOfProperty = representsFragmentOfProperty;
         this.representsOriginalTypeName = representsOriginalTypeName;
+        this.xmlxsdHandler = xmlxsdHandler;
 
         // Set of namespace context for XPath expressions
         XPathNamespaceContext ctx = new XPathNamespaceContext();
@@ -86,7 +88,7 @@ public class SchemaXMLEventType extends BaseXMLEventType {
             EPType returnType = EPTypePremade.NODE.getEPType();
 
             if (complex.getOptionalSimpleType() != null) {
-                returnType = SchemaUtil.toReturnType(complex);
+                returnType = SchemaUtil.toReturnType(complex, xmlxsdHandler);
             }
             if (complex.isArray()) {
                 returnType = EPTypePremade.NODEARRAY.getEPType();      // We use Node[] for arrays and NodeList for XPath-Expressions returning Nodeset
@@ -106,7 +108,7 @@ public class SchemaXMLEventType extends BaseXMLEventType {
         // Add a property for each simple child element
         for (SchemaElementSimple simple : schemaModelRoot.getSimpleElements()) {
             String propertyName = simple.getName();
-            EPType returnType = SchemaUtil.toReturnType(simple);
+            EPType returnType = SchemaUtil.toReturnType(simple, xmlxsdHandler);
             EventPropertyGetterSPI getter = doResolvePropertyGetter(propertyName, true);
             EventPropertyDescriptor desc = new EventPropertyDescriptor(propertyName, returnType, false, false, simple.isArray(), false, false);
             ExplicitPropertyDescriptor explicit = new ExplicitPropertyDescriptor(desc, getter, false, null);
@@ -116,7 +118,7 @@ public class SchemaXMLEventType extends BaseXMLEventType {
         // Add a property for each attribute
         for (SchemaItemAttribute attribute : schemaModelRoot.getAttributes()) {
             String propertyName = attribute.getName();
-            EPType returnType = SchemaUtil.toReturnType(attribute);
+            EPType returnType = SchemaUtil.toReturnType(attribute, xmlxsdHandler);
             EventPropertyGetterSPI getter = doResolvePropertyGetter(propertyName, true);
             EventPropertyDescriptor desc = new EventPropertyDescriptor(propertyName, returnType, false, false, false, false, false);
             ExplicitPropertyDescriptor explicit = new ExplicitPropertyDescriptor(desc, getter, false, null);
@@ -205,7 +207,7 @@ public class SchemaXMLEventType extends BaseXMLEventType {
             return null;
         }
 
-        return SchemaUtil.toReturnType(item);
+        return SchemaUtil.toReturnType(item, xmlxsdHandler);
     }
 
     protected EventPropertyGetterSPI doResolvePropertyGetter(String property) {
@@ -263,7 +265,7 @@ public class SchemaXMLEventType extends BaseXMLEventType {
                     return null;
                 }
 
-                EPTypeClass returnType = SchemaUtil.toReturnType(item);
+                EPTypeClass returnType = SchemaUtil.toReturnType(item, xmlxsdHandler);
                 if ((returnType.getType() != Node.class) && (returnType.getType() != NodeList.class)) {
                     if (!returnType.getType().isArray()) {
                         getter = new DOMConvertingGetter((DOMPropertyGetter) getter, returnType.getType());
@@ -276,7 +278,7 @@ public class SchemaXMLEventType extends BaseXMLEventType {
             }
         } else {
             boolean allowFragments = !this.getConfigurationEventTypeXMLDOM().isXPathPropertyExpr();
-            getter = SchemaXMLPropertyParser.getXPathResolution(propertyExpression, getXPathFactory(), getRootElementName(), rootElementNamespace, schemaModel, this.getEventBeanTypedEventFactory(), this, allowFragments, this.getConfigurationEventTypeXMLDOM().getDefaultNamespace());
+            getter = SchemaXMLPropertyParser.getXPathResolution(propertyExpression, getXPathFactory(), getRootElementName(), rootElementNamespace, schemaModel, this.getEventBeanTypedEventFactory(), this, allowFragments, this.getConfigurationEventTypeXMLDOM().getDefaultNamespace(), xmlxsdHandler);
         }
 
         propertyGetterCache.put(propertyExpression, getter);

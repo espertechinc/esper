@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1637696126177
+Build-Jdk: 1.8.0_192
+Built-By: EsperTechInc
+Bundle-Description: Complex event processing and event series analysis c
+ omponent
+Bundle-License: http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
+Bundle-ManifestVersion: 2
+Bundle-Name: Esper-Common-XMLXSD
+Bundle-SymbolicName: com.espertech.esper-common-xmlxsd
+Bundle-Version: 8.8.0
+Created-By: Apache Maven Bundle Plugin
+Export-Package: com.espertech.esper.common.internal.xmlxsd.core;version=
+ "8.8.0";uses:="com.espertech.esper.common.client.type,com.espertech.esp
+ er.common.internal.event.xml,com.espertech.esper.common.internal.settin
+ gs"
+Import-Package: com.espertech.esper.common.client;version="[8.8,9)",com.
+ espertech.esper.common.client.configuration;version="[8.8,9)",com.esper
+ tech.esper.common.client.type,com.espertech.esper.common.internal.event
+ .xml;version="[8.8,9)",com.espertech.esper.common.internal.settings;ver
+ sion="[8.8,9)",com.espertech.esper.common.internal.util;version="[8.8,9
+ )"
+Originally-Created-By: Apache Maven Bundle Plugin
+Tool: Bnd-3.5.0.201709291849

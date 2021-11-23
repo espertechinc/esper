@@ -24,6 +24,7 @@ import com.espertech.esper.common.internal.event.json.core.JsonEventTypeDetail;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.event.variant.VariantEventType;
 import com.espertech.esper.common.internal.event.variant.VariantSpec;
+import com.espertech.esper.common.internal.event.xml.EventTypeXMLXSDHandler;
 import com.espertech.esper.common.internal.event.xml.SchemaModel;
 import com.espertech.esper.common.internal.event.xml.XMLFragmentEventTypeFactory;
 
@@ -39,7 +40,7 @@ public interface EventTypeFactory {
 
     WrapperEventType createWrapper(EventTypeMetadata metadata, EventType underlying, LinkedHashMap<String, Object> properties, BeanEventTypeFactory beanEventTypeFactory, EventTypeNameResolver eventTypeNameResolver);
 
-    EventType createXMLType(EventTypeMetadata metadata, ConfigurationCommonEventTypeXMLDOM detail, SchemaModel schemaModel, String representsFragmentOfProperty, String representsOriginalTypeName, BeanEventTypeFactory beanEventTypeFactory, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory, EventTypeNameResolver eventTypeNameResolver);
+    EventType createXMLType(EventTypeMetadata metadata, ConfigurationCommonEventTypeXMLDOM detail, SchemaModel schemaModel, String representsFragmentOfProperty, String representsOriginalTypeName, BeanEventTypeFactory beanEventTypeFactory, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory, EventTypeNameResolver eventTypeNameResolver, EventTypeXMLXSDHandler xmlxsdHandler);
 
     VariantEventType createVariant(EventTypeMetadata metadata, VariantSpec spec);
 

@@ -30,14 +30,16 @@ public class XMLFragmentEventTypeFactory {
     private final BeanEventTypeFactory eventTypeFactory;
     private final EventTypeCompileTimeRegistry optionalCompileTimeRegistry;
     private final EventTypeNameResolver eventTypeNameResolver;
+    private final EventTypeXMLXSDHandler eventTypeXMLXSDHandler;
 
     private Map<String, SchemaXMLEventType> rootTypes;
     private Map<String, SchemaXMLEventType> derivedTypes;
 
-    public XMLFragmentEventTypeFactory(BeanEventTypeFactory eventTypeFactory, EventTypeCompileTimeRegistry optionalCompileTimeRegistry, EventTypeNameResolver eventTypeNameResolver) {
+    public XMLFragmentEventTypeFactory(BeanEventTypeFactory eventTypeFactory, EventTypeCompileTimeRegistry optionalCompileTimeRegistry, EventTypeNameResolver eventTypeNameResolver, EventTypeXMLXSDHandler eventTypeXMLXSDHandler) {
         this.eventTypeFactory = eventTypeFactory;
         this.optionalCompileTimeRegistry = optionalCompileTimeRegistry;
         this.eventTypeNameResolver = eventTypeNameResolver;
+        this.eventTypeXMLXSDHandler = eventTypeXMLXSDHandler;
     }
 
     public void addRootType(SchemaXMLEventType type) {
@@ -86,7 +88,7 @@ public class XMLFragmentEventTypeFactory {
         xmlDom.addNamespacePrefixes(config.getNamespacePrefixes());
 
         EventTypeMetadata metadata = new EventTypeMetadata(derivedEventTypeName, moduleName, EventTypeTypeClass.STREAM, EventTypeApplicationType.XML, NameAccessModifier.PRECONFIGURED, EventTypeBusModifier.BUS, false, new EventTypeIdPair(CRC32Util.computeCRC32(derivedEventTypeName), -1));
-        SchemaXMLEventType eventType = (SchemaXMLEventType) eventTypeFactory.getEventTypeFactory().createXMLType(metadata, xmlDom, type.getSchemaModel(), representsFragmentOfProperty, rootTypeName, eventTypeFactory, this, eventTypeNameResolver);
+        SchemaXMLEventType eventType = (SchemaXMLEventType) eventTypeFactory.getEventTypeFactory().createXMLType(metadata, xmlDom, type.getSchemaModel(), representsFragmentOfProperty, rootTypeName, eventTypeFactory, this, eventTypeNameResolver, eventTypeXMLXSDHandler);
         derivedTypes.put(derivedEventTypeName, eventType);
 
         if (optionalCompileTimeRegistry != null) {

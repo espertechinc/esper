@@ -7,7 +7,8 @@ Changes in version 8.8.0
     - ANTLR is now 4.9.3 (antlr4-runtime-4.9.3.jar, previously antlr-runtime-4.7.2.jar)  
     - Janino is now 3.1.6 (commons-compiler-3.1.6.jar and janino-3.1.6.jar, previously *3.1.0.jar)  
     - Avro (optional) is now 1.11.0 (avro-1.11.0.jar, previously avro-1.9.1)
-
+  - For use of XML with XML-Schema (XSD): New jar files are required in classpath, namely "esper-common-xmlxsd-<version>.jar" and "xercesImpl-2.12.1.jar" (see documentation)
+    
 Changes in version 8.7.0
 ------------------------
   - Visual Studio Code Extension now has a debugging support, see https://marketplace.visualstudio.com/items?itemName=EsperTech.esperepl

@@ -8,17 +8,18 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.event.xml;
+package com.espertech.esper.common.internal.xmlxsd.core;
 
 import com.espertech.esper.common.client.configuration.ConfigurationException;
+import com.espertech.esper.common.internal.event.xml.*;
 import com.espertech.esper.common.internal.settings.ClasspathImportService;
 import com.espertech.esper.common.internal.util.FileUtil;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
 import com.espertech.esper.common.internal.util.ResourceLoader;
-import com.sun.org.apache.xerces.internal.dom.DOMXSImplementationSourceImpl;
-import com.sun.org.apache.xerces.internal.impl.dv.XSSimpleType;
-import com.sun.org.apache.xerces.internal.impl.dv.xs.XSSimpleTypeDecl;
-import com.sun.org.apache.xerces.internal.xs.*;
+import org.apache.xerces.dom.DOMXSImplementationSourceImpl;
+import org.apache.xerces.impl.dv.XSSimpleType;
+import org.apache.xerces.impl.dv.xs.XSSimpleTypeDecl;
+import org.apache.xerces.xs.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMError;

@@ -17,7 +17,6 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.ConfigurationException;
 import com.espertech.esper.common.client.configuration.compiler.*;
-import com.espertech.esper.common.internal.compile.compiler.CompilerAbstraction;
 import com.espertech.esper.common.client.serde.SerdeProvider;
 import com.espertech.esper.common.client.serde.SerdeProviderFactory;
 import com.espertech.esper.common.client.serde.SerdeProviderFactoryContext;
@@ -25,6 +24,7 @@ import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.collection.PathException;
 import com.espertech.esper.common.internal.collection.PathRegistry;
 import com.espertech.esper.common.internal.collection.PathRegistryObjectType;
+import com.espertech.esper.common.internal.compile.compiler.CompilerAbstraction;
 import com.espertech.esper.common.internal.compile.stage1.CompilerServices;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionDeclItem;
 import com.espertech.esper.common.internal.compile.stage1.spec.ExpressionScriptProvided;
@@ -87,6 +87,8 @@ import com.espertech.esper.common.internal.event.eventtypefactory.EventTypeFacto
 import com.espertech.esper.common.internal.event.eventtyperepo.*;
 import com.espertech.esper.common.internal.event.path.EventTypeCollectorImpl;
 import com.espertech.esper.common.internal.event.path.EventTypeResolverImpl;
+import com.espertech.esper.common.internal.event.xml.EventTypeXMLXSDHandler;
+import com.espertech.esper.common.internal.event.xml.EventTypeXMLXSDHandlerFactory;
 import com.espertech.esper.common.internal.event.xml.XMLFragmentEventTypeFactory;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeCompileTimeRegistry;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeCompileTimeRegistryImpl;
@@ -107,8 +109,8 @@ import com.espertech.esper.compiler.client.CompilerArguments;
 import com.espertech.esper.compiler.client.CompilerOptions;
 import com.espertech.esper.compiler.client.CompilerPath;
 import com.espertech.esper.compiler.client.EPCompileException;
-import com.espertech.esper.compiler.internal.compiler.abstraction.CompilerAbstractionJanino;
 import com.espertech.esper.compiler.client.option.CompilerHookContext;
+import com.espertech.esper.compiler.internal.compiler.abstraction.CompilerAbstractionJanino;
 
 import java.util.*;
 
@@ -177,8 +179,9 @@ public class CompilerHelperServices {
         EventTypeRepositoryBeanTypeUtil.buildBeanTypes(beanEventTypeStemService, eventTypeRepositoryPreconfigured, resolvedBeanEventTypes, beanEventTypeFactoryPrivate, configuration.getCommon().getEventTypesBean());
         EventTypeRepositoryMapTypeUtil.buildMapTypes(eventTypeRepositoryPreconfigured, configuration.getCommon().getMapTypeConfigurations(), configuration.getCommon().getEventTypesMapEvents(), configuration.getCommon().getEventTypesNestableMapEvents(), beanEventTypeFactoryPrivate, classpathImportServiceCompileTime);
         EventTypeRepositoryOATypeUtil.buildOATypes(eventTypeRepositoryPreconfigured, configuration.getCommon().getObjectArrayTypeConfigurations(), configuration.getCommon().getEventTypesNestableObjectArrayEvents(), beanEventTypeFactoryPrivate, classpathImportServiceCompileTime);
-        XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory = new XMLFragmentEventTypeFactory(beanEventTypeFactoryPrivate, eventTypeCompileRegistry, eventTypeRepositoryPreconfigured);
-        EventTypeRepositoryXMLTypeUtil.buildXMLTypes(eventTypeRepositoryPreconfigured, configuration.getCommon().getEventTypesXMLDOM(), beanEventTypeFactoryPrivate, xmlFragmentEventTypeFactory, classpathImportServiceCompileTime);
+        EventTypeXMLXSDHandler eventTypeXMLXSDHandler = EventTypeXMLXSDHandlerFactory.resolve(classpathImportServiceCompileTime, configuration.getCommon().getEventMeta(), EventTypeXMLXSDHandler.HANDLER_IMPL);
+        XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory = new XMLFragmentEventTypeFactory(beanEventTypeFactoryPrivate, eventTypeCompileRegistry, eventTypeRepositoryPreconfigured, eventTypeXMLXSDHandler);
+        EventTypeRepositoryXMLTypeUtil.buildXMLTypes(eventTypeRepositoryPreconfigured, configuration.getCommon().getEventTypesXMLDOM(), beanEventTypeFactoryPrivate, xmlFragmentEventTypeFactory, classpathImportServiceCompileTime, eventTypeXMLXSDHandler);
         EventTypeAvroHandler eventTypeAvroHandler = EventTypeAvroHandlerFactory.resolve(classpathImportServiceCompileTime, configuration.getCommon().getEventMeta().getAvroSettings(), EventTypeAvroHandler.COMPILE_TIME_HANDLER_IMPL);
         EventTypeRepositoryAvroTypeUtil.buildAvroTypes(eventTypeRepositoryPreconfigured, configuration.getCommon().getEventTypesAvro(), eventTypeAvroHandler, beanEventTypeFactoryPrivate.getEventBeanTypedEventFactory());
         EventTypeRepositoryVariantStreamUtil.buildVariantStreams(eventTypeRepositoryPreconfigured, configuration.getCommon().getVariantStreams(), EventTypeFactoryImpl.INSTANCE);
@@ -215,7 +218,7 @@ public class CompilerHelperServices {
             // initialize event types
             Map<String, EventType> moduleTypes = new LinkedHashMap<>();
             EventTypeResolverImpl eventTypeResolver = new EventTypeResolverImpl(moduleTypes, pathEventTypes, eventTypeRepositoryPreconfigured, beanEventTypeFactoryPrivate, EventSerdeFactoryDefault.INSTANCE);
-            EventTypeCollectorImpl eventTypeCollector = new EventTypeCollectorImpl(moduleTypes, beanEventTypeFactoryPrivate, provider.getClassLoader(), EventTypeFactoryImpl.INSTANCE, beanEventTypeStemService, eventTypeResolver, xmlFragmentEventTypeFactory, eventTypeAvroHandler, EventBeanTypedEventFactoryCompileTime.INSTANCE, classpathImportServiceCompileTime);
+            EventTypeCollectorImpl eventTypeCollector = new EventTypeCollectorImpl(moduleTypes, beanEventTypeFactoryPrivate, provider.getClassLoader(), EventTypeFactoryImpl.INSTANCE, beanEventTypeStemService, eventTypeResolver, xmlFragmentEventTypeFactory, eventTypeAvroHandler, EventBeanTypedEventFactoryCompileTime.INSTANCE, classpathImportServiceCompileTime, eventTypeXMLXSDHandler);
             try {
                 provider.getModuleProvider().initializeEventTypes(new EPModuleEventTypeInitServicesImpl(eventTypeCollector, eventTypeResolver));
             } catch (Throwable e) {
@@ -439,7 +442,7 @@ public class CompilerHelperServices {
             }
         }
 
-        return new ModuleCompileTimeServices(compilerAbstraction, compilerServices, configuration, classProvidedCompileTimeRegistry, classProvidedCompileTimeResolver, contextCompileTimeRegistry, contextCompileTimeResolver, beanEventTypeStemService, beanEventTypeFactoryPrivate, databaseConfigServiceCompileTime, classpathImportServiceCompileTime, exprDeclaredCompileTimeRegistry, exprDeclaredCompileTimeResolver, eventTypeAvroHandler, eventTypeCompileRegistry, eventTypeCompileTimeResolver, eventTypeRepositoryPreconfigured, isFireAndForget, indexCompileTimeRegistry, moduleDependencies, moduleVisibilityRules, namedWindowCompileTimeResolver, namedWindowCompileTimeRegistry,
+        return new ModuleCompileTimeServices(compilerAbstraction, compilerServices, configuration, classProvidedCompileTimeRegistry, classProvidedCompileTimeResolver, contextCompileTimeRegistry, contextCompileTimeResolver, beanEventTypeStemService, beanEventTypeFactoryPrivate, databaseConfigServiceCompileTime, classpathImportServiceCompileTime, exprDeclaredCompileTimeRegistry, exprDeclaredCompileTimeResolver, eventTypeAvroHandler, eventTypeCompileRegistry, eventTypeCompileTimeResolver, eventTypeRepositoryPreconfigured, eventTypeXMLXSDHandler, isFireAndForget, indexCompileTimeRegistry, moduleDependencies, moduleVisibilityRules, namedWindowCompileTimeResolver, namedWindowCompileTimeRegistry,
             stateMgmtSettingsProvider, classLoaderParent,
             patternResolutionService, scriptCompileTimeRegistry, scriptCompileTimeResolver, serdeEventTypeRegistry, serdeResolver,
             tableCompileTimeRegistry, tableCompileTimeResolver, variableCompileTimeRegistry, variableCompileTimeResolver, viewResolutionService, xmlFragmentEventTypeFactory);

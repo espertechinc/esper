@@ -8,15 +8,16 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.event.xml;
+package com.espertech.esper.common.internal.xmlxsd.core;
 
+import com.espertech.esper.common.internal.event.xml.*;
 import com.espertech.esper.common.internal.support.SupportClasspathImport;
 import com.espertech.esper.common.internal.util.ResourceLoader;
-import com.sun.org.apache.xerces.internal.dom.DOMXSImplementationSourceImpl;
-import com.sun.org.apache.xerces.internal.impl.dv.XSSimpleType;
-import com.sun.org.apache.xerces.internal.impl.dv.xs.XSSimpleTypeDecl;
-import com.sun.org.apache.xerces.internal.xs.*;
 import junit.framework.TestCase;
+import org.apache.xerces.dom.DOMXSImplementationSourceImpl;
+import org.apache.xerces.impl.dv.XSSimpleType;
+import org.apache.xerces.impl.dv.xs.XSSimpleTypeDecl;
+import org.apache.xerces.xs.*;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 
 import javax.xml.namespace.QName;
@@ -138,7 +139,7 @@ public class TestXSDSchemaMapper extends TestCase {
         for (int i = 0; i < attrs.getLength(); i++) {
             XSAttributeUse attr = (XSAttributeUse) attrs.item(i);
             String name = attr.getAttrDeclaration().getName();
-            QName qname = SchemaUtil.simpleTypeToQName(((XSSimpleTypeDecl) attr.getAttrDeclaration().getTypeDefinition()).getPrimitiveKind());
+            QName qname = SchemaUtilXerces.simpleTypeToQName(((XSSimpleTypeDecl) attr.getAttrDeclaration().getTypeDefinition()).getPrimitiveKind());
             //System.out.println(indent(indent) + "Attribute " + name + " qname " + qname.getLocalPart());
         }
 
@@ -157,7 +158,7 @@ public class TestXSDSchemaMapper extends TestCase {
 
                         if (decl.getTypeDefinition().getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
                             XSSimpleTypeDecl simpleTypeDecl = (XSSimpleTypeDecl) decl.getTypeDefinition();
-                            QName type = SchemaUtil.simpleTypeToQName(simpleTypeDecl.getPrimitiveKind());
+                            QName type = SchemaUtilXerces.simpleTypeToQName(simpleTypeDecl.getPrimitiveKind());
                             //System.out.println(indent(indent) + "Simple particle " + childParticle.getTerm().getName() + " type " + type.getLocalPart() + " " + print(childParticle));
                         }
 
@@ -167,7 +168,7 @@ public class TestXSDSchemaMapper extends TestCase {
 
                             if (complexActualElement.getSimpleType() != null) {
                                 XSSimpleTypeDecl simpleTypeDecl = (XSSimpleTypeDecl) complexActualElement.getSimpleType();
-                                QName type = SchemaUtil.simpleTypeToQName(simpleTypeDecl.getPrimitiveKind());
+                                QName type = SchemaUtilXerces.simpleTypeToQName(simpleTypeDecl.getPrimitiveKind());
                                 //System.out.println(indent(indent+1) + "Simple type" + childParticle.getTerm().getName() + " type " + type.getLocalPart() + " " + print(childParticle));
                             }
 

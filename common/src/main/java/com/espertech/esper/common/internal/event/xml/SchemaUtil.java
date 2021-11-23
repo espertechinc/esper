@@ -15,7 +15,6 @@ import com.espertech.esper.common.client.PropertyAccessException;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.type.EPTypePremade;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
-import com.sun.org.apache.xerces.internal.impl.dv.XSSimpleType;
 import org.w3c.dom.*;
 
 import javax.xml.namespace.QName;
@@ -33,10 +32,10 @@ import java.util.Map;
  */
 public class SchemaUtil {
 
-    private static Map<String, EPTypeClass> typeMap;
+    public final static Map<String, EPTypeClass> TYPE_MAP;
 
     static {
-        typeMap = new HashMap<>();
+        TYPE_MAP = new HashMap<>();
         Object[][] types = new Object[][]{
                 {"nonPositiveInteger", EPTypePremade.INTEGERBOXED.getEPType()},
                 {"nonNegativeInteger", EPTypePremade.INTEGERBOXED.getEPType()},
@@ -60,7 +59,7 @@ public class SchemaUtil {
                 {"date", EPTypePremade.STRING.getEPType()},
                 {"time", EPTypePremade.STRING.getEPType()}};
         for (int i = 0; i < types.length; i++) {
-            typeMap.put(types[i][0].toString(), (EPTypeClass) types[i][1]);
+            TYPE_MAP.put(types[i][0].toString(), (EPTypeClass) types[i][1]);
         }
     }
 
@@ -70,13 +69,13 @@ public class SchemaUtil {
      * @param item to to determine type for
      * @return type
      */
-    public static EPTypeClass toReturnType(SchemaItem item) {
+    public static EPTypeClass toReturnType(SchemaItem item, EventTypeXMLXSDHandler xmlxsdHandler) {
         if (item instanceof SchemaItemAttribute) {
             SchemaItemAttribute att = (SchemaItemAttribute) item;
-            return SchemaUtil.toReturnType(att.getXsSimpleType(), att.getTypeName(), null);
+            return xmlxsdHandler.toReturnType(att.getXsSimpleType(), att.getTypeName(), null);
         } else if (item instanceof SchemaElementSimple) {
             SchemaElementSimple simple = (SchemaElementSimple) item;
-            EPTypeClass returnType = SchemaUtil.toReturnType(simple.getXsSimpleType(), simple.getTypeName(), simple.getFractionDigits());
+            EPTypeClass returnType = xmlxsdHandler.toReturnType(simple.getXsSimpleType(), simple.getTypeName(), simple.getFractionDigits());
             if (simple.isArray()) {
                 returnType = JavaClassHelper.getArrayType(returnType);
             }
@@ -84,7 +83,7 @@ public class SchemaUtil {
         } else if (item instanceof SchemaElementComplex) {
             SchemaElementComplex complex = (SchemaElementComplex) item;
             if (complex.getOptionalSimpleType() != null) {
-                return SchemaUtil.toReturnType(complex.getOptionalSimpleType(), complex.getOptionalSimpleTypeName(), null);
+                return xmlxsdHandler.toReturnType(complex.getOptionalSimpleType(), complex.getOptionalSimpleTypeName(), null);
             }
             if (complex.isArray()) {
                 return EPTypePremade.NODELIST.getEPType();
@@ -92,41 +91,6 @@ public class SchemaUtil {
             return EPTypePremade.NODE.getEPType();
         } else {
             throw new PropertyAccessException("Invalid schema return type:" + item);
-        }
-    }
-
-    /**
-     * Returns the type for a give short type and type name.
-     *
-     * @param xsType                 XSSimplyType type
-     * @param typeName               type name in XML standard
-     * @param optionalFractionDigits fraction digits if any are defined
-     * @return equivalent native type
-     */
-    public static EPTypeClass toReturnType(short xsType, String typeName, Integer optionalFractionDigits) {
-        if (typeName != null) {
-            EPTypeClass result = typeMap.get(typeName);
-            if (result != null) {
-                return result;
-            }
-        }
-
-        switch (xsType) {
-            case XSSimpleType.PRIMITIVE_BOOLEAN:
-                return EPTypePremade.BOOLEANBOXED.getEPType();
-            case XSSimpleType.PRIMITIVE_STRING:
-                return EPTypePremade.STRING.getEPType();
-            case XSSimpleType.PRIMITIVE_DECIMAL:
-                if ((optionalFractionDigits != null) && (optionalFractionDigits > 0)) {
-                    return EPTypePremade.DOUBLEBOXED.getEPType();
-                }
-                return EPTypePremade.INTEGERBOXED.getEPType();
-            case XSSimpleType.PRIMITIVE_FLOAT:
-                return EPTypePremade.FLOATBOXED.getEPType();
-            case XSSimpleType.PRIMITIVE_DOUBLE:
-                return EPTypePremade.DOUBLEBOXED.getEPType();
-            default:
-                return EPTypePremade.STRING.getEPType();
         }
     }
 
@@ -154,35 +118,6 @@ public class SchemaUtil {
             return EPTypePremade.STRING.getEPType();
 
         return EPTypePremade.STRING.getEPType();
-    }
-
-    /**
-     * Returns the XPathConstants type for a given Xerces type definition.
-     *
-     * @param type is the type
-     * @return XPathConstants type
-     */
-    public static QName simpleTypeToQName(short type) {
-        switch (type) {
-            case XSSimpleType.PRIMITIVE_BOOLEAN:
-                return XPathConstants.BOOLEAN;
-            case XSSimpleType.PRIMITIVE_DOUBLE:
-                return XPathConstants.NUMBER;
-            case XSSimpleType.PRIMITIVE_STRING:
-                return XPathConstants.STRING;
-            case XSSimpleType.PRIMITIVE_DECIMAL:
-                return XPathConstants.NUMBER;
-            case XSSimpleType.PRIMITIVE_FLOAT:
-                return XPathConstants.NUMBER;
-            case XSSimpleType.PRIMITIVE_DATETIME:
-                return XPathConstants.STRING;
-            case XSSimpleType.PRIMITIVE_DATE:
-                return XPathConstants.STRING;
-            case XSSimpleType.PRIMITIVE_TIME:
-                return XPathConstants.STRING;
-            default:
-                throw new EPException("Unexpected schema simple type encountered '" + type + "'");
-        }
     }
 
     /**

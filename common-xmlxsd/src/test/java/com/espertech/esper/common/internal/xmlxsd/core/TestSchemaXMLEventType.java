@@ -8,10 +8,13 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.common.internal.event.xml;
+package com.espertech.esper.common.internal.xmlxsd.core;
 
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeXMLDOM;
+import com.espertech.esper.common.internal.event.xml.SchemaModel;
+import com.espertech.esper.common.internal.event.xml.SchemaXMLEventType;
+import com.espertech.esper.common.internal.event.xml.XMLEventBean;
 import com.espertech.esper.common.internal.support.SupportClasspathImport;
 import junit.framework.TestCase;
 import org.w3c.dom.Document;
@@ -34,7 +37,7 @@ public class TestSchemaXMLEventType extends TestCase {
         configNoNS.addXPathProperty("customProp", "count(/ss:simpleEvent/ss:nested3/ss:nested4)", XPathConstants.NUMBER);
         configNoNS.addNamespacePrefix("ss", "samples:schemas:simpleSchema");
         SchemaModel model = XSDSchemaMapper.loadAndMap(schemaUrl.toString(), null, SupportClasspathImport.INSTANCE);
-        SchemaXMLEventType eventTypeNoNS = new SchemaXMLEventType(null, configNoNS, model, null, null, null, null, null);
+        SchemaXMLEventType eventTypeNoNS = new SchemaXMLEventType(null, configNoNS, model, null, null, null, null, null, new EventTypeXMLXSDHandlerImpl());
 
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
         builderFactory.setNamespaceAware(true);

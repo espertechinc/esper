@@ -28,6 +28,7 @@ public class ConfigurationCommonEventTypeMeta implements Serializable {
     private AccessorStyle defaultAccessorStyle;
     private EventUnderlyingType defaultEventRepresentation;
     private AvroSettings avroSettings;
+    private boolean enableXMLXSD;
 
     /**
      * Ctor.
@@ -111,6 +112,22 @@ public class ConfigurationCommonEventTypeMeta implements Serializable {
      */
     public void setAvroSettings(AvroSettings avroSettings) {
         this.avroSettings = avroSettings;
+    }
+
+    /**
+     * Returns indicator whether XML XSD Schema processing is enabled or not (requires esper-common-xmlxsd-version.jar)
+     * @return indicator
+     */
+    public boolean isEnableXMLXSD() {
+        return enableXMLXSD;
+    }
+
+    /**
+     * Sets indicator whether XML XSD Schema processing is enabled or not (requires esper-common-xmlxsd-version.jar)
+     * @param enableXMLXSD indicator
+     */
+    public void setEnableXMLXSD(boolean enableXMLXSD) {
+        this.enableXMLXSD = enableXMLXSD;
     }
 
     /**

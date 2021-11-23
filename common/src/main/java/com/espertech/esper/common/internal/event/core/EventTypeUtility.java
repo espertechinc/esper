@@ -1656,7 +1656,7 @@ public class EventTypeUtility {
             SchemaModel schemaModel = null;
             if ((config.getSchemaResource() != null) || (config.getSchemaText() != null)) {
                 try {
-                    schemaModel = XSDSchemaMapper.loadAndMap(config.getSchemaResource(), config.getSchemaText(), services.getClasspathImportServiceCompileTime());
+                    schemaModel = services.getEventTypeXMLXSDHandler().loadAndMap(config.getSchemaResource(), config.getSchemaText(), services.getClasspathImportServiceCompileTime());
                 } catch (Exception ex) {
                     throw new ExprValidationException(ex.getMessage(), ex);
                 }
@@ -1665,7 +1665,7 @@ public class EventTypeUtility {
             EventTypeMetadata metadata = new EventTypeMetadata(spec.getSchemaName(), base.getModuleName(), EventTypeTypeClass.STREAM, EventTypeApplicationType.XML, visibility, eventBusVisibility, propertyAgnostic, EventTypeIdPair.unassigned());
             config.setStartTimestampPropertyName(spec.getStartTimestampProperty());
             config.setEndTimestampPropertyName(spec.getEndTimestampProperty());
-            eventType = EventTypeFactoryImpl.INSTANCE.createXMLType(metadata, config, schemaModel, null, metadata.getName(), services.getBeanEventTypeFactoryPrivate(), services.getXmlFragmentEventTypeFactory(), null);
+            eventType = EventTypeFactoryImpl.INSTANCE.createXMLType(metadata, config, schemaModel, null, metadata.getName(), services.getBeanEventTypeFactoryPrivate(), services.getXmlFragmentEventTypeFactory(), null, services.getEventTypeXMLXSDHandler());
         } else {
             // Java Object/Bean/POJO type definition
             if (spec.getCopyFrom() != null && !spec.getCopyFrom().isEmpty()) {

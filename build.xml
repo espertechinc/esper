@@ -13,6 +13,7 @@
 	
 	<property name="root.common" value="common"/>
 	<property name="root.common.avro" value="common-avro"/>
+	<property name="root.common.xmlxsd" value="common-xmlxsd"/>
 	<property name="root.compiler" value="compiler"/>
 	<property name="root.runtime" value="runtime"/>
 	<property name="root.examples" value="examples"/>
@@ -42,6 +43,7 @@
 			<zipfileset prefix="${name}-${version}" dir="${root.compiler}/target" includes="esper-compiler-${version}.jar"/>
 			<zipfileset prefix="${name}-${version}" dir="${root.runtime}/target" includes="esper-runtime-${version}.jar"/>
 			<zipfileset prefix="${name}-${version}" dir="${root.common.avro}/target" includes="esper-common-avro-${version}.jar"/>
+			<zipfileset prefix="${name}-${version}" dir="${root.common.xmlxsd}/target" includes="esper-common-xmlxsd-${version}.jar"/>
 			<zipfileset prefix="${name}-${version}" dir="esperio/esperio-amqp/target" includes="esperio-amqp-${version}.jar"/>
 			<zipfileset prefix="${name}-${version}" dir="esperio/esperio-csv/target" includes="esperio-csv-${version}.jar"/>
 			<zipfileset prefix="${name}-${version}" dir="esperio/esperio-db/target" includes="esperio-db-${version}.jar"/>
@@ -98,6 +100,7 @@
 			<tarfileset prefix="${name}-${version}" dir="${root.compiler}/target" includes="esper-compiler-${version}.jar"/>
 			<tarfileset prefix="${name}-${version}" dir="${root.runtime}/target" includes="esper-runtime-${version}.jar"/>
 			<tarfileset prefix="${name}-${version}" dir="${root.common.avro}/target" includes="esper-common-avro-${version}.jar"/>
+			<tarfileset prefix="${name}-${version}" dir="${root.common.xmlxsd}/target" includes="esper-common-xmlxsd-${version}.jar"/>
 			<tarfileset prefix="${name}-${version}" dir="esperio/esperio-amqp/target" includes="esperio-amqp-${version}.jar"/>
 			<tarfileset prefix="${name}-${version}" dir="esperio/esperio-csv/target" includes="esperio-csv-${version}.jar"/>
 			<tarfileset prefix="${name}-${version}" dir="esperio/esperio-db/target" includes="esperio-db-${version}.jar"/>
@@ -151,6 +154,7 @@
 	<target name="copydependencies" description="Copy dependencies from Maven repository to lib directory for development environments">
 		<exec dir="common" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>
 		<exec dir="common-avro" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>
+		<exec dir="common-xmlxsd" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>
 		<exec dir="compiler" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>
 		<exec dir="esperio/esperio-amqp" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>
 		<exec dir="esperio/esperio-http" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>
@@ -164,6 +168,7 @@
 		<exec dir="esperio/doc/api" executable="cmd">   	<arg value="/c"/> <arg value="ant javadoc"/></exec>
 		<exec dir="common" executable="cmd">   	<arg value="/c"/> <arg value="mvn javadoc:javadoc"/></exec>
 		<exec dir="common-avro" executable="cmd">   	<arg value="/c"/> <arg value="mvn javadoc:javadoc"/></exec>
+		<exec dir="common-xmlxsd" executable="cmd">   	<arg value="/c"/> <arg value="mvn javadoc:javadoc"/></exec>
 		<exec dir="compiler" executable="cmd">   	<arg value="/c"/> <arg value="mvn javadoc:javadoc"/></exec>
 		<exec dir="runtime" executable="cmd">   	<arg value="/c"/> <arg value="mvn javadoc:javadoc"/></exec>
 	</target>

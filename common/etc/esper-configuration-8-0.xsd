@@ -505,6 +505,7 @@
 					<xs:element ref="esper:avro-settings" minOccurs="0"/>
 				</xs:sequence>
 			</xs:choice>
+			<xs:attribute name="enable-xmlxsd" type="xs:boolean" use="optional"/>
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="listener-dispatch">

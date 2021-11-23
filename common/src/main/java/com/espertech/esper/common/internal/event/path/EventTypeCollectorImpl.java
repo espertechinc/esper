@@ -53,8 +53,9 @@ public class EventTypeCollectorImpl implements EventTypeCollector {
     private final EventBeanTypedEventFactory eventBeanTypedEventFactory;
     private final List<EventTypeCollectedSerde> serdes = new ArrayList<>();
     private final ClasspathImportService classpathImportService;
+    private final EventTypeXMLXSDHandler eventTypeXMLXSDHandler;
 
-    public EventTypeCollectorImpl(Map<String, EventType> moduleEventTypes, BeanEventTypeFactory beanEventTypeFactory, ClassLoader classLoader, EventTypeFactory eventTypeFactory, BeanEventTypeStemService beanEventTypeStemService, EventTypeNameResolver eventTypeNameResolver, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory, EventTypeAvroHandler eventTypeAvroHandler, EventBeanTypedEventFactory eventBeanTypedEventFactory, ClasspathImportService classpathImportService) {
+    public EventTypeCollectorImpl(Map<String, EventType> moduleEventTypes, BeanEventTypeFactory beanEventTypeFactory, ClassLoader classLoader, EventTypeFactory eventTypeFactory, BeanEventTypeStemService beanEventTypeStemService, EventTypeNameResolver eventTypeNameResolver, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory, EventTypeAvroHandler eventTypeAvroHandler, EventBeanTypedEventFactory eventBeanTypedEventFactory, ClasspathImportService classpathImportService, EventTypeXMLXSDHandler eventTypeXMLXSDHandler) {
         this.moduleEventTypes = moduleEventTypes;
         this.beanEventTypeFactory = beanEventTypeFactory;
         this.classLoader = classLoader;
@@ -65,6 +66,7 @@ public class EventTypeCollectorImpl implements EventTypeCollector {
         this.eventTypeAvroHandler = eventTypeAvroHandler;
         this.eventBeanTypedEventFactory = eventBeanTypedEventFactory;
         this.classpathImportService = classpathImportService;
+        this.eventTypeXMLXSDHandler = eventTypeXMLXSDHandler;
     }
 
     public void registerMap(EventTypeMetadata metadata, LinkedHashMap<String, Object> properties, String[] superTypes, String startTimestampPropertyName, String endTimestampPropertyName) {
@@ -119,12 +121,12 @@ public class EventTypeCollectorImpl implements EventTypeCollector {
         SchemaModel schemaModel = null;
         if ((config.getSchemaResource() != null) || (config.getSchemaText() != null)) {
             try {
-                schemaModel = XSDSchemaMapper.loadAndMap(config.getSchemaResource(), config.getSchemaText(), classpathImportService);
+                schemaModel = eventTypeXMLXSDHandler.loadAndMap(config.getSchemaResource(), config.getSchemaText(), classpathImportService);
             } catch (Exception ex) {
                 throw new EPException(ex.getMessage(), ex);
             }
         }
-        EventType eventType = eventTypeFactory.createXMLType(metadata, config, schemaModel, null, metadata.getName(), beanEventTypeFactory, xmlFragmentEventTypeFactory, eventTypeNameResolver);
+        EventType eventType = eventTypeFactory.createXMLType(metadata, config, schemaModel, null, metadata.getName(), beanEventTypeFactory, xmlFragmentEventTypeFactory, eventTypeNameResolver, eventTypeXMLXSDHandler);
         handleRegister(eventType);
 
         if (eventType instanceof SchemaXMLEventType) {

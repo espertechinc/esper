@@ -43,6 +43,7 @@ import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFacto
 import com.espertech.esper.common.internal.event.core.EventTypeCompileTimeResolver;
 import com.espertech.esper.common.internal.event.core.EventTypeNameGeneratorStatement;
 import com.espertech.esper.common.internal.event.eventtyperepo.EventTypeRepositoryImpl;
+import com.espertech.esper.common.internal.event.xml.EventTypeXMLXSDHandler;
 import com.espertech.esper.common.internal.event.xml.XMLFragmentEventTypeFactory;
 import com.espertech.esper.common.internal.statemgmtsettings.StateMgmtSettingsProvider;
 import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeCompileTimeRegistry;
@@ -182,6 +183,10 @@ public class StatementCompileTimeServices {
 
     public EventTypeAvroHandler getEventTypeAvroHandler() {
         return services.getEventTypeAvroHandler();
+    }
+
+    public EventTypeXMLXSDHandler getEventTypeXMLXSDHandler() {
+        return services.getEventTypeXMLXSDHandler();
     }
 
     public EventTypeCompileTimeResolver getEventTypeCompileTimeResolver() {

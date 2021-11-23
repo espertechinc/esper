@@ -47,6 +47,7 @@ public class TestConfigurationParser extends TestCase {
         assertEquals(PropertyResolutionStyle.CASE_SENSITIVE, common.getEventMeta().getClassPropertyResolutionStyle());
         assertEquals(AccessorStyle.JAVABEAN, common.getEventMeta().getDefaultAccessorStyle());
         assertEquals(EventUnderlyingType.MAP, common.getEventMeta().getDefaultEventRepresentation());
+        assertFalse(common.getEventMeta().isEnableXMLXSD());
         assertTrue(common.getEventMeta().getAvroSettings().isEnableAvro());
         assertTrue(common.getEventMeta().getAvroSettings().isEnableNativeString());
         assertTrue(common.getEventMeta().getAvroSettings().isEnableSchemaDefaultNonNull());
@@ -330,6 +331,7 @@ public class TestConfigurationParser extends TestCase {
         assertEquals(PropertyResolutionStyle.DISTINCT_CASE_INSENSITIVE, common.getEventMeta().getClassPropertyResolutionStyle());
         assertEquals(AccessorStyle.PUBLIC, common.getEventMeta().getDefaultAccessorStyle());
         assertEquals(EventUnderlyingType.MAP, common.getEventMeta().getDefaultEventRepresentation());
+        assertTrue(common.getEventMeta().isEnableXMLXSD());
         assertFalse(common.getEventMeta().getAvroSettings().isEnableAvro());
         assertFalse(common.getEventMeta().getAvroSettings().isEnableNativeString());
         assertFalse(common.getEventMeta().getAvroSettings().isEnableSchemaDefaultNonNull());

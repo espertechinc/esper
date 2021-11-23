@@ -26,10 +26,7 @@ import com.espertech.esper.common.internal.event.json.core.JsonEventTypeDetail;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.event.variant.VariantEventType;
 import com.espertech.esper.common.internal.event.variant.VariantSpec;
-import com.espertech.esper.common.internal.event.xml.SchemaModel;
-import com.espertech.esper.common.internal.event.xml.SchemaXMLEventType;
-import com.espertech.esper.common.internal.event.xml.SimpleXMLEventType;
-import com.espertech.esper.common.internal.event.xml.XMLFragmentEventTypeFactory;
+import com.espertech.esper.common.internal.event.xml.*;
 
 import java.util.LinkedHashMap;
 import java.util.Set;
@@ -65,11 +62,11 @@ public class EventTypeFactoryImpl implements EventTypeFactory {
         return WrapperEventTypeUtil.makeWrapper(metadata, underlying, properties, beanEventTypeFactory.getEventBeanTypedEventFactory(), beanEventTypeFactory, eventTypeNameResolver);
     }
 
-    public EventType createXMLType(EventTypeMetadata metadata, ConfigurationCommonEventTypeXMLDOM detail, SchemaModel schemaModel, String representsFragmentOfProperty, String representsOriginalTypeName, BeanEventTypeFactory beanEventTypeFactory, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory, EventTypeNameResolver eventTypeNameResolver) {
+    public EventType createXMLType(EventTypeMetadata metadata, ConfigurationCommonEventTypeXMLDOM detail, SchemaModel schemaModel, String representsFragmentOfProperty, String representsOriginalTypeName, BeanEventTypeFactory beanEventTypeFactory, XMLFragmentEventTypeFactory xmlFragmentEventTypeFactory, EventTypeNameResolver eventTypeNameResolver, EventTypeXMLXSDHandler xmlxsdHandler) {
         if (metadata.isPropertyAgnostic()) {
             return new SimpleXMLEventType(metadata, detail, beanEventTypeFactory.getEventBeanTypedEventFactory(), eventTypeNameResolver, xmlFragmentEventTypeFactory);
         }
-        return new SchemaXMLEventType(metadata, detail, schemaModel, representsFragmentOfProperty, representsOriginalTypeName, beanEventTypeFactory.getEventBeanTypedEventFactory(), eventTypeNameResolver, xmlFragmentEventTypeFactory);
+        return new SchemaXMLEventType(metadata, detail, schemaModel, representsFragmentOfProperty, representsOriginalTypeName, beanEventTypeFactory.getEventBeanTypedEventFactory(), eventTypeNameResolver, xmlFragmentEventTypeFactory, xmlxsdHandler);
     }
 
     public VariantEventType createVariant(EventTypeMetadata metadata, VariantSpec spec) {

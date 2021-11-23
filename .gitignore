@@ -15,7 +15,6 @@
 /examples/**/target
 /intellij
 /intellij_template
-
 /esperio-kafka/lib/*.jar
 /install.cmd
 /target/esper-parent-*.jar
@@ -24,6 +23,7 @@
 /esperio-springjms/lib/*.jar
 /esper/lib/*.jar
 /common-avro/lib/*.jar
+/common-xmlxsd/lib/*.jar
 /common/lib/*.jar
 /compiler/lib/*.jar
 /esperio/esperio-amqp/lib/*.jar
@@ -31,6 +31,7 @@
 /esperio/esperio-kafka/lib/*.jar
 /esperio/esperio-springjms/lib/*.jar
 /common-avro/target
+/common-xmlxsd/target
 /common/target
 /compiler/target
 /regression-lib/target
