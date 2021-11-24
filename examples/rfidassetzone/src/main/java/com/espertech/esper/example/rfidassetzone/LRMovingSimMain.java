@@ -263,13 +263,6 @@ public class LRMovingSimMain implements Runnable {
         double deltaSeconds;
         int lastTotalEvents = 0;
         do {
-            // sleep
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                log.debug("Interrupted", e);
-                break;
-            }
             currTime = System.currentTimeMillis();
             deltaSeconds = (currTime - startTime) / 1000.0;
 
@@ -302,6 +295,14 @@ public class LRMovingSimMain implements Runnable {
                 for (int i = 0; i < callables.length; i++) {
                     callables[i].setGenerateZoneSplit(false);
                 }
+            }
+
+            // sleep
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                log.debug("Interrupted", e);
+                break;
             }
         }
         while (deltaSeconds < numSeconds);
