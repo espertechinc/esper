@@ -57,7 +57,7 @@ public class EventTypeNestableGetterFactoryJson implements EventTypeNestableGett
                 return null;
             }
             if (type instanceof EPTypeClass) {
-                return getGetterProperty(prop.getPropertyNameAtomic(), null, eventBeanTypedEventFactory);
+                return getGetterProperty(prop.getPropertyNameAtomic(), null, eventBeanTypedEventFactory, true);
             }
             if (type instanceof TypeBeanOrUnderlying) {
                 EventType eventType = ((TypeBeanOrUnderlying) type).getEventType();
@@ -115,7 +115,7 @@ public class EventTypeNestableGetterFactoryJson implements EventTypeNestableGett
         return new JsonGetterIndexedRuntimeIndexSchema(field);
     }
 
-    public EventPropertyGetterSPI getGetterProperty(String name, BeanEventType nativeFragmentType, EventBeanTypedEventFactory eventBeanTypedEventFactory) {
+    public EventPropertyGetterSPI getGetterProperty(String name, BeanEventType nativeFragmentType, EventBeanTypedEventFactory eventBeanTypedEventFactory, boolean canFragment) {
         JsonUnderlyingField field = findField(name);
         if (field == null) {
             return null;

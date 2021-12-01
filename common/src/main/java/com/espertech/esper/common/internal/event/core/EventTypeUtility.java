@@ -772,7 +772,7 @@ public class EventTypeUtility {
                         isFragment = false;
                     }
                 }
-                EventPropertyGetterSPI getter = factory.getGetterProperty(name, nativeFragmentType, eventBeanTypedEventFactory);
+                EventPropertyGetterSPI getter = factory.getGetterProperty(name, nativeFragmentType, eventBeanTypedEventFactory, isFragment);
                 EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, eptype, false, false, isIndexed, isMapped, isFragment);
                 PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, getter, fragmentType);
                 propertyNameList.add(name);
@@ -783,7 +783,7 @@ public class EventTypeUtility {
 
             // A null-type is also allowed
             if (entry.getValue() == EPTypeNull.INSTANCE || entry.getValue() == null) {
-                EventPropertyGetterSPI getter = factory.getGetterProperty(name, null, null);
+                EventPropertyGetterSPI getter = factory.getGetterProperty(name, null, null, false);
                 EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, EPTypeNull.INSTANCE, false, false, false, false, false);
                 PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, getter, null);
                 propertyNameList.add(name);
@@ -794,7 +794,7 @@ public class EventTypeUtility {
 
             // Add Map itself as a property
             if (entry.getValue() instanceof Map) {
-                EventPropertyGetterSPI getter = factory.getGetterProperty(name, null, null);
+                EventPropertyGetterSPI getter = factory.getGetterProperty(name, null, null, false);
                 EPType epType = EPTypePremade.MAP.getEPType();
                 EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, epType, false, false, false, true, false);
                 PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, getter, null);

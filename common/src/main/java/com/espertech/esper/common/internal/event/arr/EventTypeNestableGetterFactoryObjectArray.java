@@ -44,7 +44,7 @@ public class EventTypeNestableGetterFactoryObjectArray implements EventTypeNesta
         return prop.getGetterObjectArray(propertiesIndex, nestableTypes, eventBeanTypedEventFactory, beanEventTypeFactory);
     }
 
-    public EventPropertyGetterSPI getGetterProperty(String name, BeanEventType nativeFragmentType, EventBeanTypedEventFactory eventBeanTypedEventFactory) {
+    public EventPropertyGetterSPI getGetterProperty(String name, BeanEventType nativeFragmentType, EventBeanTypedEventFactory eventBeanTypedEventFactory, boolean canFragment) {
         int index = getAssertIndex(name);
         return new ObjectArrayEntryPropertyGetter(index, nativeFragmentType, eventBeanTypedEventFactory);
     }

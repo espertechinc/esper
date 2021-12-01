@@ -36,6 +36,7 @@ public class MapEntryPropertyGetter implements MapEventPropertyGetter {
     private final String propertyName;
     private final EventBeanTypedEventFactory eventBeanTypedEventFactory;
     private final BeanEventType eventType;
+    private final boolean canFragment;
 
     /**
      * Ctor.
@@ -44,10 +45,11 @@ public class MapEntryPropertyGetter implements MapEventPropertyGetter {
      * @param eventBeanTypedEventFactory factory for event beans and event types
      * @param eventType                  type of the entry returned
      */
-    public MapEntryPropertyGetter(String propertyName, BeanEventType eventType, EventBeanTypedEventFactory eventBeanTypedEventFactory) {
+    public MapEntryPropertyGetter(String propertyName, BeanEventType eventType, EventBeanTypedEventFactory eventBeanTypedEventFactory, boolean canFragment) {
         this.propertyName = propertyName;
         this.eventBeanTypedEventFactory = eventBeanTypedEventFactory;
         this.eventType = eventType;
+        this.canFragment = canFragment;
     }
 
     public Object getMap(Map<String, Object> map) throws PropertyAccessException {
@@ -60,6 +62,9 @@ public class MapEntryPropertyGetter implements MapEventPropertyGetter {
     }
 
     private CodegenExpression getMapCodegen(CodegenExpression underlyingExpression, CodegenMethodScope codegenMethodScope, CodegenClassScope codegenClassScope) {
+        if (!canFragment) {
+            return exprDotMethod(underlyingExpression, "get", constant(propertyName));
+        }
         CodegenMethod method = codegenMethodScope.makeChild(EPTypePremade.OBJECT.getEPType(), MapEntryPropertyGetter.class, codegenClassScope).addParam(EPTypePremade.MAP.getEPType(), "map").getBlock()
                 .declareVar(EPTypePremade.OBJECT.getEPType(), "value", exprDotMethod(ref("map"), "get", constant(propertyName)))
                 .ifInstanceOf("value", EventBean.EPTYPE)

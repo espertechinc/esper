@@ -39,8 +39,8 @@ public class EventTypeNestableGetterFactoryMap implements EventTypeNestableGette
         return indexedProperty.getGetterMap(nestableTypes, eventBeanTypedEventFactory, beanEventTypeFactory);
     }
 
-    public EventPropertyGetterSPI getGetterProperty(String name, BeanEventType nativeFragmentType, EventBeanTypedEventFactory eventBeanTypedEventFactory) {
-        return new MapEntryPropertyGetter(name, nativeFragmentType, eventBeanTypedEventFactory);
+    public EventPropertyGetterSPI getGetterProperty(String name, BeanEventType nativeFragmentType, EventBeanTypedEventFactory eventBeanTypedEventFactory, boolean canFragment) {
+        return new MapEntryPropertyGetter(name, nativeFragmentType, eventBeanTypedEventFactory, canFragment);
     }
 
     public MapEventPropertyGetter getGetterEventBean(String name, EPTypeClass underlyingType) {
