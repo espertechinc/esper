@@ -8,6 +8,28 @@ Changes in version 8.8.0
     - Janino is now 3.1.6 (commons-compiler-3.1.6.jar and janino-3.1.6.jar, previously *3.1.0.jar)  
     - Avro (optional) is now 1.11.0 (avro-1.11.0.jar, previously avro-1.9.1)
   - For use of XML with XML-Schema (XSD): New jar files are required in classpath, namely "esper-common-xmlxsd-<version>.jar" and "xercesImpl-2.12.1.jar" (see documentation)
+  - Support for event precedence in insert-into
+  - Support for inserting multiple rows in a single fire-and-forget insert  
+  - Support for lock activity logging
+  - Support for the dot-operator to resolve a property name to a getter method
+  - Support for substitution parameters for SQL relational database access in SQL query text expressions
+  - Support for relational database SQL in fire-and-forget query from-clause
+  - Support for null-value types in SQL type mapping
+  - Fixed issue FD83 Map event type getter avoidable check of event bean value
+  - Fixed issue #251 Dependency org.apache.httpcomponents:httpclient, leading to CVE problem
+  - Fixed issue FD79 Remove compiler dependency on org.apache.xerces.impl 
+  - Fixed issue FD68 Insert-into inconsistently requires some or all properties depend on named window or stream
+  - Fixed issue FD69 NPE subquery within SQL parameter text
+  - Fixed issue FD49 Compiler exception planning SQL-join and where-clause constant is null (fix commented out tests)
+  - Fixed issue FD66 Missing column type validation for fire-and-forget query when inserting into non-bean named window or table
+  - Fixed issue FD50 Exception compiling grouped aggregation query with empty group_by function parameter
+  - Fixed issue #241 NPE compiling from Map type property
+  - Fixed issue #233 No output from statement with multiple regexp or like clauses for the same event property
+  - Fixed issue #232 NPE on auditing last() window function
+  - Fixed issue FD49 Compiler exception planning SQL-join and where-clause constant is null
+  - Fixed issue #252 IllegalArgumentException Unknown Filter Parameter due to Filter Not-Equals Planning
+  - Fixed issue FD47 Exception compiling context property with dot operator
+  - Fixed issue FD48 fix EPDeployException Deployment already exists by same-value crc  
     
 Changes in version 8.7.0
 ------------------------
