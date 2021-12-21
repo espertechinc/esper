@@ -42,7 +42,21 @@ public class ExprCoreDotExpression {
         execs.add(new ExprCoreDotCollectionSelectFromGetAndSize());
         execs.add(new ExprCoreDotToArray());
         execs.add(new ExprCoreDotAggregationSimpleValueMethod());
+        execs.add(new ExprCoreDotObjectSimpleEventProperty());
         return execs;
+    }
+
+    private static class ExprCoreDotObjectSimpleEventProperty implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create constant variable string MYVAR = " + ExprCoreDotExpression.class.getName() + ".supportDotExpressionReturningSB('X').theString;\n" +
+                    "@name('s0') select " + ExprCoreDotExpression.class.getName() + ".supportDotExpressionReturningSB(p00).theString as c0, MYVAR as c1 from SupportBean_S0";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new SupportBean_S0(1, "a"));
+            env.assertPropsNew("s0", "c0,c1".split(","), new Object[] {"a", "X"});
+
+            env.undeployAll();
+        }
     }
 
     private static class ExprCoreDotAggregationSimpleValueMethod implements RegressionExecution {
@@ -355,6 +369,10 @@ public class ExprCoreDotExpression {
     private static void sendAssertDotObjectEquals(RegressionEnvironment env, int intPrimitive, boolean expected) {
         env.sendEventBean(new SupportBean(UuidGenerator.generate(), intPrimitive));
         env.assertPropsNew("s0", "c0".split(","), new Object[]{expected});
+    }
+
+    public static SupportBean supportDotExpressionReturningSB(String theString) {
+        return new SupportBean(theString, 0);
     }
 
     private static class MyHelperWithPrivateModifierAndPublicMethod {

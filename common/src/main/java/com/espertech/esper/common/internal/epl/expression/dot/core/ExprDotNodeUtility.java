@@ -37,6 +37,7 @@ import com.espertech.esper.common.internal.epl.datetime.eval.ExprDotDTMethodDesc
 import com.espertech.esper.common.internal.epl.enummethod.dot.*;
 import com.espertech.esper.common.internal.epl.expression.chain.Chainable;
 import com.espertech.esper.common.internal.epl.expression.chain.ChainableArray;
+import com.espertech.esper.common.internal.epl.expression.chain.ChainableName;
 import com.espertech.esper.common.internal.epl.expression.codegen.ExprForgeCodegenSymbol;
 import com.espertech.esper.common.internal.epl.expression.core.*;
 import com.espertech.esper.common.internal.epl.join.analyze.FilterExprAnalyzerAffector;
@@ -332,21 +333,24 @@ public class ExprDotNodeUtility {
                     // find descriptor again, allow for duck typing
                     ExprNodeUtilMethodDesc desc = getValidateMethodDescriptor(optionalMethodTarget, chainElementName, parameters, validationContext);
                     paramForges = desc.getChildForges();
-                    ExprDotForge forge;
-                    if (currentInputType instanceof EPChainableTypeClass) {
-                        // if followed by an enumeration method, convert array to collection
-                        if (desc.getReflectionMethod().getReturnType().isArray() && !chainSpecStack.isEmpty() && EnumMethodResolver.isEnumerationMethod(chainSpecStack.getFirst().getRootNameOrEmptyString(), validationContext.getClasspathImportService())) {
-                            forge = new ExprDotMethodForgeNoDuck(validationContext.getStatementName(), desc.getReflectionMethod(), desc.getMethodTargetType(), paramForges, ExprDotMethodForgeNoDuck.WrapType.WRAPARRAY);
-                        } else {
-                            forge = new ExprDotMethodForgeNoDuck(validationContext.getStatementName(), desc.getReflectionMethod(), desc.getMethodTargetType(), paramForges, ExprDotMethodForgeNoDuck.WrapType.PLAIN);
-                        }
-                    } else {
-                        forge = new ExprDotMethodForgeNoDuck(validationContext.getStatementName(), desc.getReflectionMethod(), desc.getMethodTargetType(), paramForges, ExprDotMethodForgeNoDuck.WrapType.UNDERLYING);
-                    }
+                    ExprDotForge forge = getDotChainMethodCallForge(currentInputType, validationContext, chainSpecStack, desc, paramForges);
                     methodForges.add(forge);
                     currentInputType = forge.getTypeInfo();
                 } catch (Exception e) {
                     if (!isDuckTyping) {
+                        if (chainElement instanceof ChainableName) {
+                            // try "something.property" -> getProperty()
+                            try {
+                                String methodName = "get" + Character.toUpperCase(chainElementName.charAt(0)) + chainElementName.substring(1);
+                                ExprNodeUtilMethodDesc desc = getValidateMethodDescriptor(optionalMethodTarget, methodName, parameters, validationContext);
+                                ExprDotForge forge = getDotChainMethodCallForge(currentInputType, validationContext, chainSpecStack, desc, paramForges);
+                                methodForges.add(forge);
+                                currentInputType = forge.getTypeInfo();
+                                continue;
+                            } catch (Exception e2) {
+                                throw new ExprValidationException(e.getMessage(), e);
+                            }
+                        }
                         throw new ExprValidationException(e.getMessage(), e);
                     } else {
                         ExprDotMethodForgeDuck duck = new ExprDotMethodForgeDuck(validationContext.getStatementName(), validationContext.getClasspathImportService(), chainElementName, paramTypes, paramForges);
@@ -394,6 +398,19 @@ public class ExprDotNodeUtility {
 
         ExprDotForge[] unpackingForges = methodForges.toArray(new ExprDotForge[methodForges.size()]);
         return new ExprDotNodeRealizedChain(intermediateEvals, unpackingForges, filterAnalyzerDesc);
+    }
+
+    private static ExprDotForge getDotChainMethodCallForge(EPChainableType currentInputType, ExprValidationContext validationContext, Deque<Chainable> chainSpecStack, ExprNodeUtilMethodDesc desc, ExprForge[] paramForges) throws ExprValidationException {
+        if (currentInputType instanceof EPChainableTypeClass) {
+            // if followed by an enumeration method, convert array to collection
+            if (desc.getReflectionMethod().getReturnType().isArray() && !chainSpecStack.isEmpty() && EnumMethodResolver.isEnumerationMethod(chainSpecStack.getFirst().getRootNameOrEmptyString(), validationContext.getClasspathImportService())) {
+                return new ExprDotMethodForgeNoDuck(validationContext.getStatementName(), desc.getReflectionMethod(), desc.getMethodTargetType(), paramForges, ExprDotMethodForgeNoDuck.WrapType.WRAPARRAY);
+            } else {
+                return new ExprDotMethodForgeNoDuck(validationContext.getStatementName(), desc.getReflectionMethod(), desc.getMethodTargetType(), paramForges, ExprDotMethodForgeNoDuck.WrapType.PLAIN);
+            }
+        } else {
+            return new ExprDotMethodForgeNoDuck(validationContext.getStatementName(), desc.getReflectionMethod(), desc.getMethodTargetType(), paramForges, ExprDotMethodForgeNoDuck.WrapType.UNDERLYING);
+        }
     }
 
     private static EPTypeClass getMethodTarget(EPChainableType currentInputType) {
