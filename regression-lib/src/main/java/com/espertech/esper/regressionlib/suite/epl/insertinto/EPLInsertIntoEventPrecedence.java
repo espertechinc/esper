@@ -333,6 +333,8 @@ public class EPLInsertIntoEventPrecedence {
 
             env.tryInvalidCompile(path, "on SupportBean merge MyWindow insert event-precedence(1) select 'a' as id",
                     "Incorrect syntax near 'event-precedence' (a reserved keyword)");
+
+            env.undeployAll();
         }
     }
 
