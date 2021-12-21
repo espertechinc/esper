@@ -147,6 +147,7 @@ public class EPLDatabaseFAF {
             assertSingleRow(prepared.execute(), "C");
 
             prepared.close();
+            env.undeployAll();
         }
     }
 
