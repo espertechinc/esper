@@ -23,6 +23,7 @@ public class JavaFileManagerForwarding extends ForwardingJavaFileManager<JavaFil
     private final String generatedCodePackageName;
     private final Map<String, byte[]> classpath;
     private final Map<String, FastByteArrayOutputStream> classes = new HashMap<>();
+    private final Map<String, List<String>> codeToClassNames = new LinkedHashMap<>();
 
     public JavaFileManagerForwarding(String generatedCodePackageName, JavaFileManager fileManager, Map<String, byte[]> classpath) {
         super(fileManager);
@@ -69,6 +70,20 @@ public class JavaFileManagerForwarding extends ForwardingJavaFileManager<JavaFil
         URI fileURI = URI.create(filename);
         FastByteArrayOutputStream fos = new FastByteArrayOutputStream();
         classes.put(className, fos);
+
+        // keep track of code resulting in class name
+        JavaFileObjectSource src = (JavaFileObjectSource) sibling;
+        List<String> classNames = codeToClassNames.get(src.getCode());
+        if (classNames == null) {
+            classNames = new ArrayList<>(2);
+            classNames.add(className);
+            codeToClassNames.put(src.getCode(), classNames);
+        } else {
+            if (!classNames.contains(className)) {
+                classNames.add(className);
+            }
+        }
+
         return new JavaFileObjectForOutput(fileURI, kind, fos);
     }
 
@@ -82,7 +97,7 @@ public class JavaFileManagerForwarding extends ForwardingJavaFileManager<JavaFil
         }
     }
 
-    public Set<String> getClassNamesProduced() {
-        return classes.keySet();
+    public Map<String, List<String>> getClassNamesProduced() {
+        return codeToClassNames;
     }
 }

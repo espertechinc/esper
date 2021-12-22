@@ -38,7 +38,7 @@ public class CompilerAbstractionJanino implements CompilerAbstraction {
 
     public CompilerAbstractionCompileSourcesResult compileSources(List<String> sources, CompilerAbstractionCompilationContext context, CompilerAbstractionClassCollection state) {
         int index = -1;
-        Set<String> names = new LinkedHashSet<>(CollectionUtil.capacityHashMap(sources.size()));
+        LinkedHashMap<String, List<String>> names = new LinkedHashMap<>(CollectionUtil.capacityHashMap(sources.size()));
         for (String classText : sources) {
             index++;
             String filename = "provided_" + index + "_" + CodeGenerationIDGenerator.generateClassNameUUID();
@@ -55,7 +55,9 @@ public class CompilerAbstractionJanino implements CompilerAbstraction {
                 if (state.getClasses().containsKey(entry.getKey())) {
                     throw new RuntimeException("Duplicate class by name '" + entry.getKey() + "'");
                 }
-                names.add(entry.getKey());
+
+                List<String> classNames = names.computeIfAbsent(classText, k -> new ArrayList<>(2));
+                classNames.add(entry.getKey());
             }
 
             state.add(output);

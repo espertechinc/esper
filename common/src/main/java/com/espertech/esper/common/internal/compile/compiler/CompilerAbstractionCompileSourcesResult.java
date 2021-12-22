@@ -10,16 +10,17 @@
  */
 package com.espertech.esper.common.internal.compile.compiler;
 
-import java.util.Set;
+import java.util.List;
+import java.util.Map;
 
 public class CompilerAbstractionCompileSourcesResult {
-    private final Set<String> classNames;
+    private final Map<String, List<String>> codeToClassNames;
 
-    public CompilerAbstractionCompileSourcesResult(Set<String> classNames) {
-        this.classNames = classNames;
+    public CompilerAbstractionCompileSourcesResult(Map<String, List<String>> codeToClassNames) {
+        this.codeToClassNames = codeToClassNames;
     }
 
-    public Set<String> getClassNames() {
-        return classNames;
+    public Map<String, List<String>> getCodeToClassNames() {
+        return codeToClassNames;
     }
 }

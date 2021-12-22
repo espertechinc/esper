@@ -20,7 +20,7 @@ import com.espertech.esper.common.internal.epl.expression.core.ExprValidationExc
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class ClassProvidedPrecompileUtil {
@@ -51,31 +51,30 @@ public class ClassProvidedPrecompileUtil {
             allBytes.add(optionalPrior.getBytes());
         }
 
-        Set<String> classNames;
+        Map<String, List<String>> classTextToClassName;
         try {
             CompilerAbstractionCompilationContext ctx = new CompilerAbstractionCompilationContext(compileTimeServices.getServices(), compileResultConsumer, Collections.emptyList());
             CompilerAbstractionCompileSourcesResult result = compileTimeServices.getCompilerAbstraction().compileSources(classTexts, ctx, allBytes);
-            classNames = result.getClassNames();
+            classTextToClassName = result.getCodeToClassNames();
         } catch (RuntimeException ex) {
             throw new ExprValidationException("Failed to compile an inlined-class: " + ex.getMessage(), ex);
         }
 
         ByteArrayProvidingClassLoader cl = new ByteArrayProvidingClassLoader(allBytes.getClasses(), compileTimeServices.getServices().getParentClassLoader());
-        for (String classText : classTexts) {
-            if (classText.trim().isEmpty()) {
+        for (Map.Entry<String, List<String>> entry : classTextToClassName.entrySet()) {
+            if (entry.getKey().trim().isEmpty()) {
                 continue;
             }
 
-            List<Class> classes = new ArrayList<>(classNames.size());
-            for (String className : classNames) {
+            for (String className : entry.getValue()) {
+                Class clazz;
                 try {
-                    Class clazz = Class.forName(className, false, cl);
-                    classes.add(clazz);
+                    clazz = Class.forName(className, false, cl);
                 } catch (RuntimeException | ClassNotFoundException e) {
-                    throw handleException(e, "Failed to load class '" + className + "'", classText);
+                    throw handleException(e, "Failed to load class '" + className + "'", entry.getKey());
                 }
+                allClasses.add(clazz);
             }
-            allClasses.addAll(classes);
         }
 
         return new ClassProvidedPrecompileResult(allBytes.getClasses(), allClasses);

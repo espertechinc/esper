@@ -77,7 +77,7 @@ public class CompilerAbstractionToolProvider implements CompilerAbstraction {
             fileObjects.add(sourceFile);
         }
 
-        Set<String> classNamesProduced = compileFileObjects(fileObjects, state, false, context);
+        Map<String, List<String>> classNamesProduced = compileFileObjects(fileObjects, state, false, context);
         return new CompilerAbstractionCompileSourcesResult(classNamesProduced);
     }
 
@@ -87,7 +87,7 @@ public class CompilerAbstractionToolProvider implements CompilerAbstraction {
         return writer.toString();
     }
 
-    private synchronized Set<String> compileFileObjects(List<JavaFileObject> fileObjects, CompilerAbstractionClassCollection state, boolean logCodeOnError, CompilerAbstractionCompilationContext context) {
+    private synchronized Map<String, List<String>> compileFileObjects(List<JavaFileObject> fileObjects, CompilerAbstractionClassCollection state, boolean logCodeOnError, CompilerAbstractionCompilationContext context) {
         Map<String, byte[]> classes = new HashMap<>(state.getClasses());
         for (EPCompiled compiled : context.getPath()) {
             for (String clazz : context.getParentClassLoader().getClasses().keySet()) {
