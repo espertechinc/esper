@@ -215,6 +215,8 @@ public class EPLDatabaseFAF {
             } catch (EPException ex) {
                 assertEquals("Prepared fire-and-forget query is already closed", ex.getMessage());
             }
+
+            env.undeployAll();
         }
     }
 
