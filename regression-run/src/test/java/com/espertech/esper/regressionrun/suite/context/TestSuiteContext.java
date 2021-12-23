@@ -13,6 +13,7 @@ package com.espertech.esper.regressionrun.suite.context;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonDBRef;
 import com.espertech.esper.common.client.configuration.compiler.ConfigurationCompilerPlugInSingleRowFunction;
+import com.espertech.esper.common.internal.epl.historical.database.connection.SupportDatabaseURL;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
@@ -153,7 +154,7 @@ public class TestSuiteContext extends TestCase {
         configuration.getCommon().addImport(ContextHashSegmented.class.getName());
 
         ConfigurationCommonDBRef configDB = new ConfigurationCommonDBRef();
-        configDB.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.FULLURL, new Properties());
+        configDB.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.FULLURL, SupportDatabaseURL.newProperties());
         configuration.getCommon().addDatabaseReference("MyDB", configDB);
 
         configuration.getCompiler().getByteCode().setAllowSubscriber(true);

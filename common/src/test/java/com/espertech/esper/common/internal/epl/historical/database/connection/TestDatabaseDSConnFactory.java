@@ -29,13 +29,13 @@ public class TestDatabaseDSConnFactory extends TestCase {
         MysqlDataSource mySQLDataSource = new MysqlDataSource();
         mySQLDataSource.setUser(SupportDatabaseURL.DBUSER);
         mySQLDataSource.setPassword(SupportDatabaseURL.DBPWD);
-        mySQLDataSource.setURL("jdbc:mysql://localhost/test");
+        mySQLDataSource.setURL("jdbc:mysql://localhost/test?useSSL=false");
 
         String envName = "java:comp/env/jdbc/MySQLDB";
         SupportInitialContextFactory.addContextEntry(envName, mySQLDataSource);
 
         ConfigurationCommonDBRef config = new ConfigurationCommonDBRef();
-        Properties properties = new Properties();
+        Properties properties = SupportDatabaseURL.newProperties();
         properties.put("java.naming.factory.initial", SupportInitialContextFactory.class.getName());
         config.setDataSourceConnection(envName, properties);
 

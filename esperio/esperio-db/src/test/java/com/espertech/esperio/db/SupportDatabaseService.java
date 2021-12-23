@@ -11,6 +11,7 @@
 package com.espertech.esperio.db;
 
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonDBRef;
+import com.espertech.esper.common.internal.epl.historical.database.connection.SupportDatabaseURL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,12 +29,12 @@ public class SupportDatabaseService {
     public final static String DBUSER = "root";
     public final static String DBPWD = "password";
     public final static String DRIVER = "com.mysql.cj.jdbc.Driver";
-    public final static String FULLURL = "jdbc:mysql://localhost/test?user=root&password=password";
-    public final static String PARTURL = "jdbc:mysql://localhost/test";
+    public final static String FULLURL = "jdbc:mysql://localhost/test?user=root&password=password&useSSL=false";
+    public final static String PARTURL = "jdbc:mysql://localhost/test?useSSL=false";
 
     public static ConfigurationCommonDBRef makeDBConfig() {
         ConfigurationCommonDBRef configDB = new ConfigurationCommonDBRef();
-        configDB.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.FULLURL, new Properties());
+        configDB.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.FULLURL, SupportDatabaseURL.newProperties());
         return configDB;
     }
 

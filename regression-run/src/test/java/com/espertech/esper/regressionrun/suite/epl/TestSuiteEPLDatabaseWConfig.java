@@ -11,6 +11,7 @@
 package com.espertech.esper.regressionrun.suite.epl;
 
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonDBRef;
+import com.espertech.esper.common.internal.epl.historical.database.connection.SupportDatabaseURL;
 import com.espertech.esper.regressionlib.suite.epl.database.EPLDatabaseQueryResultCache;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.support.util.SupportDatabaseService;
@@ -48,7 +49,7 @@ public class TestSuiteEPLDatabaseWConfig extends TestCase {
 
     private ConfigurationCommonDBRef getDefaultConfig() {
         ConfigurationCommonDBRef configDB = new ConfigurationCommonDBRef();
-        configDB.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.FULLURL, new Properties());
+        configDB.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.FULLURL, SupportDatabaseURL.newProperties());
         configDB.setConnectionLifecycleEnum(ConfigurationCommonDBRef.ConnectionLifecycleEnum.RETAIN);
         return configDB;
     }

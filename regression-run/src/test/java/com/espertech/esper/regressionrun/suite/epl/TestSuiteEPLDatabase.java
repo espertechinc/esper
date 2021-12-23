@@ -13,6 +13,7 @@ package com.espertech.esper.regressionrun.suite.epl;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommon;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonDBRef;
+import com.espertech.esper.common.internal.epl.historical.database.connection.SupportDatabaseURL;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.regressionlib.suite.epl.database.*;
@@ -115,11 +116,11 @@ public class TestSuiteEPLDatabase extends TestCase {
         common.getLogging().setEnableJDBC(true);
 
         ConfigurationCommonDBRef configDBWithRetain = new ConfigurationCommonDBRef();
-        configDBWithRetain.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.FULLURL, new Properties());
+        configDBWithRetain.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.FULLURL, SupportDatabaseURL.newProperties());
         configDBWithRetain.setConnectionLifecycleEnum(ConfigurationCommonDBRef.ConnectionLifecycleEnum.RETAIN);
         configuration.getCommon().addDatabaseReference("MyDBWithRetain", configDBWithRetain);
 
-        Properties props = new Properties();
+        Properties props = SupportDatabaseURL.newProperties();
         props.put("driverClassName", SupportDatabaseService.DRIVER);
         props.put("url", SupportDatabaseService.FULLURL);
         props.put("username", SupportDatabaseService.DBUSER);
@@ -131,7 +132,7 @@ public class TestSuiteEPLDatabase extends TestCase {
         configuration.getCommon().addDatabaseReference("MyDBWithPooledWithLRU100", configDBWithPooledWithLRU100);
 
         ConfigurationCommonDBRef configDBWithTxnIso1WithReadOnly = new ConfigurationCommonDBRef();
-        configDBWithTxnIso1WithReadOnly.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.FULLURL, new Properties());
+        configDBWithTxnIso1WithReadOnly.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.FULLURL, SupportDatabaseURL.newProperties());
         configDBWithTxnIso1WithReadOnly.setConnectionLifecycleEnum(ConfigurationCommonDBRef.ConnectionLifecycleEnum.RETAIN);
         configDBWithTxnIso1WithReadOnly.setConnectionCatalog("test");
         configDBWithTxnIso1WithReadOnly.setConnectionReadOnly(true);
@@ -152,18 +153,18 @@ public class TestSuiteEPLDatabase extends TestCase {
         configuration.getCommon().addDatabaseReference("MyDBPlain", dbconfigPlain);
 
         ConfigurationCommonDBRef configDBPooled = new ConfigurationCommonDBRef();
-        configDBPooled.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.FULLURL, new Properties());
+        configDBPooled.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.FULLURL, SupportDatabaseURL.newProperties());
         configDBPooled.setConnectionLifecycleEnum(ConfigurationCommonDBRef.ConnectionLifecycleEnum.POOLED);
         configuration.getCommon().addDatabaseReference("MyDBPooled", configDBPooled);
 
         ConfigurationCommonDBRef configDBWithLRU100000 = new ConfigurationCommonDBRef();
-        configDBWithLRU100000.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.FULLURL, new Properties());
+        configDBWithLRU100000.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.FULLURL, SupportDatabaseURL.newProperties());
         configDBWithLRU100000.setConnectionLifecycleEnum(ConfigurationCommonDBRef.ConnectionLifecycleEnum.RETAIN);
         configDBWithLRU100000.setLRUCache(100000);
         configuration.getCommon().addDatabaseReference("MyDBWithLRU100000", configDBWithLRU100000);
 
         ConfigurationCommonDBRef configDBWithExpiryTime = new ConfigurationCommonDBRef();
-        configDBWithExpiryTime.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.FULLURL, new Properties());
+        configDBWithExpiryTime.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.FULLURL, SupportDatabaseURL.newProperties());
         configDBWithExpiryTime.setConnectionCatalog("test");
         configDBWithExpiryTime.setExpiryTimeCache(60, 120);
         configuration.getCommon().addDatabaseReference("MyDBWithExpiryTime", configDBWithExpiryTime);
@@ -174,7 +175,7 @@ public class TestSuiteEPLDatabase extends TestCase {
 
     protected static ConfigurationCommonDBRef getDBConfig() {
         ConfigurationCommonDBRef configDB = new ConfigurationCommonDBRef();
-        configDB.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.FULLURL, new Properties());
+        configDB.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.FULLURL, SupportDatabaseURL.newProperties());
         configDB.setConnectionLifecycleEnum(ConfigurationCommonDBRef.ConnectionLifecycleEnum.RETAIN);
         configDB.setConnectionCatalog("test");
         configDB.setConnectionReadOnly(true);

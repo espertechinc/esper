@@ -13,6 +13,7 @@ package com.espertech.esper.regressionrun.suite.multithread;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommon;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonDBRef;
+import com.espertech.esper.common.internal.epl.historical.database.connection.SupportDatabaseURL;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
 import com.espertech.esper.common.internal.support.SupportBean_S1;
@@ -212,7 +213,7 @@ public class TestSuiteMultithread extends TestCase {
         }
 
         ConfigurationCommonDBRef configDB = new ConfigurationCommonDBRef();
-        configDB.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.FULLURL, new Properties());
+        configDB.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.FULLURL, SupportDatabaseURL.newProperties());
         configDB.setConnectionLifecycleEnum(ConfigurationCommonDBRef.ConnectionLifecycleEnum.RETAIN);
         configDB.setConnectionCatalog("test");
         configDB.setConnectionReadOnly(true);

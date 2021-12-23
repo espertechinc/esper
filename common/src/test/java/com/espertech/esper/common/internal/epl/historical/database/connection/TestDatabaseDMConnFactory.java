@@ -32,7 +32,7 @@ public class TestDatabaseDMConnFactory extends TestCase {
 
         // driver-manager config 1
         ConfigurationCommonDBRef config = new ConfigurationCommonDBRef();
-        config.setDriverManagerConnection(SupportDatabaseURL.DRIVER, SupportDatabaseURL.FULLURL, new Properties());
+        config.setDriverManagerConnection(SupportDatabaseURL.DRIVER, SupportDatabaseURL.FULLURL, SupportDatabaseURL.newProperties());
         config.setConnectionAutoCommit(true);
         config.setConnectionCatalog("test");
         config.setConnectionTransactionIsolation(1);
@@ -46,7 +46,7 @@ public class TestDatabaseDMConnFactory extends TestCase {
 
         // driver-manager config 3
         config = new ConfigurationCommonDBRef();
-        Properties properties = new Properties();
+        Properties properties = SupportDatabaseURL.newProperties();
         properties.setProperty("user", SupportDatabaseURL.DBUSER);
         properties.setProperty("password", SupportDatabaseURL.DBPWD);
         config.setDriverManagerConnection(SupportDatabaseURL.DRIVER, SupportDatabaseURL.PARTURL, properties);

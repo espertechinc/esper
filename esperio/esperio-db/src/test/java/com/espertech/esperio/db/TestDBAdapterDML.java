@@ -12,6 +12,7 @@ package com.espertech.esperio.db;
 
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.common.internal.epl.historical.database.connection.SupportDatabaseURL;
 import com.espertech.esper.runtime.client.EPRuntime;
 import com.espertech.esper.runtime.client.EPRuntimeProvider;
 import com.espertech.esperio.db.core.ExecutorServices;
@@ -50,7 +51,7 @@ public class TestDBAdapterDML extends TestCase {
             "</esperio-db-configuration>";
 
         Configuration config = new Configuration();
-        config.getRuntime().addPluginLoader("EsperIODBAdapter", EsperIODBAdapterPlugin.class.getName(), new Properties(), esperIODBConfig);
+        config.getRuntime().addPluginLoader("EsperIODBAdapter", EsperIODBAdapterPlugin.class.getName(), SupportDatabaseURL.newProperties(), esperIODBConfig);
 
         config.getCommon().addEventType("SupportDBBean", SupportDBBean.class);
         config.getCommon().addEventType("SupportBean", SupportBean.class);

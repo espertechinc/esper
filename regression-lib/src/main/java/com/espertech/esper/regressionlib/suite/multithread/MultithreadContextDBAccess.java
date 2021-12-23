@@ -13,6 +13,7 @@ package com.espertech.esper.regressionlib.suite.multithread;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonDBRef;
+import com.espertech.esper.common.internal.epl.historical.database.connection.SupportDatabaseURL;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecutionWithConfigure;
@@ -29,7 +30,6 @@ import com.espertech.esper.runtime.client.UpdateListener;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.*;
 
 import static org.junit.Assert.assertEquals;
@@ -44,7 +44,7 @@ public class MultithreadContextDBAccess implements RegressionExecutionWithConfig
         configuration.getRuntime().getThreading().setListenerDispatchPreserveOrder(false);
 
         ConfigurationCommonDBRef configDB = new ConfigurationCommonDBRef();
-        configDB.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.FULLURL, new Properties());
+        configDB.setDriverManagerConnection(SupportDatabaseService.DRIVER, SupportDatabaseService.FULLURL, SupportDatabaseURL.newProperties());
         configDB.setConnectionLifecycleEnum(ConfigurationCommonDBRef.ConnectionLifecycleEnum.RETAIN);
         configuration.getCommon().addDatabaseReference("MyDB", configDB);
     }
@@ -62,8 +62,8 @@ public class MultithreadContextDBAccess implements RegressionExecutionWithConfig
         RegressionPath path = new RegressionPath();
         env.compileDeploy("@public create context CtxEachString partition by theString from SupportBean", path);
         env.compileDeploy("@Name('select') context CtxEachString " +
-            "select * from SupportBean, " +
-            "  sql:MyDB ['select mycol3 from mytesttable_large where ${theString} = mycol1']", path);
+                "select * from SupportBean, " +
+                "  sql:MyDB ['select mycol3 from mytesttable_large where ${theString} = mycol1']", path);
 
         // up to 10 threads, up to 1000 combinations (1 to 1000)
         tryThreadSafetyHistoricalJoin(env, 8, 20);

@@ -10,10 +10,18 @@
  */
 package com.espertech.esper.common.internal.epl.historical.database.connection;
 
+import java.util.Properties;
+
 public class SupportDatabaseURL {
     public final static String DBUSER = "root";
     public final static String DBPWD = "password";
     public final static String DRIVER = "com.mysql.cj.jdbc.Driver";
-    public final static String FULLURL = "jdbc:mysql://localhost/test?user=root&password=password";
-    public final static String PARTURL = "jdbc:mysql://localhost/test";
+    public final static String FULLURL = "jdbc:mysql://localhost/test?user=root&password=password&useSSL=false";
+    public final static String PARTURL = "jdbc:mysql://localhost/test?useSSL=false";
+
+    public static Properties newProperties() {
+        Properties properties = new Properties();
+        properties.put("useSSL", "false");
+        return properties;
+    }
 }

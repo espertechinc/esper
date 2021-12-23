@@ -14,5 +14,5 @@ public class SupportDatabaseService {
     public final static String DBUSER = "root";
     public final static String DBPWD = "password";
     public final static String DRIVER = "com.mysql.cj.jdbc.Driver";
-    public final static String FULLURL = "jdbc:mysql://localhost/test?user=root&password=password";
+    public final static String FULLURL = "jdbc:mysql://localhost/test?user=root&password=password&useSSL=false";
 }
