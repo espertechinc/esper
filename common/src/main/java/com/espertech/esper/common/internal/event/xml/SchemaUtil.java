@@ -67,6 +67,7 @@ public class SchemaUtil {
      * Returns the Class-type of the schema item.
      *
      * @param item to to determine type for
+     * @param xmlxsdHandler xml-xsd handler
      * @return type
      */
     public static EPTypeClass toReturnType(SchemaItem item, EventTypeXMLXSDHandler xmlxsdHandler) {

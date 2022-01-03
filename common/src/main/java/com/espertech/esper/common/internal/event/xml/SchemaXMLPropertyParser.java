@@ -44,7 +44,7 @@ public class SchemaXMLPropertyParser {
      * @param xmlEventType               the resolving type
      * @param isAllowFragment            whether fragmenting is allowed
      * @param defaultNamespace           default namespace
-     * @param xmlxsdHandler
+     * @param xmlxsdHandler              xml-xsd handler
      * @return xpath expression
      * @throws EPException is there are XPath errors
      */

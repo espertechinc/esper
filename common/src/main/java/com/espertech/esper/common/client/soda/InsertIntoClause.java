@@ -72,6 +72,7 @@ public class InsertIntoClause implements Serializable {
      * @param streamName     the name of the stream to insert into
      * @param columns        is a list of column names
      * @param streamSelector selects the stream
+     * @param precedence event precedence or null when not applicable
      * @return clause
      */
     public static InsertIntoClause create(String streamName, String[] columns, StreamSelector streamSelector, Expression precedence) {

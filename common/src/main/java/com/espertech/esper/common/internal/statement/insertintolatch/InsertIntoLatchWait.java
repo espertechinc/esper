@@ -37,6 +37,7 @@ public class InsertIntoLatchWait implements InsertIntoLatch {
      * @param earlier     the latch before this latch that this latch should be waiting for
      * @param msecTimeout the timeout after which delivery occurs
      * @param payload     the payload is an event to deliver
+     * @param factory the factory originating the latch
      */
     public InsertIntoLatchWait(InsertIntoLatchFactory factory, InsertIntoLatchWait earlier, long msecTimeout, EventBean payload) {
         this.factory = factory;

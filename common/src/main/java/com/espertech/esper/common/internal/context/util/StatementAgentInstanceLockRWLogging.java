@@ -35,6 +35,8 @@ public class StatementAgentInstanceLockRWLogging implements StatementAgentInstan
      * Ctor.
      *
      * @param isFair true if a fair lock, false if not
+     * @param statementName statement name
+     * @param cpid context partition id
      */
     public StatementAgentInstanceLockRWLogging(boolean isFair, String statementName, int cpid) {
         this.lock = new ReentrantReadWriteLock(isFair);

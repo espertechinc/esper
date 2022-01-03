@@ -222,6 +222,7 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
      * @param setOne    is the first set of properties
      * @param setTwo    is the second set of properties
      * @param otherName name of the type compared to
+     * @param lenientPropertyCount true to disregard property count, false to check all properties are provided
      * @return null if the property set is equivalent or message if not
      */
     public static ExprValidationException isDeepEqualsProperties(String otherName, Map<String, Object> setOne, Map<String, Object> setTwo, boolean lenientPropertyCount) {

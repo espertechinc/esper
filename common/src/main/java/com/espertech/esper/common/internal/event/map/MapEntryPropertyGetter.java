@@ -44,6 +44,7 @@ public class MapEntryPropertyGetter implements MapEventPropertyGetter {
      * @param propertyName               property to get
      * @param eventBeanTypedEventFactory factory for event beans and event types
      * @param eventType                  type of the entry returned
+     * @param canFragment whether the property value can be an EventBean instance
      */
     public MapEntryPropertyGetter(String propertyName, BeanEventType eventType, EventBeanTypedEventFactory eventBeanTypedEventFactory, boolean canFragment) {
         this.propertyName = propertyName;

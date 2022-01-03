@@ -29,9 +29,9 @@ public interface InternalEventRouter {
      *  @param theEvent             to route
      * @param agentInstanceContext agentInstanceContext
      * @param addToFront           indicator whether to add to front queue
-     * @param priority
+     * @param precedence event precedence
      */
-    void route(EventBean theEvent, AgentInstanceContext agentInstanceContext, boolean addToFront, int priority);
+    void route(EventBean theEvent, AgentInstanceContext agentInstanceContext, boolean addToFront, int precedence);
 
     boolean isHasPreprocessing();
 

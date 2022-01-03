@@ -82,7 +82,7 @@ public class EventTypeUtility {
      * Compare tyoes
      * @param newEventType the proposed new type
      * @param existingType the existing type
-     * @throws ExprValidationException
+     * @throws ExprValidationException when validation fails
      */
     public static void compareExistingType(EventType newEventType, EventType existingType) throws ExprValidationException {
         ExprValidationException compared = ((EventTypeSPI) newEventType).equalsCompareType(existingType);

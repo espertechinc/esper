@@ -50,6 +50,7 @@ public class FilterSpecCompilerIndexPlannerConstituent {
      * @param streamTypeService stream type service
      * @param raw statement info
      * @param services compile services
+     * @param limitedExprExists for checking whether an expression has already been processed
      * @return filter parameter representing the expression, or null
      * @throws ExprValidationException if the expression is invalid
      */
