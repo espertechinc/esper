@@ -58,6 +58,8 @@
 			<zipfileset prefix="${name}-${version}/dependencies/compiler" dir="${root.compiler}/lib" includes="*.*" excludes="${dist_excludes}"/>
 			<zipfileset prefix="${name}-${version}/dependencies/runtime" dir="${root.common}/lib" includes="*.*" excludes="${dist_excludes}"/>
 			<zipfileset prefix="${name}-${version}/dependencies/runtime" dir="${root.runtime}/lib" includes="*.*" excludes="${dist_excludes}"/>
+			<!-- XML Optional Dependencies -->
+			<zipfileset prefix="${name}-${version}/dependencies/common-xmlxsd" dir="${root.common.xmlxsd}/lib" includes="*.*" excludes="${dist_excludes}"/>
 			<!-- EsperIO Dependencies -->
 			<zipfileset prefix="${name}-${version}/dependencies/esperio-amqp" dir="esperio/esperio-amqp" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
 			<zipfileset prefix="${name}-${version}/dependencies/esperio-csv" dir="esperio/esperio-csv" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
@@ -115,6 +117,8 @@
 			<tarfileset prefix="${name}-${version}/dependencies/compiler" dir="${root.compiler}/lib" includes="*.*" excludes="${dist_excludes}"/>
 			<tarfileset prefix="${name}-${version}/dependencies/runtime" dir="${root.common}/lib" includes="*.*" excludes="${dist_excludes}"/>
 			<tarfileset prefix="${name}-${version}/dependencies/runtime" dir="${root.runtime}/lib" includes="*.*" excludes="${dist_excludes}"/>
+			<!-- XML Optional Dependencies -->
+			<tarfileset prefix="${name}-${version}/dependencies/common-xmlxsd" dir="${root.common.xmlxsd}/lib" includes="*.*" excludes="${dist_excludes}"/>
 			<!-- EsperIO Dependencies -->
 			<tarfileset prefix="${name}-${version}/dependencies/esperio-amqp" dir="esperio/esperio-amqp" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
 			<tarfileset prefix="${name}-${version}/dependencies/esperio-csv" dir="esperio/esperio-csv" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
