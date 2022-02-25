@@ -135,7 +135,7 @@ public class ConfigurationCommonEventTypeMeta implements Serializable {
      */
     public static class AvroSettings implements Serializable {
         private static final long serialVersionUID = 2977645210525767203L;
-        private boolean enableAvro = true;
+        private boolean enableAvro = false;
         private boolean enableNativeString = true;
         private boolean enableSchemaDefaultNonNull = true;
         private String typeRepresentationMapperClass;

@@ -48,7 +48,7 @@ public class TestConfigurationParser extends TestCase {
         assertEquals(AccessorStyle.JAVABEAN, common.getEventMeta().getDefaultAccessorStyle());
         assertEquals(EventUnderlyingType.MAP, common.getEventMeta().getDefaultEventRepresentation());
         assertFalse(common.getEventMeta().isEnableXMLXSD());
-        assertTrue(common.getEventMeta().getAvroSettings().isEnableAvro());
+        assertFalse(common.getEventMeta().getAvroSettings().isEnableAvro());
         assertTrue(common.getEventMeta().getAvroSettings().isEnableNativeString());
         assertTrue(common.getEventMeta().getAvroSettings().isEnableSchemaDefaultNonNull());
         assertNull(common.getEventMeta().getAvroSettings().getObjectValueTypeWidenerFactoryClass());
@@ -332,7 +332,7 @@ public class TestConfigurationParser extends TestCase {
         assertEquals(AccessorStyle.PUBLIC, common.getEventMeta().getDefaultAccessorStyle());
         assertEquals(EventUnderlyingType.MAP, common.getEventMeta().getDefaultEventRepresentation());
         assertTrue(common.getEventMeta().isEnableXMLXSD());
-        assertFalse(common.getEventMeta().getAvroSettings().isEnableAvro());
+        assertTrue(common.getEventMeta().getAvroSettings().isEnableAvro());
         assertFalse(common.getEventMeta().getAvroSettings().isEnableNativeString());
         assertFalse(common.getEventMeta().getAvroSettings().isEnableSchemaDefaultNonNull());
         assertEquals("myObjectValueTypeWidenerFactoryClass", common.getEventMeta().getAvroSettings().getObjectValueTypeWidenerFactoryClass());
