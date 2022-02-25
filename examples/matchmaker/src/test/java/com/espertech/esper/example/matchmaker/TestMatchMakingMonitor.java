@@ -67,19 +67,19 @@ public class TestMatchMakingMonitor extends TestCase {
         runtime.getEventService().sendEventBean(user_2, EVENTTYPE);
 
         assertEquals(1, listener.getAndClearEmittedCount());
-        runtime.getEventService().sendEventBean(user_1.copy().setLocation(8.99999, 10), EVENTTYPE);
+        runtime.getEventService().sendEventBean(user_1.copyWithLocation(8.99999, 10), EVENTTYPE);
         assertEquals(0, listener.getAndClearEmittedCount());
 
-        runtime.getEventService().sendEventBean(user_1.copy().setLocation(9, 10), EVENTTYPE);
+        runtime.getEventService().sendEventBean(user_1.copyWithLocation(9, 10), EVENTTYPE);
         assertEquals(1, listener.getAndClearEmittedCount());
 
-        runtime.getEventService().sendEventBean(user_1.copy().setLocation(11, 10), EVENTTYPE);
+        runtime.getEventService().sendEventBean(user_1.copyWithLocation(11, 10), EVENTTYPE);
         assertEquals(1, listener.getAndClearEmittedCount());
 
-        runtime.getEventService().sendEventBean(user_1.copy().setLocation(11.0000001, 10), EVENTTYPE);
+        runtime.getEventService().sendEventBean(user_1.copyWithLocation(11.0000001, 10), EVENTTYPE);
         assertEquals(0, listener.getAndClearEmittedCount());
 
-        runtime.getEventService().sendEventBean(user_2.copy().setLocation(10.0000001, 9), EVENTTYPE);
+        runtime.getEventService().sendEventBean(user_2.copyWithLocation(10.0000001, 9), EVENTTYPE);
         assertEquals(1, listener.getAndClearEmittedCount());
     }
 

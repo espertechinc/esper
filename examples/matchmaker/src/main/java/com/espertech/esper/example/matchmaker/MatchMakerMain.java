@@ -48,36 +48,24 @@ public class MatchMakerMain implements Runnable {
         MatchMakerEPL.setup(runtime, listener);
 
         log.info("Sending user information");
-        MobileUserBean userOne = new MobileUserBean(1, 10, 10,
-            Gender.MALE, HairColor.BLONDE, AgeRange.AGE_4,
-            Gender.FEMALE, HairColor.BLACK, AgeRange.AGE_1);
-        runtime.getEventService().sendEventBean(userOne, EVENTTYPE);
-
-        MobileUserBean userTwo = new MobileUserBean(2, 10, 10,
-            Gender.FEMALE, HairColor.BLACK, AgeRange.AGE_1,
-            Gender.MALE, HairColor.BLONDE, AgeRange.AGE_4);
-        runtime.getEventService().sendEventBean(userTwo, EVENTTYPE);
+        runtime.getEventService().sendEventBean(makeUserOne(10, 10), EVENTTYPE);
+        runtime.getEventService().sendEventBean(makeUserTwo(10, 10), EVENTTYPE);
 
         log.info("Sending some near locations");
-        userOne.setLocation(8.99999, 10);
-        runtime.getEventService().sendEventBean(userOne, EVENTTYPE);
+        runtime.getEventService().sendEventBean(makeUserOne(8.99999, 10), EVENTTYPE);
 
-        userOne.setLocation(9, 10);
-        runtime.getEventService().sendEventBean(userOne, EVENTTYPE);
+        runtime.getEventService().sendEventBean(makeUserOne(9, 10), EVENTTYPE);
 
-        userOne.setLocation(11, 10);
-        runtime.getEventService().sendEventBean(userOne, EVENTTYPE);
+        runtime.getEventService().sendEventBean(makeUserOne(11, 10), EVENTTYPE);
 
-        userOne.setLocation(11.0000001, 10);
-        runtime.getEventService().sendEventBean(userOne, EVENTTYPE);
+        runtime.getEventService().sendEventBean(makeUserOne(11.0000001, 10), EVENTTYPE);
 
-        userTwo.setLocation(10.0000001, 9);
-        runtime.getEventService().sendEventBean(userTwo, EVENTTYPE);
+        runtime.getEventService().sendEventBean(makeUserTwo(10.0000001, 9), EVENTTYPE);
 
-        userOne = new MobileUserBean(1, 10, 10,
+        MobileUserBean userOneUpdated = new MobileUserBean(1, 10, 10,
             Gender.MALE, HairColor.RED, AgeRange.AGE_6,
             Gender.FEMALE, HairColor.BLACK, AgeRange.AGE_5);
-        runtime.getEventService().sendEventBean(userOne, EVENTTYPE);
+        runtime.getEventService().sendEventBean(userOneUpdated, EVENTTYPE);
 
         // Test all combinations
         for (Gender gender : Gender.values()) {
@@ -106,8 +94,7 @@ public class MatchMakerMain implements Runnable {
             int x = 10 + random.nextInt(i) / 100000;
             int y = 10 + random.nextInt(i) / 100000;
 
-            userTwo.setLocation(x, y);
-            runtime.getEventService().sendEventBean(userTwo, EVENTTYPE);
+            runtime.getEventService().sendEventBean(makeUserTwo(x, y), EVENTTYPE);
 
             if (continuousSimulation) {
                 try {
@@ -119,5 +106,17 @@ public class MatchMakerMain implements Runnable {
         }
 
         log.info("Done.");
+    }
+
+    private MobileUserBean makeUserOne(double locationX, double locationY) {
+        return new MobileUserBean(1, locationX, locationY,
+                Gender.MALE, HairColor.BLONDE, AgeRange.AGE_4,
+                Gender.FEMALE, HairColor.BLACK, AgeRange.AGE_1);
+    }
+
+    private MobileUserBean makeUserTwo(double locationX, double locationY) {
+        return new MobileUserBean(2, locationX, locationY,
+                Gender.FEMALE, HairColor.BLACK, AgeRange.AGE_1,
+                Gender.MALE, HairColor.BLONDE, AgeRange.AGE_4);
     }
 }

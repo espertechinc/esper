@@ -49,10 +49,8 @@ public class MobileUserBean {
         return locationY;
     }
 
-    public MobileUserBean setLocation(double locationX, double locationY) {
-        this.locationX = locationX;
-        this.locationY = locationY;
-        return this;
+    public MobileUserBean copyWithLocation(double locationX, double locationY) {
+        return new MobileUserBean(userId, locationX, locationY, myGender, myHairColor, myAgeRange, preferredGender, preferredHairColor, preferredAgeRange);
     }
 
     public void setLocationY(double locationY) {
