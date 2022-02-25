@@ -10,5 +10,6 @@ if not exist "..\target\classes" (
 )
 
 set SOURCEPATH=..\src\main\java
+set EXAMPLESOURCEPATH=%SOURCEPATH%\com\espertech\esper\example\cycledetect
 
-"%JAVA_HOME%"\bin\javac -d ..\target\classes -source 1.8 -sourcepath %SOURCEPATH% %SOURCEPATH%\com\espertech\esper\example\cycledetect\CycleDetectMain.java
+"%JAVA_HOME%"\bin\javac -d ..\target\classes -source 1.8 -sourcepath %SOURCEPATH% %EXAMPLESOURCEPATH%\CycleDetectMain.java %EXAMPLESOURCEPATH%\CycleDetectorAggregationStateFactory.java %EXAMPLESOURCEPATH%\CycleDetectorAggregationAccessorOutputFactory.java %EXAMPLESOURCEPATH%\CycleDetectorAggregationAccessorDetectFactory.java
