@@ -36,9 +36,9 @@ import com.espertech.esper.common.internal.epl.streamtype.StreamTypeService;
 import com.espertech.esper.common.internal.epl.streamtype.StreamTypeServiceImpl;
 import com.espertech.esper.common.internal.epl.util.EPLValidationUtil;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
+import com.espertech.esper.common.internal.epl.variable.core.VariableMetadataWithForgables;
 import com.espertech.esper.common.internal.epl.variable.core.VariableUtil;
 import com.espertech.esper.common.internal.event.core.BaseNestableEventUtil;
-import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryCompileTime;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForge;
 import com.espertech.esper.common.internal.serde.compiletime.resolve.DataInputOutputSerdeForgeSkip;
@@ -58,6 +58,7 @@ public class StmtForgeMethodCreateVariable implements StmtForgeMethod {
 
     public StmtForgeMethodResult make(String packageName, String classPostfix, StatementCompileTimeServices services) throws ExprValidationException {
         StatementSpecCompiled statementSpec = base.getStatementSpec();
+        List<StmtClassForgeableFactory> additionalForgeables = new ArrayList<>(2);
 
         CreateVariableDesc createDesc = statementSpec.getRaw().getCreateVariableDesc();
 
@@ -97,8 +98,10 @@ public class StmtForgeMethodCreateVariable implements StmtForgeMethod {
 
         // Compile metadata
         boolean compileTimeConstant = createDesc.isConstant() && initialValueExpr != null && initialValueExpr.getForgeConstantType().isCompileTimeConstant();
-        VariableMetaData metaData = VariableUtil.compileVariable(createDesc.getVariableName(), base.getModuleName(), visibility, contextName, contextVisibility, contextModuleName, createDesc.getVariableType(),
-            createDesc.isConstant(), compileTimeConstant, initialValue, services.getClasspathImportServiceCompileTime(), services.getClassProvidedClasspathExtension(), EventBeanTypedEventFactoryCompileTime.INSTANCE, services.getEventTypeRepositoryPreconfigured(), services.getBeanEventTypeFactoryPrivate());
+        VariableMetadataWithForgables metaWithForgables = VariableUtil.compileVariable(createDesc.getVariableName(), base.getModuleName(), visibility, contextName, contextVisibility, contextModuleName, createDesc.getVariableType(),
+            createDesc.isConstant(), compileTimeConstant, initialValue, base.getStatementRawInfo(), services);
+        VariableMetaData metaData = metaWithForgables.getVariableMetaData();
+        additionalForgeables.addAll(metaWithForgables.getForgables());
 
         // Register variable
         services.getVariableCompileTimeRegistry().newVariable(metaData);
@@ -139,6 +142,9 @@ public class StmtForgeMethodCreateVariable implements StmtForgeMethod {
         StmtClassForgeableStmtProvider stmtProvider = new StmtClassForgeableStmtProvider(aiFactoryProviderClassName, statementProviderClassName, informationals, packageScope);
 
         List<StmtClassForgeable> forgeables = new ArrayList<>();
+        for (StmtClassForgeableFactory additional : additionalForgeables) {
+            forgeables.add(additional.make(packageScope, classPostfix));
+        }
         forgeables.add(new StmtClassForgeableRSPFactoryProvider(classNameRSP, resultSetProcessor, packageScope, base.getStatementRawInfo(), services.getSerdeResolver().isTargetHA()));
         forgeables.add(aiFactoryForgeable);
         forgeables.add(stmtProvider);

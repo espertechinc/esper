@@ -12,6 +12,7 @@ package com.espertech.esper.common.internal.epl.variable.core;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.internal.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
@@ -144,8 +145,9 @@ public class VariableReadWritePackage {
                     variableService.write(variableNumber, agentInstanceId, value);
                     written = value;
                 } else if (variableMetaData.getEventType() != null) {
+                    EventType eventType = variableMetaData.getEventType();
                     Object value = assignment.getEvaluator().evaluate(eventsPerStream, true, exprEvaluatorContext);
-                    EventBean eventBean = exprEvaluatorContext.getEventBeanTypedEventFactory().adapterForTypedBean(value, variableMetaData.getEventType());
+                    EventBean eventBean = exprEvaluatorContext.getEventBeanTypedEventFactory().adapterForGivenType(value, variableMetaData.getEventType());
                     variableService.write(variableNumber, agentInstanceId, eventBean);
                     written = value;
                 } else {

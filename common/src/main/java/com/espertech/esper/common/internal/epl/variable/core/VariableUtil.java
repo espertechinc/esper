@@ -15,6 +15,9 @@ import com.espertech.esper.common.client.configuration.ConfigurationException;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonVariable;
 import com.espertech.esper.common.client.type.EPTypeClass;
 import com.espertech.esper.common.client.util.NameAccessModifier;
+import com.espertech.esper.common.internal.compile.stage2.StatementRawInfo;
+import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeServices;
+import com.espertech.esper.common.internal.compile.stage3.StmtClassForgeableFactory;
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableMetaData;
 import com.espertech.esper.common.internal.epl.variable.compiletime.VariableTypeException;
@@ -22,6 +25,7 @@ import com.espertech.esper.common.internal.event.bean.service.BeanEventTypeFacto
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactory;
 import com.espertech.esper.common.internal.event.core.EventBeanTypedEventFactoryCompileTime;
 import com.espertech.esper.common.internal.event.eventtyperepo.EventTypeRepositoryImpl;
+import com.espertech.esper.common.internal.serde.compiletime.eventtype.SerdeEventTypeUtility;
 import com.espertech.esper.common.internal.settings.ClasspathExtensionClass;
 import com.espertech.esper.common.internal.settings.ClasspathExtensionClassEmpty;
 import com.espertech.esper.common.internal.settings.ClasspathImportEPTypeUtil;
@@ -32,6 +36,8 @@ import com.espertech.esper.common.internal.util.JavaClassHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import static com.espertech.esper.common.internal.util.JavaClassHelper.isFragmentableType;
@@ -55,7 +61,8 @@ public class VariableUtil {
             VariableMetaData meta;
             try {
                 ClassDescriptor variableType = ClassDescriptor.parseTypeText(entry.getValue().getType());
-                meta = getTypeInfo(variableName, null, NameAccessModifier.PRECONFIGURED, null, null, null, variableType, true, entry.getValue().isConstant(), entry.getValue().isConstant(), entry.getValue().getInitializationValue(), classpathImportService, ClasspathExtensionClassEmpty.INSTANCE, eventBeanTypedEventFactory, eventTypeRepositoryPreconfigured, beanEventTypeFactory);
+                VariableMetadataWithForgables result = getTypeInfo(variableName, null, NameAccessModifier.PRECONFIGURED, null, null, null, variableType, true, entry.getValue().isConstant(), entry.getValue().isConstant(), entry.getValue().getInitializationValue(), classpathImportService, ClasspathExtensionClassEmpty.INSTANCE, eventBeanTypedEventFactory, eventTypeRepositoryPreconfigured, beanEventTypeFactory, null, null);
+                meta = result.getVariableMetaData();
             } catch (Throwable t) {
                 throw new ConfigurationException("Error configuring variable '" + variableName + "': " + t.getMessage(), t);
             }
@@ -64,9 +71,9 @@ public class VariableUtil {
         }
     }
 
-    public static VariableMetaData compileVariable(String variableName, String variableModuleName, NameAccessModifier variableVisibility, String optionalContextName, NameAccessModifier optionalContextVisibility, String optionalModuleName, ClassDescriptor variableType, boolean isConstant, boolean compileTimeConstant, Object initializationValue, ClasspathImportService classpathImportService, ClasspathExtensionClass classpathExtension, EventBeanTypedEventFactory eventBeanTypedEventFactory, EventTypeRepositoryImpl eventTypeRepositoryPreconfigured, BeanEventTypeFactory beanEventTypeFactory) throws ExprValidationException {
+    public static VariableMetadataWithForgables compileVariable(String variableName, String variableModuleName, NameAccessModifier variableVisibility, String optionalContextName, NameAccessModifier optionalContextVisibility, String optionalModuleName, ClassDescriptor variableType, boolean isConstant, boolean compileTimeConstant, Object initializationValue, StatementRawInfo raw, StatementCompileTimeServices services) throws ExprValidationException {
         try {
-            return getTypeInfo(variableName, variableModuleName, variableVisibility, optionalContextName, optionalContextVisibility, optionalModuleName, variableType, false, isConstant, compileTimeConstant, initializationValue, classpathImportService, classpathExtension, eventBeanTypedEventFactory, eventTypeRepositoryPreconfigured, beanEventTypeFactory);
+            return getTypeInfo(variableName, variableModuleName, variableVisibility, optionalContextName, optionalContextVisibility, optionalModuleName, variableType, false, isConstant, compileTimeConstant, initializationValue, services.getClasspathImportServiceCompileTime(), services.getClassProvidedClasspathExtension(), EventBeanTypedEventFactoryCompileTime.INSTANCE, services.getEventTypeRepositoryPreconfigured(), services.getBeanEventTypeFactoryPrivate(), raw, services);
         } catch (VariableTypeException t) {
             throw new ExprValidationException(t.getMessage(), t);
         } catch (Throwable t) {
@@ -88,24 +95,27 @@ public class VariableUtil {
         return null;
     }
 
-    private static VariableMetaData getTypeInfo(String variableName,
-                                                String variableModuleName,
-                                                NameAccessModifier variableVisibility,
-                                                String optionalContextName,
-                                                NameAccessModifier optionalContextVisibility,
-                                                String optionalContextModule,
-                                                ClassDescriptor variableTypeWArray,
-                                                boolean preconfigured,
-                                                boolean constant,
-                                                boolean compileTimeConstant,
-                                                Object valueAsProvided,
-                                                ClasspathImportService classpathImportService,
-                                                ClasspathExtensionClass classpathExtension,
-                                                EventBeanTypedEventFactory eventBeanTypedEventFactory,
-                                                EventTypeRepositoryImpl eventTypeRepositoryPreconfigured,
-                                                BeanEventTypeFactory beanEventTypeFactory) throws VariableTypeException {
+    private static VariableMetadataWithForgables getTypeInfo(String variableName,
+                                                             String variableModuleName,
+                                                             NameAccessModifier variableVisibility,
+                                                             String optionalContextName,
+                                                             NameAccessModifier optionalContextVisibility,
+                                                             String optionalContextModule,
+                                                             ClassDescriptor variableTypeWArray,
+                                                             boolean preconfigured,
+                                                             boolean constant,
+                                                             boolean compileTimeConstant,
+                                                             Object valueAsProvided,
+                                                             ClasspathImportService classpathImportService,
+                                                             ClasspathExtensionClass classpathExtension,
+                                                             EventBeanTypedEventFactory eventBeanTypedEventFactory,
+                                                             EventTypeRepositoryImpl eventTypeRepositoryPreconfigured,
+                                                             BeanEventTypeFactory beanEventTypeFactory,
+                                                             StatementRawInfo optionalRaw,
+                                                             StatementCompileTimeServices optionalServices) throws VariableTypeException {
 
         EPTypeClass variableClass = null;
+        List<StmtClassForgeableFactory> serdeForgeables = Collections.emptyList();
         ExprValidationException exTypeResolution = null;
         try {
             variableClass = ClasspathImportEPTypeUtil.resolveClassIdentifierToEPType(variableTypeWArray, true, classpathImportService, classpathExtension);
@@ -119,6 +129,12 @@ public class VariableUtil {
         EventType variableEventType = null;
         if (variableClass == null) {
             variableEventType = eventTypeRepositoryPreconfigured.getTypeByName(variableTypeWArray.getClassIdentifier());
+
+            if (variableEventType == null && optionalServices != null) {
+                variableEventType = optionalServices.getEventTypeCompileTimeResolver().getTypeByName(variableTypeWArray.getClassIdentifier());
+                serdeForgeables = SerdeEventTypeUtility.plan(variableEventType, optionalRaw, optionalServices.getSerdeEventTypeRegistry(), optionalServices.getSerdeResolver(), optionalServices.getStateMgmtSettingsProvider());
+            }
+
             if (variableEventType != null) {
                 variableClass = variableEventType.getUnderlyingEPType();
             }
@@ -143,7 +159,8 @@ public class VariableUtil {
         }
 
         Object coerced = getCoercedValue(valueAsProvided, variableEventType, variableName, variableClass, eventBeanTypedEventFactory);
-        return new VariableMetaData(variableName, variableModuleName, variableVisibility, optionalContextName, optionalContextVisibility, optionalContextModule, variableClass, variableEventType, preconfigured, constant, compileTimeConstant, coerced, true);
+        VariableMetaData variableMetaData = new VariableMetaData(variableName, variableModuleName, variableVisibility, optionalContextName, optionalContextVisibility, optionalContextModule, variableClass, variableEventType, preconfigured, constant, compileTimeConstant, coerced, true);
+        return new VariableMetadataWithForgables(variableMetaData, serdeForgeables);
     }
 
     private static Object getCoercedValue(Object value, EventType eventType, String variableName, EPTypeClass variableType, EventBeanTypedEventFactory eventBeanTypedEventFactory) throws VariableTypeException {

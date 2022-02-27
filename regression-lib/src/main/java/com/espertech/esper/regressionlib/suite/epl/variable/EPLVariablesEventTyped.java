@@ -26,9 +26,13 @@ import com.espertech.esper.regressionlib.framework.RegressionPath;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_A;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
 import com.espertech.esper.regressionlib.support.bean.SupportBean_S3;
+import com.espertech.esper.runtime.client.EPDeploymentDependencyConsumed;
+import com.espertech.esper.runtime.client.EPDeploymentDependencyProvided;
+import com.espertech.esper.runtime.client.util.EPObjectType;
 
 import java.util.*;
 
+import static com.espertech.esper.common.client.scopetest.EPAssertionUtil.assertEqualsAnyOrder;
 import static org.junit.Assert.*;
 
 public class EPLVariablesEventTyped {
@@ -41,7 +45,58 @@ public class EPLVariablesEventTyped {
         execs.add(new EPLVariableConfig());
         execs.add(new EPLVariableEventTypedSetProp());
         execs.add(new EPLVariableInvalid());
+        execs.add(new EPLVariableEventTypedCreateSchema());
         return execs;
+    }
+
+    private static class EPLVariableEventTypedCreateSchema implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            RegressionPath path = new RegressionPath();
+            env.compileDeploy("@buseventtype @public @name('schema') create schema OrderEvent(orderId string);", path);
+            String deployIdSchema = env.deploymentId("schema");
+
+            env.compileDeploy("@public @name('variable') create variable OrderEvent orderEvent;", path);
+            String deployIdVariable = env.deploymentId("variable");
+
+            EPDeploymentDependencyConsumed consumed = env.deployment().getDeploymentDependenciesConsumed(deployIdVariable);
+            assertEqualsAnyOrder(new EPDeploymentDependencyConsumed.Item[] {
+                new EPDeploymentDependencyConsumed.Item(deployIdSchema, EPObjectType.EVENTTYPE, "OrderEvent"),
+                }, consumed.getDependencies().toArray());
+
+            EPDeploymentDependencyProvided provided = env.deployment().getDeploymentDependenciesProvided(deployIdSchema);
+            assertEqualsAnyOrder(new EPDeploymentDependencyProvided.Item[] {
+                new EPDeploymentDependencyProvided.Item(EPObjectType.EVENTTYPE, "OrderEvent", Collections.singleton(deployIdVariable)),
+            }, provided.getDependencies().toArray());
+
+            env.compileDeploy("on OrderEvent as oe set orderEvent = oe;\n" +
+                    "@name('s0') select orderEvent.orderId as c0 from SupportBean;\n", path);
+            env.addListener("s0");
+
+            env.milestone(0);
+
+            sendOrderEvent(env, "O1");
+
+            env.milestone(1);
+
+            assertSelect(env, "O1");
+
+            sendOrderEvent(env, "O2");
+
+            env.milestone(2);
+
+            assertSelect(env, "O2");
+
+            env.undeployAll();
+        }
+
+        private void assertSelect(RegressionEnvironment env, String orderId) {
+            env.sendEventBean(new SupportBean());
+            env.assertEqualsNew("s0", "c0", orderId);
+        }
+
+        private void sendOrderEvent(RegressionEnvironment env, String orderId) {
+            env.sendEventMap(Collections.singletonMap("orderId", orderId), "OrderEvent");
+        }
     }
 
     private static class EPLVariableInvalid implements RegressionExecution {
