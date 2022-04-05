@@ -10,12 +10,14 @@
  */
 package com.espertech.esper.common.internal.metrics.stmtmetrics;
 
+import com.espertech.esper.common.client.metric.EPMetricsStatement;
 import com.espertech.esper.common.client.metric.StatementMetric;
 import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
 import com.espertech.esper.common.internal.util.ManagedReadWriteLock;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * Holder for statement group's statement metrics.
@@ -42,6 +44,7 @@ public class StatementMetricArray {
     //  Read lock applies to each current transaction on a StatementMetric instance
     //  Write lock applies to flush and to add a new statement
     private final ManagedReadWriteLock rwLock;
+    private final String name;
     private final boolean isReportInactive;
 
     // Active statements
@@ -67,6 +70,7 @@ public class StatementMetricArray {
     public StatementMetricArray(String runtimeURI, String name, int initialSize, boolean isReportInactive) {
         this.runtimeURI = runtimeURI;
         this.isReportInactive = isReportInactive;
+        this.name = name;
 
         metrics = new StatementMetric[initialSize];
         statementNames = new DeploymentIdNamePair[initialSize];
@@ -160,33 +164,9 @@ public class StatementMetricArray {
     public StatementMetric[] flushMetrics() {
         rwLock.acquireWriteLock();
         try {
-            boolean isEmpty = false;
-            if (currentLastElement == -1) {
-                isEmpty = true;
-            }
+            boolean isEmpty = currentLastElement == -1;
 
-            // first fill in the blanks if there are no reports and we report inactive statements
-            if (isReportInactive) {
-                for (int i = 0; i <= currentLastElement; i++) {
-                    if (statementNames[i] != null) {
-                        metrics[i] = new StatementMetric(runtimeURI, statementNames[i].getDeploymentId(), statementNames[i].getName());
-                    }
-                }
-            }
-
-            // remove statement ids that disappeared during the interval
-            if ((currentLastElement > -1) && (!removedStatementNames.isEmpty())) {
-                for (int i = 0; i <= currentLastElement; i++) {
-                    if (removedStatementNames.contains(statementNames[i])) {
-                        statementNames[i] = null;
-                    }
-                }
-            }
-
-            // adjust last used element
-            while ((currentLastElement != -1) && (statementNames[currentLastElement] == null)) {
-                currentLastElement--;
-            }
+            housekeeping();
 
             if (isEmpty) {
                 return null;    // no copies made if empty collection
@@ -234,5 +214,52 @@ public class StatementMetricArray {
      */
     public int sizeLastElement() {
         return currentLastElement + 1;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void iterate(Consumer<EPMetricsStatement> consumer) {
+        rwLock.acquireReadLock();
+        try {
+            housekeeping();
+            for (StatementMetric metric : metrics) {
+                if (metric != null) {
+                    consumer.accept(new EPMetricsStatement(metric));
+                }
+            }
+        } finally {
+            rwLock.releaseReadLock();
+        }
+    }
+
+    private void housekeeping() {
+        // first fill in the blanks if there are no reports and we report inactive statements
+        if (isReportInactive) {
+            for (int i = 0; i <= currentLastElement; i++) {
+                if (statementNames[i] != null) {
+                    metrics[i] = new StatementMetric(runtimeURI, statementNames[i].getDeploymentId(), statementNames[i].getName());
+                }
+            }
+        }
+
+        // remove statement ids that disappeared during the interval
+        if ((currentLastElement > -1) && (!removedStatementNames.isEmpty())) {
+            for (int i = 0; i <= currentLastElement; i++) {
+                if (removedStatementNames.contains(statementNames[i])) {
+                    statementNames[i] = null;
+                }
+            }
+        }
+
+        // adjust last used element
+        while ((currentLastElement != -1) && (statementNames[currentLastElement] == null)) {
+            currentLastElement--;
+        }
+    }
+
+    public boolean isReportInactive() {
+        return isReportInactive;
     }
 }

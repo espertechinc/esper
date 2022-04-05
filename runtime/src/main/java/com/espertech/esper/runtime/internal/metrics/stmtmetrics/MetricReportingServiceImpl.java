@@ -12,6 +12,7 @@ package com.espertech.esper.runtime.internal.metrics.stmtmetrics;
 
 import com.espertech.esper.common.client.configuration.ConfigurationException;
 import com.espertech.esper.common.client.configuration.runtime.ConfigurationRuntimeMetricsReporting;
+import com.espertech.esper.common.client.metric.EPMetricsStatementGroup;
 import com.espertech.esper.common.client.metric.MetricEvent;
 import com.espertech.esper.common.internal.event.core.EventServiceSendEventCommon;
 import com.espertech.esper.common.internal.filtersvc.FilterService;
@@ -25,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.function.Consumer;
 
 /**
  * Metrics reporting.
@@ -157,6 +159,13 @@ public class MetricReportingServiceImpl implements MetricReportingServiceSPI, Me
         for (MetricExec execution : executions) {
             metricsExecutor.execute(execution, executionContext);
         }
+    }
+
+    public void iterateMetrics(Consumer<EPMetricsStatementGroup> consumer) {
+        if (stmtMetricRepository == null) {
+            throw new IllegalStateException("Metric reporting is not enabled");
+        }
+        stmtMetricRepository.iterateMetrics(consumer);
     }
 
     public void destroy() {

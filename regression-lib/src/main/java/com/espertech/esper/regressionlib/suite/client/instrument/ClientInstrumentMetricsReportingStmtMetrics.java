@@ -11,6 +11,7 @@
 package com.espertech.esper.regressionlib.suite.client.instrument;
 
 import com.espertech.esper.common.client.EventBean;
+import com.espertech.esper.common.client.metric.RuntimeMetric;
 import com.espertech.esper.common.client.metric.StatementMetric;
 import com.espertech.esper.common.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.common.internal.support.SupportBean;
@@ -21,6 +22,8 @@ import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.scopetest.SupportListener;
 
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -51,6 +54,24 @@ public class ClientInstrumentMetricsReportingStmtMetrics implements RegressionEx
         sendEvent(env, "E2", 2, CPU_GOAL_TWO_NANO);
         sendEvent(env, "E3", 3, WALL_GOAL_ONE_MSEC);
         sendEvent(env, "E4", 4, WALL_GOAL_TWO_MSEC);
+
+        Map<String, Map<String, StatementMetric>> result = new HashMap<>();
+        env.runtime().getMetricsService().iterateStatementGroups(group -> {
+            Map<String, StatementMetric> resultGroup = new HashMap<>();
+            result.put(group.getName(), resultGroup);
+            group.iterateStatements(metric -> {
+                resultGroup.put(metric.getMetric().getStatementName(), metric.getMetric());
+            });
+        });
+        assertEquals(0, result.get("group-default").size());
+        assertEquals(0, result.get("group-2").size());
+        Map<String, StatementMetric> group = result.get("group-1");
+        EPAssertionUtil.assertEqualsAnyOrder(group.keySet().toArray(), new String[] {"cpuStmtTwo", "wallStmtFour", "cpuStmtOne", "wallStmtThree"});
+        StatementMetric metric = group.get("cpuStmtOne");
+        assertEquals(1, metric.getNumInput());
+
+        RuntimeMetric runtimeMetric = env.runtime().getMetricsService().getRuntimeMetric();
+        assertEquals(4, runtimeMetric.getInputCount());
 
         sendTimer(env, 10999);
         assertFalse(env.listener("stmt_metrics").isInvoked());

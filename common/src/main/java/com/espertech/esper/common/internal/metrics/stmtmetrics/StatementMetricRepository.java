@@ -11,6 +11,7 @@
 package com.espertech.esper.common.internal.metrics.stmtmetrics;
 
 import com.espertech.esper.common.client.configuration.runtime.ConfigurationRuntimeMetricsReporting;
+import com.espertech.esper.common.client.metric.EPMetricsStatementGroup;
 import com.espertech.esper.common.client.metric.StatementMetric;
 import com.espertech.esper.common.internal.collection.Pair;
 import com.espertech.esper.common.internal.type.StringPatternSet;
@@ -20,6 +21,7 @@ import com.espertech.esper.common.internal.util.DeploymentIdNamePair;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * A repository for all statement metrics that organizes statements into statement groups.
@@ -154,5 +156,12 @@ public class StatementMetricRepository {
      */
     public StatementMetric[] reportGroup(int group) {
         return groupMetrics[group].flushMetrics();
+    }
+
+    public void iterateMetrics(Consumer<EPMetricsStatementGroup> consumer) {
+        for (int i = 0; i < groupMetrics.length; i++) {
+            StatementMetricArray array = groupMetrics[i];
+            consumer.accept(new EPMetricsStatementGroup(array));
+        }
     }
 }

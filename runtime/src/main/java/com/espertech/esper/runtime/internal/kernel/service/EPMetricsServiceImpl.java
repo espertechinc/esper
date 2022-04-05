@@ -11,7 +11,11 @@
 package com.espertech.esper.runtime.internal.kernel.service;
 
 import com.espertech.esper.common.client.configuration.ConfigurationException;
+import com.espertech.esper.common.client.metric.EPMetricsStatementGroup;
 import com.espertech.esper.common.client.metric.EPMetricsService;
+import com.espertech.esper.common.client.metric.RuntimeMetric;
+
+import java.util.function.Consumer;
 
 public class EPMetricsServiceImpl implements EPMetricsService {
     private final EPServicesContext services;
@@ -60,4 +64,13 @@ public class EPMetricsServiceImpl implements EPMetricsService {
         }
     }
 
+    public void iterateStatementGroups(Consumer<EPMetricsStatementGroup> consumer) {
+        services.getMetricReportingService().iterateMetrics(consumer);
+    }
+
+    public RuntimeMetric getRuntimeMetric() {
+        long inputCount = services.getFilterService().getNumEventsEvaluated();
+        long schedDepth = services.getSchedulingService().getScheduleHandleCount();
+        return new RuntimeMetric(services.getRuntimeURI(), services.getSchedulingService().getTime(), inputCount, 0, schedDepth);
+    }
 }

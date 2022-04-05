@@ -10,9 +10,12 @@
  */
 package com.espertech.esper.common.internal.metrics.stmtmetrics;
 
+import com.espertech.esper.common.client.metric.EPMetricsStatementGroup;
 import com.espertech.esper.common.internal.event.core.EventServiceSendEventCommon;
 import com.espertech.esper.common.internal.filtersvc.FilterService;
 import com.espertech.esper.common.internal.schedule.SchedulingService;
+
+import java.util.function.Consumer;
 
 /**
  * Metrics reporting service for instrumentation data publishing, if enabled.
@@ -98,4 +101,6 @@ public interface MetricReportingService {
     public void setMetricsReportingDisabled();
 
     boolean isMetricsReportingEnabled();
+
+    void iterateMetrics(Consumer<EPMetricsStatementGroup> consumer);
 }

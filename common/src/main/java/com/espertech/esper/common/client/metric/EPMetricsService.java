@@ -12,6 +12,8 @@ package com.espertech.esper.common.client.metric;
 
 import com.espertech.esper.common.client.configuration.ConfigurationException;
 
+import java.util.function.Consumer;
+
 /**
  * Service for metrics reporting.
  */
@@ -72,4 +74,22 @@ public interface EPMetricsService {
      * @throws ConfigurationException if use at runtime and metrics reporting had not been enabled at initialization time
      */
     void setMetricsReportingDisabled() throws ConfigurationException;
+
+    /**
+     * Iterate statement groups.
+     * <p>
+     *     This by itself does not hold a lock but iterating each group may hold locks.
+     * </p>
+     * @param consumer of groups
+     */
+    void iterateStatementGroups(Consumer<EPMetricsStatementGroup> consumer);
+
+    /**
+     * Returns the current runtime metric.
+     * <p>
+     *     The delta-value(s) will be zero. The result is without delta and without resetting count.
+     * </p>
+     * @return runtime metrio
+     */
+    RuntimeMetric getRuntimeMetric();
 }
