@@ -17,10 +17,10 @@ set LIB_COMMON_XMLXSD=..\..\..\dependencies\common-xmlxsd
 
 set CLASSPATH=.
 set CLASSPATH=%CLASSPATH%;..\target\classes
-set CLASSPATH=%CLASSPATH%;..\..\..\esper-common-8.8.0.jar
-set CLASSPATH=%CLASSPATH%;..\..\..\esper-compiler-8.8.0.jar
-set CLASSPATH=%CLASSPATH%;..\..\..\esper-runtime-8.8.0.jar
-set CLASSPATH=%CLASSPATH%;..\..\..\esper-common-xmlxsd-8.8.0.jar
+set CLASSPATH=%CLASSPATH%;..\..\..\esper-common-8.9.0.jar
+set CLASSPATH=%CLASSPATH%;..\..\..\esper-compiler-8.9.0.jar
+set CLASSPATH=%CLASSPATH%;..\..\..\esper-runtime-8.9.0.jar
+set CLASSPATH=%CLASSPATH%;..\..\..\esper-common-xmlxsd-8.9.0.jar
 set CLASSPATH=%CLASSPATH%;%LIB_COMPILER%\slf4j-api-1.7.30.jar
 set CLASSPATH=%CLASSPATH%;%LIB_COMPILER%\slf4j-log4j12-1.7.30.jar
 set CLASSPATH=%CLASSPATH%;%LIB_COMPILER%\log4j-1.2.17.jar
