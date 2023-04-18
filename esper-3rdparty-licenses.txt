@@ -10,7 +10,7 @@ janino-3.1.6.jar and commons-compiler-3.1.6.jar - Janino License
 - required for compiler (not required for runtime)
 - see Janino license in file dependencies/compiler/esper_3rdparties_compiler.license
 
-slf4j-api-1.7.30.jar - Apache v2 License
+slf4j-api-1.7.36.jar - Apache v2 License
 - Simple Logging Facade for Java (SLF4J), for logging
 - required for compiler and runtime 
 - see Apache v2 license in file dependencies/compiler/esper_3rdparties_compiler.license
@@ -19,7 +19,7 @@ slf4j-api-1.7.30.jar - Apache v2 License
 Esper-Runtime required libraries
 ==========================
 
-slf4j-api-1.7.30.jar - Apache v2 License
+slf4j-api-1.7.36.jar - Apache v2 License
 - Simple Logging Facade for Java (SLF4J), for logging
 - required for compiler and runtime 
 - see Apache v2 license in file dependencies/runtime/esper_3rdparties_runtime.license
@@ -28,10 +28,10 @@ slf4j-api-1.7.30.jar - Apache v2 License
 Optional libraries shipped with the distribution
 ==========================
 
-slf4j-log4j12-1.7.30.jar - Apache v2 License
-- For use with Log4j
+slf4j-reload4j-1.7.36.jar - Apache v2 License
+- For use with Reload4J
 - see Apache v2 license in file dependencies/runtime/esper_3rdparties_runtime.license
 
-log4j-1.2.17.jar - Apache v2 License
-- For use with Log4j
+reload4j-1.2.19.jar - Apache v2 License
+- Reload4j is a replacement for Log4j 1.2
 - see Apache v2 license in file dependencies/runtime/esper_3rdparties_runtime.license
