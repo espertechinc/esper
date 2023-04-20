@@ -8,7 +8,7 @@
 	<properties>
 		<rootPath>${project.parent.basedir}</rootPath>
 
-		<amqp-client.version>5.7.3</amqp-client.version>
+		<amqp-client.version>5.17.0</amqp-client.version>
 		<activemq.version>5.15.6</activemq.version>
 		<commons.pool2.version>2.6.0</commons.pool2.version>
 		<httpcomponents.httpcore.version>4.4.12</httpcomponents.httpcore.version>
