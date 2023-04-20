@@ -44,4 +44,6 @@ public interface NamedWindow {
     void setStatementContext(StatementContext statementContext);
 
     StatementContext getStatementContext();
+
+    void removeIndexInstance(IndexMultiKey indexMultiKey, int agentInstanceId);
 }

@@ -117,6 +117,14 @@ public class NamedWindowImpl implements NamedWindowWDirectConsume {
         }
     }
 
+    public void removeIndexInstance(IndexMultiKey indexMultiKey, int agentInstanceId) {
+        StatementResourceService statementResourceService = statementContext.getStatementCPCacheService().getStatementResourceService();
+        StatementResourceHolder holder = statementResourceService.getResourcesPartitioned().get(agentInstanceId);
+        if (holder != null && holder.getNamedWindowInstance() != null) {
+            holder.getNamedWindowInstance().removeIndex(indexMultiKey);
+        }
+    }
+
     public void removeIndexReferencesStmtMayRemoveIndex(IndexMultiKey imk, String referringDeploymentId, String referringStatementName) {
         boolean last = eventTableIndexMetadataRepo.removeIndexReference(imk, referringDeploymentId);
         if (last) {

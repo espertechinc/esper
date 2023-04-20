@@ -125,11 +125,17 @@ public abstract class StatementAgentInstanceFactoryOnTriggerInfraBase extends St
 
                 stopCallbacks.add(new AgentInstanceMgmtCallback() {
                     public void stop(AgentInstanceStopServices services) {
-                        for (int i = 0; i < queryPlan.getIndexDescs().length; i++) {
-                            boolean last = namedWindow.getEventTableIndexMetadata().removeIndexReference(queryPlan.getIndexDescs()[i].getIndexMultiKey(), agentInstanceContext.getDeploymentId());
-                            if (last) {
-                                namedWindow.getEventTableIndexMetadata().removeIndex(queryPlan.getIndexDescs()[i].getIndexMultiKey());
-                                namedWindow.removeAllInstanceIndexes(queryPlan.getIndexDescs()[i].getIndexMultiKey());
+                        if (services.getAgentInstanceContext().getContextName() == null) {
+                            for (int i = 0; i < queryPlan.getIndexDescs().length; i++) {
+                                boolean last = namedWindow.getEventTableIndexMetadata().removeIndexReference(queryPlan.getIndexDescs()[i].getIndexMultiKey(), agentInstanceContext.getDeploymentId());
+                                if (last) {
+                                    namedWindow.getEventTableIndexMetadata().removeIndex(queryPlan.getIndexDescs()[i].getIndexMultiKey());
+                                    namedWindow.removeAllInstanceIndexes(queryPlan.getIndexDescs()[i].getIndexMultiKey());
+                                }
+                            }
+                        } else {
+                            for (int i = 0; i < queryPlan.getIndexDescs().length; i++) {
+                                namedWindow.removeIndexInstance(queryPlan.getIndexDescs()[i].getIndexMultiKey(), services.getAgentInstanceContext().getAgentInstanceId());
                             }
                         }
                     }
