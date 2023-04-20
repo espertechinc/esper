@@ -132,7 +132,9 @@ public class VariableUtil {
 
             if (variableEventType == null && optionalServices != null) {
                 variableEventType = optionalServices.getEventTypeCompileTimeResolver().getTypeByName(variableTypeWArray.getClassIdentifier());
-                serdeForgeables = SerdeEventTypeUtility.plan(variableEventType, optionalRaw, optionalServices.getSerdeEventTypeRegistry(), optionalServices.getSerdeResolver(), optionalServices.getStateMgmtSettingsProvider());
+                if (variableEventType != null) {
+                    serdeForgeables = SerdeEventTypeUtility.plan(variableEventType, optionalRaw, optionalServices.getSerdeEventTypeRegistry(), optionalServices.getSerdeResolver(), optionalServices.getStateMgmtSettingsProvider());
+                }
             }
 
             if (variableEventType != null) {
