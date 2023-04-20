@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -55,8 +56,7 @@ public class PatternOperatorFollowedByMax {
 
     private static class PatternMultiple implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            SupportConditionHandlerFactory.SupportConditionHandler handler = SupportConditionHandlerFactory.getLastHandler();
-
+            AtomicInteger milestone = new AtomicInteger();
             String expression = "@name('s0') select a.id as a, b.id as b, c.id as c from pattern [" +
                 "every a=SupportBean_A -[2]> b=SupportBean_B -[3]> c=SupportBean_C]";
             env.compileDeploy(expression).addListener("s0");
@@ -65,17 +65,27 @@ public class PatternOperatorFollowedByMax {
 
             env.sendEventBean(new SupportBean_A("A1"));
             env.sendEventBean(new SupportBean_A("A2"));
+
+            env.milestoneInc(milestone);
+
             env.sendEventBean(new SupportBean_B("B1"));
 
             env.sendEventBean(new SupportBean_A("A3"));
+
+            env.milestoneInc(milestone);
+
             env.sendEventBean(new SupportBean_A("A4"));
-            assertTrue(handler.getContexts().isEmpty());
+            assertTrue(SupportConditionHandlerFactory.getLastHandler().getContexts().isEmpty());
+
+            env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean_B("B2"));
-            assertContext(env, handler.getContexts(), 3);
+            assertContext(env, SupportConditionHandlerFactory.getLastHandler().getContexts(), 3);
+
+            env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean_C("C1"));
-            assertTrue(handler.getContexts().isEmpty());
+            assertTrue(SupportConditionHandlerFactory.getLastHandler().getContexts().isEmpty());
             env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A1", "B1", "C1"}, {"A2", "B1", "C1"}, {"A3", "B2", "C1"}});
 
             env.undeployAll();
@@ -88,38 +98,42 @@ public class PatternOperatorFollowedByMax {
 
     private static class PatternMixed implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            SupportConditionHandlerFactory.SupportConditionHandler handler = SupportConditionHandlerFactory.getLastHandler();
-
+            AtomicInteger milestone = new AtomicInteger();
             String expression = "@name('s0') select a.id as a, b.id as b, c.id as c from pattern [" +
                 "every a=SupportBean_A -> b=SupportBean_B -[2]> c=SupportBean_C]";
             env.compileDeploy(expression).addListener("s0");
 
-            tryAssertionMixed(env, handler);
+            tryAssertionMixed(env, milestone);
 
             // test SODA
             env.undeployAll();
 
             env.eplToModelCompileDeploy(expression).addListener("s0");
 
-            tryAssertionMixed(env, handler);
+            tryAssertionMixed(env, milestone);
 
             env.undeployAll();
         }
 
-        private void tryAssertionMixed(RegressionEnvironment env, SupportConditionHandlerFactory.SupportConditionHandler handler) {
+        private void tryAssertionMixed(RegressionEnvironment env, AtomicInteger milestone) {
 
             String[] fields = new String[]{"a", "b", "c"};
 
             env.sendEventBean(new SupportBean_A("A1"));
             env.sendEventBean(new SupportBean_A("A2"));
+
+            env.milestoneInc(milestone);
+
             env.sendEventBean(new SupportBean_A("A3"));
 
-            handler.getContexts().clear();
+            SupportConditionHandlerFactory.getLastHandler().getContexts().clear();
             env.sendEventBean(new SupportBean_B("B1"));
-            assertContext(env, handler.getContexts(), 2);
+            assertContext(env, SupportConditionHandlerFactory.getLastHandler().getContexts(), 2);
+
+            env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean_C("C1"));
-            assertTrue(handler.getContexts().isEmpty());
+            assertTrue(SupportConditionHandlerFactory.getLastHandler().getContexts().isEmpty());
             env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A1", "B1", "C1"}, {"A2", "B1", "C1"}});
         }
 
@@ -130,11 +144,11 @@ public class PatternOperatorFollowedByMax {
 
     private static class PatternSinglePermFalseAndQuit implements RegressionExecution {
         public void run(RegressionEnvironment env) {
+            AtomicInteger milestone = new AtomicInteger();
             env.advanceTime(0);
             ConditionHandlerFactoryContext context = SupportConditionHandlerFactory.getFactoryContexts().get(0);
             assertEquals("default", context.getRuntimeURI());
-            SupportConditionHandlerFactory.SupportConditionHandler handler = SupportConditionHandlerFactory.getLastHandler();
-            handler.getAndResetContexts();
+            SupportConditionHandlerFactory.getLastHandler().getAndResetContexts();
 
             // not-operator
             String expression = "@name('s0') select a.id as a, b.id as b from pattern [every a=SupportBean_A -[2]> (b=SupportBean_B and not SupportBean_C)]";
@@ -148,13 +162,15 @@ public class PatternOperatorFollowedByMax {
             env.sendEventBean(new SupportBean_A("A3"));
             env.sendEventBean(new SupportBean_A("A4"));
             env.sendEventBean(new SupportBean_B("B1"));
-            assertTrue(handler.getContexts().isEmpty());
+            assertTrue(SupportConditionHandlerFactory.getLastHandler().getContexts().isEmpty());
             env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A3", "B1"}, {"A4", "B1"}});
+
+            env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean_A("A5"));
             env.sendEventBean(new SupportBean_A("A6"));
             env.sendEventBean(new SupportBean_A("A7"));
-            assertContext(env, handler.getContexts(), 2);
+            assertContext(env, SupportConditionHandlerFactory.getLastHandler().getContexts(), 2);
             env.undeployAll();
 
             // guard
@@ -164,18 +180,20 @@ public class PatternOperatorFollowedByMax {
             env.sendEventBean(new SupportBean_A("A1"));
             env.sendEventBean(new SupportBean_A("A2"));
             env.advanceTime(2000); // expires sub-expressions
-            assertTrue(handler.getContexts().isEmpty());
+            assertTrue(SupportConditionHandlerFactory.getLastHandler().getContexts().isEmpty());
 
             env.sendEventBean(new SupportBean_A("A3"));
             env.sendEventBean(new SupportBean_A("A4"));
             env.sendEventBean(new SupportBean_B("B1"));
-            assertTrue(handler.getContexts().isEmpty());
+            assertTrue(SupportConditionHandlerFactory.getLastHandler().getContexts().isEmpty());
             env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A3", "B1"}, {"A4", "B1"}});
+
+            env.milestoneInc(milestone);
 
             env.sendEventBean(new SupportBean_A("A5"));
             env.sendEventBean(new SupportBean_A("A6"));
             env.sendEventBean(new SupportBean_A("A7"));
-            assertContext(env, handler.getContexts(), 2);
+            assertContext(env, SupportConditionHandlerFactory.getLastHandler().getContexts(), 2);
 
             env.undeployAll();
 
@@ -194,6 +212,8 @@ public class PatternOperatorFollowedByMax {
 
             env.sendEventBean(new SupportBean_C("1"));
 
+            env.milestoneInc(milestone);
+
             env.sendEventBean(new SupportBean_A("3"));
             env.sendEventBean(new SupportBean_B("3"));
             env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"3", "3"}});
@@ -210,16 +230,15 @@ public class PatternOperatorFollowedByMax {
         public void run(RegressionEnvironment env) {
             ConditionHandlerFactoryContext context = SupportConditionHandlerFactory.getFactoryContexts().get(0);
             assertEquals(env.runtimeURI(), context.getRuntimeURI());
-            SupportConditionHandlerFactory.SupportConditionHandler handler = SupportConditionHandlerFactory.getLastHandler();
 
             String expression = "@name('s0') select a.id as a, b.id as b from pattern [every a=SupportBean_A -[2]> b=SupportBean_B]";
             env.compileDeploy(expression).addListener("s0");
-            runAssertionSingleMaxSimple(env, handler);
+            runAssertionSingleMaxSimple(env);
             env.undeployAll();
 
             // test SODA
             env.eplToModelCompileDeploy(expression).addListener("s0");
-            runAssertionSingleMaxSimple(env, handler);
+            runAssertionSingleMaxSimple(env);
             env.undeployAll();
 
             // test variable
@@ -227,7 +246,7 @@ public class PatternOperatorFollowedByMax {
             env.compileDeploy("@public create variable int myvar=3", path);
             expression = "@name('s0') select a.id as a, b.id as b from pattern [every a=SupportBean_A -[myvar-1]> b=SupportBean_B]";
             env.compileDeploy(expression, path).addListener("s0");
-            runAssertionSingleMaxSimple(env, handler);
+            runAssertionSingleMaxSimple(env);
 
             env.undeployAll();
         }
@@ -237,16 +256,16 @@ public class PatternOperatorFollowedByMax {
         }
     }
 
-    private static void runAssertionSingleMaxSimple(RegressionEnvironment env, SupportConditionHandlerFactory.SupportConditionHandler handler) {
+    private static void runAssertionSingleMaxSimple(RegressionEnvironment env) {
 
         String[] fields = new String[]{"a", "b"};
 
         env.sendEventBean(new SupportBean_A("A1"));
         env.sendEventBean(new SupportBean_A("A2"));
 
-        handler.getContexts().clear();
+        SupportConditionHandlerFactory.getLastHandler().getContexts().clear();
         env.sendEventBean(new SupportBean_A("A3"));
-        assertContext(env, handler.getContexts(), 2);
+        assertContext(env, SupportConditionHandlerFactory.getLastHandler().getContexts(), 2);
 
         env.sendEventBean(new SupportBean_B("B1"));
         env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A1", "B1"}, {"A2", "B1"}});
@@ -254,12 +273,12 @@ public class PatternOperatorFollowedByMax {
         env.sendEventBean(new SupportBean_A("A4"));
         env.sendEventBean(new SupportBean_B("B2"));
         env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A4", "B2"}});
-        assertTrue(handler.getContexts().isEmpty());
+        assertTrue(SupportConditionHandlerFactory.getLastHandler().getContexts().isEmpty());
 
         for (int i = 5; i < 9; i++) {
             env.sendEventBean(new SupportBean_A("A" + i));
             if (i >= 7) {
-                assertContext(env, handler.getContexts(), 2);
+                assertContext(env, SupportConditionHandlerFactory.getLastHandler().getContexts(), 2);
             }
         }
 
@@ -273,7 +292,7 @@ public class PatternOperatorFollowedByMax {
         env.sendEventBean(new SupportBean_A("A21"));
         env.sendEventBean(new SupportBean_B("B5"));
         env.assertPropsPerRowLastNew("s0", fields, new Object[][]{{"A20", "B5"}, {"A21", "B5"}});
-        assertTrue(handler.getContexts().isEmpty());
+        assertTrue(SupportConditionHandlerFactory.getLastHandler().getContexts().isEmpty());
     }
 
     private static void assertContext(RegressionEnvironment env, List<ConditionHandlerContext> contexts, int max) {

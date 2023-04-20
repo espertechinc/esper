@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class PatternSubexpressionPoolRuntimeSvcImpl implements PatternSubexpressionPoolRuntimeSvc {
     private static final Logger log = LoggerFactory.getLogger(PatternSubexpressionPoolRuntimeSvc.class);
 
-    private volatile long maxPoolCountConfigured;
+    private final long maxPoolCountConfigured;
     private final boolean preventStart;
     private final AtomicLong poolCount;
     private final Set<StatementEntry> patternContexts;

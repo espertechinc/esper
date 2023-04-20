@@ -57,7 +57,6 @@ import com.espertech.esper.common.internal.epl.namedwindow.core.NamedWindowManag
 import com.espertech.esper.common.internal.epl.namedwindow.path.NamedWindowMetaData;
 import com.espertech.esper.common.internal.epl.pattern.core.PatternFactoryService;
 import com.espertech.esper.common.internal.epl.pattern.pool.PatternSubexpressionPoolRuntimeSvc;
-import com.espertech.esper.common.internal.epl.pattern.pool.PatternSubexpressionPoolRuntimeSvcImpl;
 import com.espertech.esper.common.internal.epl.pattern.pool.PatternSubexpressionPoolRuntimeSvcNoOp;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.common.internal.epl.rowrecog.state.RowRecogStatePoolRuntimeSvc;
@@ -193,6 +192,8 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
 
     protected abstract StageRecoveryService makeStageRecoveryService(EPServicesHA epServicesHA);
 
+    protected abstract PatternSubexpressionPoolRuntimeSvc makePatternSubexpressionPoolSvc(long maxSubexpressions, boolean maxSubexpressionPreventStart, RuntimeExtensionServices runtimeExtensionServices);
+
     public EPServicesContext createServicesContext(EPRuntimeSPI epRuntime, Configuration configs, EPRuntimeOptions options) {
 
         RuntimeEnvContext runtimeEnvContext = new RuntimeEnvContext();
@@ -309,8 +310,8 @@ public abstract class EPServicesContextFactoryBase implements EPServicesContextF
 
         PatternSubexpressionPoolRuntimeSvc patternSubexpressionPoolSvc;
         if (configs.getRuntime().getPatterns().getMaxSubexpressions() != null) {
-            patternSubexpressionPoolSvc = new PatternSubexpressionPoolRuntimeSvcImpl(configs.getRuntime().getPatterns().getMaxSubexpressions(),
-                    configs.getRuntime().getPatterns().isMaxSubexpressionPreventStart());
+            patternSubexpressionPoolSvc = makePatternSubexpressionPoolSvc(configs.getRuntime().getPatterns().getMaxSubexpressions(),
+                configs.getRuntime().getPatterns().isMaxSubexpressionPreventStart(), epServicesHA.getRuntimeExtensionServices());
         } else {
             patternSubexpressionPoolSvc = PatternSubexpressionPoolRuntimeSvcNoOp.INSTANCE;
         }

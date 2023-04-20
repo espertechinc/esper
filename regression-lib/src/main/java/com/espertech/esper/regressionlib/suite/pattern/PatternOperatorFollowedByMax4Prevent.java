@@ -26,6 +26,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -38,13 +39,13 @@ public class PatternOperatorFollowedByMax4Prevent implements RegressionExecution
     public void run(RegressionEnvironment env) {
         ConditionHandlerFactoryContext context = SupportConditionHandlerFactory.getFactoryContexts().get(0);
         assertEquals(env.runtimeURI(), context.getRuntimeURI());
-        SupportConditionHandlerFactory.SupportConditionHandler handler = SupportConditionHandlerFactory.getLastHandler();
 
-        runAssertionFollowedWithMax(env, handler);
-        runAssertionTwoStatementsAndStopDestroy(env, handler);
+        AtomicInteger milestone = new AtomicInteger();
+        runAssertionFollowedWithMax(env, milestone);
+        runAssertionTwoStatementsAndStopDestroy(env, milestone);
     }
 
-    private static void runAssertionFollowedWithMax(RegressionEnvironment env, SupportConditionHandlerFactory.SupportConditionHandler handler) {
+    private static void runAssertionFollowedWithMax(RegressionEnvironment env, AtomicInteger milestone) {
         String expressionOne = "@Name('S1') select * from pattern [every a=SupportBean(theString like 'A%') -[2]> b=SupportBean_A(id=a.theString)]";
         env.compileDeploy(expressionOne).addListener("S1");
 
@@ -54,36 +55,48 @@ public class PatternOperatorFollowedByMax4Prevent implements RegressionExecution
         env.sendEventBean(new SupportBean("A1", 0));
         env.sendEventBean(new SupportBean("A2", 0));
         env.sendEventBean(new SupportBean("B1", 0));
-        assertTrue(handler.getContexts().isEmpty());
+        assertTrue(SupportConditionHandlerFactory.getLastHandler().getContexts().isEmpty());
+
+        env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("A3", 0));
-        assertContextStatement(env, env.statement("S1"), handler.getAndResetContexts(), 2);
+        assertContextStatement(env, env.statement("S1"), SupportConditionHandlerFactory.getLastHandler().getAndResetContexts(), 2);
+
+        env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("B2", 0));
-        assertTrue(handler.getContexts().isEmpty());
+        assertTrue(SupportConditionHandlerFactory.getLastHandler().getContexts().isEmpty());
+
+        env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("B3", 0));
-        assertContextEnginePool(env, env.statement("S2"), handler.getAndResetContexts(), 4, getExpectedCountMap("S1", 2, "S2", 2));
+        assertContextEnginePool(env, env.statement("S2"), SupportConditionHandlerFactory.getLastHandler().getAndResetContexts(), 4, getExpectedCountMap("S1", 2, "S2", 2));
+
+        env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean_A("A2"));
         env.sendEventBean(new SupportBean("B4", 0));   // now A1, B1, B2, B4
-        assertTrue(handler.getContexts().isEmpty());
+        assertTrue(SupportConditionHandlerFactory.getLastHandler().getContexts().isEmpty());
+
+        env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("A3", 0));
-        assertContextEnginePool(env, env.statement("S1"), handler.getAndResetContexts(), 4, getExpectedCountMap("S1", 1, "S2", 3));
+        assertContextEnginePool(env, env.statement("S1"), SupportConditionHandlerFactory.getLastHandler().getAndResetContexts(), 4, getExpectedCountMap("S1", 1, "S2", 3));
 
         env.undeployModuleContaining("S1");
 
+        env.milestoneInc(milestone);
+
         env.sendEventBean(new SupportBean("B4", 0));
-        assertTrue(handler.getContexts().isEmpty());
+        assertTrue(SupportConditionHandlerFactory.getLastHandler().getContexts().isEmpty());
 
         env.sendEventBean(new SupportBean("B5", 0));
-        assertContextEnginePool(env, env.statement("S2"), handler.getAndResetContexts(), 4, getExpectedCountMap("S2", 4));
+        assertContextEnginePool(env, env.statement("S2"), SupportConditionHandlerFactory.getLastHandler().getAndResetContexts(), 4, getExpectedCountMap("S2", 4));
 
         env.undeployAll();
     }
 
-    private static void runAssertionTwoStatementsAndStopDestroy(RegressionEnvironment env, SupportConditionHandlerFactory.SupportConditionHandler handler) {
+    private static void runAssertionTwoStatementsAndStopDestroy(RegressionEnvironment env, AtomicInteger milestone) {
         String expressionOne = "@Name('S1') select * from pattern [every a=SupportBean(theString like 'A%') -> b=SupportBean_A(id=a.theString)]";
         env.compileDeploy(expressionOne).addListener("S1");
 
@@ -92,32 +105,39 @@ public class PatternOperatorFollowedByMax4Prevent implements RegressionExecution
 
         env.sendEventBean(new SupportBean("A1", 0));
         env.sendEventBean(new SupportBean("A2", 0));
+
+        env.milestoneInc(milestone);
+
         env.sendEventBean(new SupportBean("A3", 0));
         env.sendEventBean(new SupportBean("B1", 0));
-        assertTrue(handler.getContexts().isEmpty());
+        assertTrue(SupportConditionHandlerFactory.getLastHandler().getContexts().isEmpty());
+
+        env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("B2", 0));
-        assertContextEnginePool(env, env.statement("S2"), handler.getAndResetContexts(), 4, getExpectedCountMap("S1", 3, "S2", 1));
+        assertContextEnginePool(env, env.statement("S2"), SupportConditionHandlerFactory.getLastHandler().getAndResetContexts(), 4, getExpectedCountMap("S1", 3, "S2", 1));
 
-        handler = SupportConditionHandlerFactory.getLastHandler();
+        env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("A4", 0));
-        assertContextEnginePool(env, env.statement("S1"), handler.getAndResetContexts(), 4, getExpectedCountMap("S1", 3, "S2", 1));
+        assertContextEnginePool(env, env.statement("S1"), SupportConditionHandlerFactory.getLastHandler().getAndResetContexts(), 4, getExpectedCountMap("S1", 3, "S2", 1));
+
+        env.milestoneInc(milestone);
 
         env.undeployModuleContaining("S1");
 
         env.sendEventBean(new SupportBean("B3", 0));
         env.sendEventBean(new SupportBean("B4", 0));
         env.sendEventBean(new SupportBean("B5", 0));
-        assertTrue(handler.getContexts().isEmpty());
+        assertTrue(SupportConditionHandlerFactory.getLastHandler().getContexts().isEmpty());
 
-        handler = SupportConditionHandlerFactory.getLastHandler();
+        env.milestoneInc(milestone);
 
         env.sendEventBean(new SupportBean("B6", 0));
-        assertContextEnginePool(env, env.statement("S2"), handler.getAndResetContexts(), 4, getExpectedCountMap("S2", 4));
+        assertContextEnginePool(env, env.statement("S2"), SupportConditionHandlerFactory.getLastHandler().getAndResetContexts(), 4, getExpectedCountMap("S2", 4));
 
         env.sendEventBean(new SupportBean("B7", 0));
-        assertContextEnginePool(env, env.statement("S2"), handler.getAndResetContexts(), 4, getExpectedCountMap("S2", 4));
+        assertContextEnginePool(env, env.statement("S2"), SupportConditionHandlerFactory.getLastHandler().getAndResetContexts(), 4, getExpectedCountMap("S2", 4));
 
         env.undeployAll();
     }

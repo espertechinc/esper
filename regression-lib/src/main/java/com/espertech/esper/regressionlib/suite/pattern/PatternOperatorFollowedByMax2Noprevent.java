@@ -26,21 +26,23 @@ import static com.espertech.esper.regressionlib.suite.pattern.PatternOperatorFol
 public class PatternOperatorFollowedByMax2Noprevent implements RegressionExecution {
 
     public void run(RegressionEnvironment env) {
-        SupportConditionHandlerFactory.SupportConditionHandler handler = SupportConditionHandlerFactory.getLastHandler();
-
         String expression = "@Name('A') select a.id as a, b.id as b from pattern [every a=SupportBean_A -> b=SupportBean_B]";
         env.compileDeploy(expression).addListener("A");
 
         env.sendEventBean(new SupportBean_A("A1"));
         env.sendEventBean(new SupportBean_A("A2"));
 
-        handler.getContexts().clear();
-        env.sendEventBean(new SupportBean_A("A3"));
-        assertContextEnginePool(env, env.statement("A"), handler.getContexts(), 2, getExpectedCountMap("A", 2));
+        env.milestone(0);
 
-        handler.getContexts().clear();
+        SupportConditionHandlerFactory.getLastHandler().getContexts().clear();
+        env.sendEventBean(new SupportBean_A("A3"));
+        assertContextEnginePool(env, env.statement("A"), SupportConditionHandlerFactory.getLastHandler().getContexts(), 2, getExpectedCountMap("A", 2));
+
+        env.milestone(1);
+
+        SupportConditionHandlerFactory.getLastHandler().getContexts().clear();
         env.sendEventBean(new SupportBean_A("A4"));
-        assertContextEnginePool(env, env.statement("A"), handler.getContexts(), 2, getExpectedCountMap("A", 3));
+        assertContextEnginePool(env, env.statement("A"), SupportConditionHandlerFactory.getLastHandler().getContexts(), 2, getExpectedCountMap("A", 3));
 
         String[] fields = new String[]{"a", "b"};
         env.sendEventBean(new SupportBean_B("B1"));

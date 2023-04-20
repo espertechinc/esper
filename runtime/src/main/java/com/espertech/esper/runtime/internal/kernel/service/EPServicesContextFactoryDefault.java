@@ -32,6 +32,8 @@ import com.espertech.esper.common.internal.epl.namedwindow.consume.*;
 import com.espertech.esper.common.internal.epl.namedwindow.core.NamedWindowManagementService;
 import com.espertech.esper.common.internal.epl.pattern.core.PatternFactoryService;
 import com.espertech.esper.common.internal.epl.pattern.core.PatternFactoryServiceImpl;
+import com.espertech.esper.common.internal.epl.pattern.pool.PatternSubexpressionPoolRuntimeSvc;
+import com.espertech.esper.common.internal.epl.pattern.pool.PatternSubexpressionPoolRuntimeSvcImpl;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.common.internal.epl.resultset.core.ResultSetProcessorHelperFactoryDefault;
 import com.espertech.esper.common.internal.epl.rowrecog.state.RowRecogStateRepoFactory;
@@ -229,6 +231,10 @@ public class EPServicesContextFactoryDefault extends EPServicesContextFactoryBas
 
     protected StageRecoveryService makeStageRecoveryService(EPServicesHA epServicesHA) {
         return StageRecoveryServiceImpl.INSTANCE;
+    }
+
+    protected PatternSubexpressionPoolRuntimeSvc makePatternSubexpressionPoolSvc(long maxSubexpressions, boolean maxSubexpressionPreventStart, RuntimeExtensionServices runtimeExtensionServices) {
+        return new PatternSubexpressionPoolRuntimeSvcImpl(maxSubexpressions, maxSubexpressionPreventStart);
     }
 }
 
