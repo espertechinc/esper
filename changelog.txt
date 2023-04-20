@@ -6,6 +6,7 @@ Changes in version 8.9.0
   - The following dependent jar files are upgraded:
     - SLF4J is now 1.7.36 (slf4j-api-1.7.36.jar, previously at slf4j-api-1.7.30.jar; optionally use with Reload4J by adding slf4j-reload4j-1.7.36.jar)
     - Janino is now 3.1.9 (commons-compiler-3.1.9.jar and janino-3.1.9.jar, previously *3.1.6.jar)  
+    - For use of XML with XML-Schema (XSD): xercesImpl is now version 2.12.2
   - Reload4J replaces Log4J 1.2 and is now the default log library; Esper still only depends on SLF4J so applications can use any logging library
     - The distribution now ships with reload4j-1.2.19.jar and slf4j-reload4j-1.7.36.jar (removed are reload4j-1.2.19.jar and slf4j-log4j12-1.7.30.jar)
     
