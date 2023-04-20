@@ -24,6 +24,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -87,9 +90,10 @@ public class JaninoCompiler {
             UnitCompiler unitCompiler = new UnitCompiler(
                 new Parser(scanner).parseAbstractCompilationUnit(),
                 new ClassLoaderIClassLoader(cl));
-            ClassFile[] classFiles = unitCompiler.compileUnit(true, true, true);
-            for (int i = 0; i < classFiles.length; i++) {
-                output.put(classFiles[i].getThisClassName(), classFiles[i].toByteArray());
+            Collection<ClassFile> classFiles = new ArrayList<>(4);
+            unitCompiler.compileUnit(true, true, true, classFiles);
+            for (ClassFile cf : classFiles) {
+                output.put(cf.getThisClassName(), cf.toByteArray());
             }
             if (compileResultConsumer != null) {
                 compileResultConsumer.accept(classFiles);

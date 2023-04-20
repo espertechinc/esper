@@ -111,7 +111,7 @@ public class CompilerHelperSingleEPL {
         Consumer<Object> classFileConsumer = null;
         if (option != null) {
             classFileConsumer = compilerResult -> {
-                ClassFile[] files = (ClassFile[]) compilerResult;
+                ClassFile[] files = ((List<ClassFile>) compilerResult).toArray(new ClassFile[0]);
                 option.visit(new InlinedClassInspectionContext(files));
             };
         }

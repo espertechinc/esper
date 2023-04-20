@@ -24,7 +24,7 @@
 		<slf4j-api.version>1.7.36</slf4j-api.version>				<!-- Required by compiler and runtime -->
 
 		<antlr4-runtime.version>4.9.3</antlr4-runtime.version>			<!-- Required by compiler only -->
-		<janino.version>3.1.6</janino.version>					<!-- Required by compiler only -->
+		<janino.version>3.1.9</janino.version>					<!-- Required by compiler only -->
 
 		<reload4j.version>1.2.19</reload4j.version>					<!-- Optional -->
 
