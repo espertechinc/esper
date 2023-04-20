@@ -16,6 +16,8 @@ import com.espertech.esper.common.client.type.EPType;
  * Represents a constant in an expressiun tree.
  */
 public interface ExprConstantNode extends ExprNode {
+    boolean constantAvailable();
+
     EPType getConstantType();
 
     Object getConstantValue();

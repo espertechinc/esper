@@ -69,7 +69,19 @@ public class ExprDefineBasic {
         execs.add(new ExprDefineEventTypeAndSODA());
         execs.add(new ExprDefineInvalid());
         execs.add(new ExprDefineSplitStream());
+        execs.add(new ExprDefineStaticMethodSingleParam());
         return execs;
+    }
+
+    private static class ExprDefineStaticMethodSingleParam implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create expression id { e -> e };" +
+                "@name('s0') select String.valueOf(id(1)) as c0 from SupportBean;";
+            env.compileDeploy(epl).addListener("s0");
+            env.sendEventBean(new SupportBean());
+            env.assertEqualsNew("s0", "c0", "1");
+            env.undeployAll();
+        }
     }
 
     private static class ExprDefineExpressionSimpleSameStmt implements RegressionExecution {

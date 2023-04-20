@@ -113,6 +113,10 @@ public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNo
         return this;
     }
 
+    public boolean constantAvailable() {
+        return true;
+    }
+
     public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         return new InstrumentationBuilderExpr(this.getClass(), this, "ExprConst", requiredType, codegenMethodScope, exprSymbol, codegenClassScope).noqparam().build();
     }

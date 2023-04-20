@@ -98,6 +98,10 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         return forge != null;
     }
 
+    public boolean constantAvailable() {
+        return forge != null;
+    }
+
     public EPType getConstantType() {
         checkValidated(forge);
         return forge.getEvaluationType();

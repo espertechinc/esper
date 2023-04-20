@@ -544,6 +544,9 @@ public class ChainableWalkHelper {
             return false;
         }
         ExprConstantNode constantNode = (ExprConstantNode) node;
+        if (!constantNode.constantAvailable()) {
+            return false;
+        }
         EPType type = constantNode.getConstantType();
         if (type == null || type == EPTypeNull.INSTANCE) {
             return expected == null;
