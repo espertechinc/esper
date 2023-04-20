@@ -127,6 +127,7 @@ public class TestSuiteExprDateTime extends TestCase {
         }) {
             configuration.getCommon().addEventType(clazz);
         }
+        configuration.getCommon().getEventMeta().getAvroSettings().setEnableAvro(true);
 
         Map<String, Object> meta = new HashMap<>();
         meta.put("timeTaken", Date.class);

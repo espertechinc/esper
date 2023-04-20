@@ -29,6 +29,7 @@ public class TestSuiteEventAvroWConfig extends TestCase {
     public void testEventAvroHook() {
         RegressionSession session = RegressionRunner.session();
 
+        session.getConfiguration().getCommon().getEventMeta().getAvroSettings().setEnableAvro(true);
         for (Class clazz : new Class[]{SupportBean.class, SupportBean_S0.class, SupportEventWithLocalDateTime.class, SupportEventWithZonedDateTime.class}) {
             session.getConfiguration().getCommon().addEventType(clazz);
         }

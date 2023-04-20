@@ -126,6 +126,7 @@ public class TestSuiteClientRuntime extends TestCase {
             .name("ident").type().stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString().noDefault()
             .endRecord();
         configuration.getCommon().addEventTypeAvro(ClientRuntimeListener.AVRO_TYPENAME, new ConfigurationCommonEventTypeAvro(avroSchema));
+        configuration.getCommon().getEventMeta().getAvroSettings().setEnableAvro(true);
 
         configuration.getCommon().addImport(MyAnnotationValueEnum.class);
         configuration.getCommon().addImport(MyAnnotationNestableValues.class.getPackage().getName() + ".*");

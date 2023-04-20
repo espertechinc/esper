@@ -204,6 +204,7 @@ public class TestSuiteEventInfra extends TestCase {
             configuration.getCommon().addEventType(clazz);
         }
 
+        configuration.getCommon().getEventMeta().getAvroSettings().setEnableAvro(true);
         configureRenderTypes(configuration);
         configureSenderTypes(configuration);
         configureDynamicNonSimpleTypes(configuration);

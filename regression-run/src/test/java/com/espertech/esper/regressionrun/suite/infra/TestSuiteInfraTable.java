@@ -218,6 +218,7 @@ public class TestSuiteInfraTable extends TestCase {
             SupportEventWithManyArray.class, SupportEventWithManyArray.class, SupportEventWithIntArray.class}) {
             configuration.getCommon().addEventType(clazz);
         }
+        configuration.getCommon().getEventMeta().getAvroSettings().setEnableAvro(true);
 
         configuration.getCompiler().addPlugInSingleRowFunction("singlerow", InfraTableInvalid.class.getName(), "mySingleRowFunction");
         configuration.getCompiler().addPlugInSingleRowFunction("pluginServiceEventBean", InfraTableSelect.class.getName(), "myServiceEventBean");

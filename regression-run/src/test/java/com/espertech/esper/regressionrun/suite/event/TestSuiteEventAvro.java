@@ -78,6 +78,7 @@ public class TestSuiteEventAvro extends TestCase {
                 "}";
         Schema schema = new Schema.Parser().parse(schemaUser);
         configuration.getCommon().addEventTypeAvro("User", new ConfigurationCommonEventTypeAvro(schema));
+        configuration.getCommon().getEventMeta().getAvroSettings().setEnableAvro(true);
 
         Schema schemaCarLocUpdateEvent = record("CarLocUpdateEvent").fields()
             .name("carId").type().stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString().noDefault()

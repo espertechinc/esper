@@ -124,6 +124,7 @@ public class TestSuiteInfraNamedWindow extends TestCase {
             SupportEventWithManyArray.class, SupportEventWithIntArray.class}) {
             configuration.getCommon().addEventType(clazz);
         }
+        configuration.getCommon().getEventMeta().getAvroSettings().setEnableAvro(true);
 
         Map<String, Object> outerMapInnerType = new HashMap<>();
         outerMapInnerType.put("key", String.class);

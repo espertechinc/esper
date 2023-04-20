@@ -116,6 +116,7 @@ public class TestSuiteContext extends TestCase {
             ISupportAImpl.class, SupportGroupSubgroupEvent.class, SupportEventWithIntArray.class}) {
             configuration.getCommon().addEventType(clazz.getSimpleName(), clazz);
         }
+        configuration.getCommon().getEventMeta().getAvroSettings().setEnableAvro(true);
 
         configuration.getCommon().addEventType(ContextDocExamples.BankTxn.class);
         configuration.getCommon().addEventType(ContextDocExamples.LoginEvent.class);

@@ -97,5 +97,6 @@ public class TestSuiteClientStage extends TestCase {
         Object[] types = {};
         configuration.getCommon().addEventType(ClientStageEventService.OA_TYPENAME, names, types);
         configuration.getCommon().addEventTypeAvro(ClientStageEventService.AVRO_TYPENAME, new ConfigurationCommonEventTypeAvro(SchemaBuilder.record(ClientStageEventService.AVRO_TYPENAME).fields().endRecord()));
+        configuration.getCommon().getEventMeta().getAvroSettings().setEnableAvro(true);
     }
 }

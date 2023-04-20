@@ -155,6 +155,7 @@ public class TestSuiteExprCore extends TestCase {
             SupportEventWithManyArray.class, SupportBeanWithArray.class, SupportBean_S0.class}) {
             configuration.getCommon().addEventType(clazz);
         }
+        configuration.getCommon().getEventMeta().getAvroSettings().setEnableAvro(true);
 
         configuration.getCommon().addEventType("MyDateType", CollectionUtil.populateNameValueMap("yyyymmdd", String.class, "yyyymmddhhmmss", String.class, "hhmmss", String.class, "yyyymmddhhmmssvv", String.class));
 

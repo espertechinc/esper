@@ -145,6 +145,7 @@ public class TestSuiteInfraNWTable extends TestCase {
             OrderBean.class, SupportEventWithIntArray.class, SupportEventWithManyArray.class}) {
             configuration.getCommon().addEventType(clazz);
         }
+        configuration.getCommon().getEventMeta().getAvroSettings().setEnableAvro(true);
 
         configuration.getCommon().getLogging().setEnableQueryPlan(true);
 

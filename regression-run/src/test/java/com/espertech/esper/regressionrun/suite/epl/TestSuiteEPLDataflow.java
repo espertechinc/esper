@@ -139,6 +139,7 @@ public class TestSuiteEPLDataflow extends TestCase {
             SupportBean_S0.class, SupportBean_S1.class, SupportBean_S2.class}) {
             configuration.getCommon().addEventType(clazz.getSimpleName(), clazz);
         }
+        configuration.getCommon().getEventMeta().getAvroSettings().setEnableAvro(true);
 
         configuration.getCommon().addEventType("MyOAEventType", "p0,p1".split(","), new Object[]{String.class, int.class});
 

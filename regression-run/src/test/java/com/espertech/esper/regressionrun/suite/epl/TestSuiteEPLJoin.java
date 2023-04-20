@@ -252,6 +252,7 @@ public class TestSuiteEPLJoin extends TestCase {
             .requiredInt("p00").endRecord();
         configuration.getCommon().addEventTypeAvro("S0_" + EventUnderlyingType.AVRO.name(), new ConfigurationCommonEventTypeAvro().setAvroSchema(schema));
         configuration.getCommon().addEventTypeAvro("S1_" + EventUnderlyingType.AVRO.name(), new ConfigurationCommonEventTypeAvro().setAvroSchema(schema));
+        configuration.getCommon().getEventMeta().getAvroSettings().setEnableAvro(true);
 
         configuration.getCompiler().addPlugInSingleRowFunction("myStaticEvaluator", EPLJoin2StreamAndPropertyPerformance.MyStaticEval.class.getName(), "myStaticEvaluator");
 

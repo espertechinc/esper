@@ -154,6 +154,7 @@ public class TestSuiteEPLOther extends TestCase {
     }
 
     private static void configure(Configuration configuration) {
+        configuration.getCommon().getEventMeta().getAvroSettings().setEnableAvro(true);
         configuration.getCommon().addEventType("ObjectEvent", Object.class);
 
         for (Class clazz : new Class[]{SupportBean.class, SupportBean_S0.class, SupportBean_S1.class,

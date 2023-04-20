@@ -67,6 +67,7 @@ public class TestSuiteEPLContained extends TestCase {
             SupportCollectionEvent.class, SupportResponseEvent.class, SupportAvroArrayEvent.class, SupportJsonArrayEvent.class}) {
             configuration.getCommon().addEventType(clazz);
         }
+        configuration.getCommon().getEventMeta().getAvroSettings().setEnableAvro(true);
 
         Map<String, Object> innerMapDef = Collections.singletonMap("p", String.class);
         configuration.getCommon().addEventType("MyInnerMap", innerMapDef);

@@ -127,6 +127,7 @@ public class TestSuiteEPLInsertInto extends TestCase {
             .name("myMap").type(map().values().stringBuilder().prop(AvroConstant.PROP_JAVA_STRING_KEY, AvroConstant.PROP_JAVA_STRING_VALUE).endString()).noDefault()
             .endRecord();
         configuration.getCommon().addEventTypeAvro("AvroExistingType", new ConfigurationCommonEventTypeAvro(avroExistingTypeSchema));
+        configuration.getCommon().getEventMeta().getAvroSettings().setEnableAvro(true);
 
         Map<String, Object> mapTypeInfo = new HashMap<>();
         mapTypeInfo.put("one", String.class);
