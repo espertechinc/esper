@@ -11,8 +11,8 @@
 		<amqp-client.version>5.17.0</amqp-client.version>
 		<activemq.version>5.15.6</activemq.version>
 		<commons.pool2.version>2.6.0</commons.pool2.version>
-		<httpcomponents.httpcore.version>4.4.12</httpcomponents.httpcore.version>
-		<httpcomponents.httpclient.version>4.5.13</httpcomponents.httpclient.version>
+		<httpcomponents.httpcore.version>4.4.16</httpcomponents.httpcore.version>
+		<httpcomponents.httpclient.version>4.5.14</httpcomponents.httpclient.version>
 		<httpcomponents.commons-logging.version>1.2</httpcomponents.commons-logging.version>
 		<kafka.clients.version>2.8.1</kafka.clients.version>
 		<kafka.lz4.version>1.7.1</kafka.lz4.version>
