@@ -46,7 +46,30 @@ public class EPLOtherSplitStream {
         execs.add(new EPLOtherSplitStream3SplitDefaultOutputFirst());
         execs.add(new EPLOtherSplitStream4Split());
         execs.add(new EPLOtherSplitStreamSubqueryMultikeyWArray());
+        execs.add(new EPLOtherSplitStreamSingleInsert());
         return execs;
+    }
+
+    public static class EPLOtherSplitStreamSingleInsert implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create context mycontext initiated by SupportBean as criteria;" +
+                "context mycontext on SupportBean_S0 as event" +
+                "  insert into SomeOtherStream select context.id as cid, context.criteria as criteria, event as event;" +
+                "@name('s0') select * from SomeOtherStream;";
+            env.compileDeploy(epl).addListener("s0");
+
+            SupportBean criteria = new SupportBean("E1", 0);
+            env.sendEventBean(criteria);
+            SupportBean_S0 trigger = new SupportBean_S0(1);
+            env.sendEventBean(trigger);
+
+            env.assertEventNew("s0", bean -> {
+                assertSame(criteria, bean.get("criteria"));
+                assertSame(trigger, bean.get("event"));
+            });
+
+            env.undeployAll();
+        }
     }
 
     private static class EPLOtherSplitStreamSubqueryMultikeyWArray implements RegressionExecution {

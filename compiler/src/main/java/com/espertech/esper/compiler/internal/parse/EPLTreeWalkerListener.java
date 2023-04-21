@@ -1328,16 +1328,17 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
                 }
 
                 // on the statement spec, the deepest spec is the outermost
-                List<OnTriggerSplitStream> splitStreams = new ArrayList<>();
-                for (int i = 1; i <= statementItemStack.size() - 1; i++) {
-                    StatementSpecRaw raw = statementItemStack.get(i).getStatementSpec();
-                    OnTriggerSplitStreamFromClause fromClause = onTriggerSplitPropertyEvals == null ? null : onTriggerSplitPropertyEvals.get(raw);
-                    splitStreams.add(new OnTriggerSplitStream(raw.getInsertIntoDesc(), raw.getSelectClauseSpec(), fromClause, raw.getWhereClause()));
-                }
-
-                OnTriggerSplitStreamFromClause fromClause = onTriggerSplitPropertyEvals == null ? null : onTriggerSplitPropertyEvals.get(statementSpec);
-                splitStreams.add(new OnTriggerSplitStream(statementSpec.getInsertIntoDesc(), statementSpec.getSelectClauseSpec(), fromClause, statementSpec.getWhereClause()));
+                List<OnTriggerSplitStream> splitStreams = Collections.emptyList();
                 if (!statementItemStack.isEmpty()) {
+                    splitStreams = new ArrayList<>(statementItemStack.size());
+                    for (int i = 1; i <= statementItemStack.size() - 1; i++) {
+                        StatementSpecRaw raw = statementItemStack.get(i).getStatementSpec();
+                        OnTriggerSplitStreamFromClause fromClause = onTriggerSplitPropertyEvals == null ? null : onTriggerSplitPropertyEvals.get(raw);
+                        splitStreams.add(new OnTriggerSplitStream(raw.getInsertIntoDesc(), raw.getSelectClauseSpec(), fromClause, raw.getWhereClause()));
+                    }
+
+                    OnTriggerSplitStreamFromClause fromClause = onTriggerSplitPropertyEvals == null ? null : onTriggerSplitPropertyEvals.get(statementSpec);
+                    splitStreams.add(new OnTriggerSplitStream(statementSpec.getInsertIntoDesc(), statementSpec.getSelectClauseSpec(), fromClause, statementSpec.getWhereClause()));
                     statementSpec = statementItemStack.get(0).getStatementSpec();
                 }
                 boolean isFirst = ctx.outputClauseInsert() == null || ctx.outputClauseInsert().ALL() == null;
