@@ -13,6 +13,7 @@ package com.espertech.esper.common.internal.epl.datetime.dtlocal;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventPropertyGetter;
 import com.espertech.esper.common.client.type.EPTypeClass;
+import com.espertech.esper.common.internal.bytecodemodel.base.CodegenBlock;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenClassScope;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethod;
 import com.espertech.esper.common.internal.bytecodemodel.base.CodegenMethodScope;
@@ -44,10 +45,12 @@ public class DTLocalBeanIntervalNoEndTSEval implements DTLocalEvaluator {
     public static CodegenExpression codegen(DTLocalBeanIntervalNoEndTSForge forge, CodegenExpression inner, EPTypeClass innerType, CodegenMethodScope codegenMethodScope, ExprForgeCodegenSymbol exprSymbol, CodegenClassScope codegenClassScope) {
         CodegenMethod methodNode = codegenMethodScope.makeChild(forge.returnType, DTLocalBeanIntervalNoEndTSEval.class, codegenClassScope).addParam(EventBean.EPTYPE, "target");
 
-        methodNode.getBlock()
-                .declareVar(forge.getterResultType, "timestamp", CodegenLegoCast.castSafeFromObjectType(forge.getterResultType, forge.getter.eventBeanGetCodegen(ref("target"), methodNode, codegenClassScope)))
-                .ifRefNullReturnNull("timestamp")
-                .methodReturn(forge.inner.codegen(ref("timestamp"), forge.getterResultType, methodNode, exprSymbol, codegenClassScope));
+        CodegenBlock block = methodNode.getBlock();
+        block.declareVar(forge.getterResultType, "timestamp", CodegenLegoCast.castSafeFromObjectType(forge.getterResultType, forge.getter.eventBeanGetCodegen(ref("target"), methodNode, codegenClassScope)));
+        if (!forge.getterResultType.getType().isPrimitive()) {
+            block.ifRefNullReturnNull("timestamp");
+        }
+        block.methodReturn(forge.inner.codegen(ref("timestamp"), forge.getterResultType, methodNode, exprSymbol, codegenClassScope));
         return localMethod(methodNode, inner);
     }
 }
