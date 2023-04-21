@@ -199,7 +199,7 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
     }
 
     public EventBean[] snapshotUpdate(QueryGraph filterQueryGraph, ExprEvaluator optionalWhereClause, EventBeanUpdateHelperWCopy updateHelper, Annotation[] annotations) {
-        agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock().acquireReadLock();
+        agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock().acquireWriteLock();
         try {
             Collection<EventBean> events = snapshotNoLockWithFilter(filterQueryGraph, annotations, optionalWhereClause, agentInstanceContext);
             if (events.isEmpty()) {
@@ -218,12 +218,12 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
             return updated;
         } finally {
             releaseTableLocks(agentInstanceContext);
-            agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock().releaseReadLock();
+            agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock().releaseWriteLock();
         }
     }
 
     public EventBean[] snapshotDelete(QueryGraph filterQueryGraph, ExprEvaluator filterExpr, Annotation[] annotations) {
-        agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock().acquireReadLock();
+        agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock().acquireWriteLock();
         try {
             Collection<EventBean> events = snapshotNoLockWithFilter(filterQueryGraph, annotations, filterExpr, agentInstanceContext);
             if (events.isEmpty()) {
@@ -234,7 +234,7 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
             return eventsDeleted;
         } finally {
             releaseTableLocks(agentInstanceContext);
-            agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock().releaseReadLock();
+            agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock().releaseWriteLock();
         }
     }
 

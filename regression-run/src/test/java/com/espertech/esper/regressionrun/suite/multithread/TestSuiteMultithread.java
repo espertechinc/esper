@@ -26,8 +26,6 @@ import com.espertech.esper.regressionrun.runner.RegressionRunner;
 import com.espertech.esper.regressionrun.runner.RegressionSession;
 import junit.framework.TestCase;
 
-import java.util.Properties;
-
 public class TestSuiteMultithread extends TestCase {
     private RegressionSession session;
 
@@ -135,6 +133,10 @@ public class TestSuiteMultithread extends TestCase {
 
     public void testMultithreadStmtNamedWindowFAF() {
         RegressionRunner.run(session, new MultithreadStmtNamedWindowFAF());
+    }
+
+    public void testMultithreadStmtNamedWindowFAFDelete() {
+        RegressionRunner.run(session, new MultithreadStmtNamedWindowFAFDelete());
     }
 
     public void testMultithreadStmtNamedWindowIterate() {

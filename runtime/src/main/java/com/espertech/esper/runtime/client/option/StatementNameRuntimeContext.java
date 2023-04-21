@@ -58,9 +58,10 @@ public class StatementNameRuntimeContext {
     }
 
     /**
-     * Returns the statement number
+     * Returns the statement id
+     * <p>The statement number is a runtime-internal number for tracking of deployed statements</p>
      *
-     * @return statement number
+     * @return statement id
      */
     public int getStatementId() {
         return statementId;
