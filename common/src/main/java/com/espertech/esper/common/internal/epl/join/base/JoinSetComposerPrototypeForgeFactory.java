@@ -173,7 +173,7 @@ public class JoinSetComposerPrototypeForgeFactory {
             postJoinEvaluator = spec.getRaw().getWhereClause();
         }
 
-        JoinSetComposerPrototypeGeneralForge forge = new JoinSetComposerPrototypeGeneralForge(typeService.getEventTypes(), postJoinEvaluator, outerJoinDescs.length > 0, queryPlan, joinAnalysisResult, typeService.getStreamNames(), joinRemoveStream, historicalViewableDesc.isHasHistorical());
+        JoinSetComposerPrototypeGeneralForge forge = new JoinSetComposerPrototypeGeneralForge(typeService.getEventTypes(), postJoinEvaluator, isOuterJoins, queryPlan, joinAnalysisResult, typeService.getStreamNames(), joinRemoveStream, historicalViewableDesc.isHasHistorical());
         return new JoinSetComposerPrototypeDesc(forge, additionalForgeables, fabricCharge);
     }
 
