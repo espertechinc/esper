@@ -43,8 +43,8 @@ public class MultithreadStmtNamedWindowFAFDelete implements RegressionExecution 
     }
 
     public void run(RegressionEnvironment env) {
-        final int NUM_DELETE_THREADS = 4;
-        final long MILLISEC_DURATION = 2000;
+        final int numDeleteThreads = 4;
+        final long milliDuration = 2000;
 
         RegressionPath path = new RegressionPath();
         env.compileDeploy("@public create window MyWindow#unique(id) as SupportBean_S0", path);
@@ -58,17 +58,17 @@ public class MultithreadStmtNamedWindowFAFDelete implements RegressionExecution 
         insertThread.start();
 
         // delete those that were inserted with FAF query
-        ExecutorService threadPool = Executors.newFixedThreadPool(NUM_DELETE_THREADS, new SupportThreadFactory(MultithreadStmtNamedWindowFAFDelete.class));
-        Future<Boolean>[] future = new Future[NUM_DELETE_THREADS];
-        DeleteCallable[] callables = new DeleteCallable[NUM_DELETE_THREADS];
-        for (int i = 0; i < NUM_DELETE_THREADS; i++) {
+        ExecutorService threadPool = Executors.newFixedThreadPool(numDeleteThreads, new SupportThreadFactory(MultithreadStmtNamedWindowFAFDelete.class));
+        Future<Boolean>[] future = new Future[numDeleteThreads];
+        DeleteCallable[] callables = new DeleteCallable[numDeleteThreads];
+        for (int i = 0; i < numDeleteThreads; i++) {
             callables[i] = new DeleteCallable(env, path, ids);
             future[i] = threadPool.submit(callables[i]);
         }
 
         // wait a little
         try {
-            Thread.sleep(MILLISEC_DURATION);
+            Thread.sleep(milliDuration);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -120,7 +120,7 @@ public class MultithreadStmtNamedWindowFAFDelete implements RegressionExecution 
                 EPCompiled compiled = env.compileFAF(fafDelete, path);
                 EPFireAndForgetPreparedQueryParameterized queryDelete = env.runtime().getFireAndForgetService().prepareQueryWithParameters(compiled);
 
-                while(!shutdown) {
+                while (!shutdown) {
                     Integer next = queue.poll();
                     if (next == null) {
                         continue;
@@ -162,7 +162,7 @@ public class MultithreadStmtNamedWindowFAFDelete implements RegressionExecution 
 
         public void run() {
             try {
-                while(!shutdown) {
+                while (!shutdown) {
                     int id = numInserts++;
                     env.sendEventBean(new SupportBean_S0(id));
                     idConsumer.accept(id);
