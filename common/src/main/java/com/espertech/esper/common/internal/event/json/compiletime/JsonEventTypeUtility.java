@@ -130,7 +130,8 @@ public class JsonEventTypeUtility {
                 String uuid = CodeGenerationIDGenerator.generateClassNameUUID();
                 jsonClassNameSimple = jsonClassNameSimple + "__" + uuid;
             } else if (raw.getModuleName() != null) {
-                jsonClassNameSimple = jsonClassNameSimple + "__" + "module" + "_" + raw.getModuleName();
+                String moduleNameEscapeDot = raw.getModuleName().replace(".", "_DOT_");
+                jsonClassNameSimple = jsonClassNameSimple + "__" + "module" + "_" + moduleNameEscapeDot;
             }
         }
 

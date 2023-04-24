@@ -34,7 +34,7 @@ public class EventJsonVisibility {
 
     private static class EventJsonVisibilityProtected implements RegressionExecution {
         public void run(RegressionEnvironment env) {
-            String moduleA = "module A; @protected create json schema JsonSchema(fruit string, size string);\n";
+            String moduleA = "module A.X; @protected create json schema JsonSchema(fruit string, size string);\n";
             String moduleB = "module B; @protected create json schema JsonSchema(carId string);\n";
 
             RegressionPath pathA = new RegressionPath();
@@ -42,7 +42,7 @@ public class EventJsonVisibility {
             RegressionPath pathB = new RegressionPath();
             env.compileDeploy(moduleB, pathB);
 
-            env.compileDeploy("module A; insert into JsonSchema select theString as fruit, 'large' as size from SupportBean;\n" +
+            env.compileDeploy("module A.X; insert into JsonSchema select theString as fruit, 'large' as size from SupportBean;\n" +
                 "@name('a') select fruit, size from JsonSchema#keepall", pathA).addListener("a");
             env.compileDeploy("module B; insert into JsonSchema select theString as carId from SupportBean;\n" +
                 "@name('b') select carId from JsonSchema#keepall", pathB).addListener("b");
