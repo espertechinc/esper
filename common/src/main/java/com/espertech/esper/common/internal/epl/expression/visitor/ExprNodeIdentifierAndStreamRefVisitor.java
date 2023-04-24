@@ -14,6 +14,7 @@ package com.espertech.esper.common.internal.epl.expression.visitor;
 import com.espertech.esper.common.internal.epl.enummethod.dot.ExprLambdaGoesNode;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
 import com.espertech.esper.common.internal.epl.expression.core.*;
+import com.espertech.esper.common.internal.epl.expression.declared.compiletime.ExprDeclaredNode;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,15 +22,26 @@ import java.util.List;
 
 public class ExprNodeIdentifierAndStreamRefVisitor implements ExprNodeVisitor {
     private final boolean isVisitAggregateNodes;
+    private final boolean isVisitDeclaredExprParams;
+    private final boolean isVisitDeclaredExprBody;
     private List<ExprNodePropOrStreamDesc> refs;
     private boolean hasWildcardOrStreamAlias;
 
     public ExprNodeIdentifierAndStreamRefVisitor(boolean isVisitAggregateNodes) {
+        this(isVisitAggregateNodes, false, true);
+    }
+
+    public ExprNodeIdentifierAndStreamRefVisitor(boolean isVisitAggregateNodes, boolean isVisitDeclaredExprParams, boolean isVisitDeclaredExprBody) {
         this.isVisitAggregateNodes = isVisitAggregateNodes;
+        this.isVisitDeclaredExprParams = isVisitDeclaredExprParams;
+        this.isVisitDeclaredExprBody = isVisitDeclaredExprBody;
     }
 
     public boolean isVisit(ExprNode exprNode) {
         if (exprNode instanceof ExprLambdaGoesNode) {
+            return false;
+        }
+        if (!isVisitDeclaredExprBody && exprNode instanceof ExprDeclaredNode) {
             return false;
         }
         if (isVisitAggregateNodes) {
@@ -73,7 +85,7 @@ public class ExprNodeIdentifierAndStreamRefVisitor implements ExprNodeVisitor {
     }
 
     public boolean isWalkDeclExprParam() {
-        return false;
+        return isVisitDeclaredExprParams;
     }
 
     public boolean isHasWildcardOrStreamAlias() {

@@ -914,7 +914,7 @@ public class ResultSetProcessorFactoryFactory {
 
         // Any non-aggregated properties must occur in the group-by clause (if there is one)
         if (!propertiesGroupedBy.isEmpty()) {
-            ExprNodeIdentifierAndStreamRefVisitor visitor = new ExprNodeIdentifierAndStreamRefVisitor(true);
+            ExprNodeIdentifierAndStreamRefVisitor visitor = new ExprNodeIdentifierAndStreamRefVisitor(true, true, false);
             havingNode.accept(visitor);
             List<ExprNodePropOrStreamDesc> allPropertiesHaving = visitor.getRefs();
             ExprNodePropOrStreamSet aggPropertiesHaving = ExprNodeUtilityAggregation.getAggregatedProperties(aggregateNodesHaving);

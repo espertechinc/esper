@@ -341,7 +341,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
 
     public void acceptNoVisitParams(ExprNodeVisitor visitor) {
         super.accept(visitor);
-        if (this.getChildNodes().length == 0) {
+        if (visitor.isVisit(this) && this.getChildNodes().length == 0) {
             expressionBodyCopy.accept(visitor);
         }
     }

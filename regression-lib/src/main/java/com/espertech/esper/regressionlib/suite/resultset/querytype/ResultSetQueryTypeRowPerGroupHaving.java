@@ -33,7 +33,18 @@ public class ResultSetQueryTypeRowPerGroupHaving {
         execs.add(new ResultSetQueryTypeSumJoin());
         execs.add(new ResultSetQueryTypeSumOneView());
         execs.add(new ResultSetQueryTypeRowPerGroupBatch());
+        execs.add(new ResultSetQueryTypeRowPerGroupDefinedExpr());
         return execs;
+    }
+
+    private static class ResultSetQueryTypeRowPerGroupDefinedExpr implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "expression F {v -> v} select sum(intPrimitive) from SupportBean group by theString having count(*) > F(1)";
+            env.compile(epl);
+
+            String eplInvalid = "expression F {v -> v} select sum(intPrimitive) from SupportBean group by theString having count(*) > F(longPrimitive)";
+            env.tryInvalidCompile(eplInvalid, "Non-aggregated property 'longPrimitive' in the HAVING clause must occur in the group-by clause");
+        }
     }
 
     private static class ResultSetQueryTypeRowPerGroupBatch implements RegressionExecution {
