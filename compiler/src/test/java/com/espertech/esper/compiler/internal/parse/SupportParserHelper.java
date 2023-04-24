@@ -70,7 +70,7 @@ public class SupportParserHelper {
     }
 
     public static Pair<Tree, CommonTokenStream> parse(ParseRuleSelector parseRuleSelector, String text) throws Exception {
-        EsperEPL2GrammarLexer lex = ParseHelper.newLexer(new CaseInsensitiveInputStream(text));
+        EsperEPL2GrammarLexer lex = ParseHelper.newLexer(CaseChangingCharStreamFactory.make(text));
 
         CommonTokenStream tokens = new CommonTokenStream(lex);
         EsperEPL2GrammarParser g = ParseHelper.newParser(tokens);

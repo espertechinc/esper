@@ -15,7 +15,7 @@ import com.espertech.esper.common.client.module.ModuleItem;
 import com.espertech.esper.common.client.module.ParseException;
 import com.espertech.esper.compiler.internal.generated.EsperEPL2GrammarLexer;
 import com.espertech.esper.compiler.internal.generated.EsperEPL2GrammarParser;
-import com.espertech.esper.compiler.internal.parse.CaseInsensitiveInputStream;
+import com.espertech.esper.compiler.internal.parse.CaseChangingCharStreamFactory;
 import com.espertech.esper.compiler.internal.parse.ParseHelper;
 import org.antlr.v4.runtime.*;
 import org.slf4j.Logger;
@@ -108,7 +108,7 @@ public class EPLModuleUtil {
     }
 
     public static ParseNode getModule(EPLModuleParseItem item, String resourceName) throws ParseException, IOException {
-        CharStream input = new CaseInsensitiveInputStream(item.getExpression());
+        CharStream input = CaseChangingCharStreamFactory.make(item.getExpression());
         EsperEPL2GrammarLexer lex = ParseHelper.newLexer(input);
         CommonTokenStream tokenStream = new CommonTokenStream(lex);
         tokenStream.fill();
@@ -210,7 +210,7 @@ public class EPLModuleUtil {
 
     public static List<EPLModuleParseItem> parse(String module) throws ParseException {
 
-        CharStream input = new CaseInsensitiveInputStream(module);
+        CharStream input = CaseChangingCharStreamFactory.make(module);
         EsperEPL2GrammarLexer lex = ParseHelper.newLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lex);
         try {

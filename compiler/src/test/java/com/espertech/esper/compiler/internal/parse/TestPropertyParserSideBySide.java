@@ -58,7 +58,7 @@ public class TestPropertyParserSideBySide extends TestCase {
     }
 
     public static StartEventPropertyRuleContext parse(String propertyName) {
-        CharStream input = new CaseInsensitiveInputStream(propertyName);
+        CharStream input = CaseChangingCharStreamFactory.make(propertyName);
         EsperEPL2GrammarLexer lex = ParseHelper.newLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lex);
         try {
@@ -92,7 +92,7 @@ public class TestPropertyParserSideBySide extends TestCase {
         // Check for keywords and escape each, parse again
         String escapedPropertyName = escapeKeywords(tokens);
 
-        CharStream inputEscaped = new CaseInsensitiveInputStream(escapedPropertyName);
+        CharStream inputEscaped = CaseChangingCharStreamFactory.make(escapedPropertyName);
         EsperEPL2GrammarLexer lexEscaped = ParseHelper.newLexer(inputEscaped);
         CommonTokenStream tokensEscaped = new CommonTokenStream(lexEscaped);
         EsperEPL2GrammarParser gEscaped = ParseHelper.newParser(tokensEscaped);

@@ -12,7 +12,7 @@ package com.espertech.esper.compiler.internal.util;
 
 import com.espertech.esper.common.internal.epl.expression.core.ExprValidationException;
 import com.espertech.esper.compiler.internal.generated.EsperEPL2GrammarLexer;
-import com.espertech.esper.compiler.internal.parse.CaseInsensitiveInputStream;
+import com.espertech.esper.compiler.internal.parse.CaseChangingCharStreamFactory;
 import com.espertech.esper.compiler.internal.parse.ParseHelper;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -40,7 +40,7 @@ public class SQLLexer {
     public static String lexSampleSQL(String querySQL)
             throws ExprValidationException {
         querySQL = querySQL.replaceAll("\\s\\s+|\\n|\\r", " ");
-        CharStream input = new CaseInsensitiveInputStream(querySQL);
+        CharStream input = CaseChangingCharStreamFactory.make(querySQL);
         int whereIndex = -1;
         int groupbyIndex = -1;
         int havingIndex = -1;

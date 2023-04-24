@@ -83,7 +83,7 @@ public class ParseHelper {
             log.debug(".parse Parsing expr=" + expression);
         }
 
-        CharStream input = new CaseInsensitiveInputStream(expression);
+        CharStream input = CaseChangingCharStreamFactory.make(expression);
         EsperEPL2GrammarLexer lex = newLexer(input);
 
         CommonTokenStream tokens = new CommonTokenStream(lex);
