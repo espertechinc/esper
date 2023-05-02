@@ -10,6 +10,19 @@ Changes in version 8.9.0
     - For use of Avro: Avro is now version 1.11.1
   - Reload4J replaces Log4J 1.2 and is now the default log library; Esper still only depends on SLF4J so applications can use any logging library
     - The distribution now ships with reload4j-1.2.19.jar and slf4j-reload4j-1.7.36.jar (removed are reload4j-1.2.19.jar and slf4j-log4j12-1.7.30.jar)
+  - The EsperIO dependencies are updated: esperio-http to 4.5.14 and 4.4.16, esperio-amqp to 5.17.0, esperio-kafka to 3.4.0, esperio-spring to 5.3.27
+  - Fixed issue #261 compilation ex EXPRESSION and GROUP BY clause
+  - Fixed issue #260 compile fails if json schema used and module path contains dots
+  - Fixed issue FD115 change default avro setting to Avro-disabled
+  - Fixed issue FD116 create-variable fails with unrecognized type when type defined by create-schema
+  - Fixed issue FD120 runtime wide pattern subexpression count in HA
+  - Fixed issue FD129 ConcurrentModificationException named window with unique and FAF-delete/update
+  - Fixed issue FD130 getter API for statement and runtime metrics
+  - Fixed issue FD136 compile exception after-datetime with event-provided primitive long
+  - Fixed issue FD138 wrong index instances dropped upon partition terminate
+  - Fixed issue FD168 join strategy with all inner-joins always chooses an outer join path
+  - Fixed issue FD195 NPE compiling on-split with single insert for context prop enum forge
+  - Fixed issue FD198 compiler exception compiling static method receiving single parameter from declare expr
     
 Changes in version 8.8.0
 ------------------------
