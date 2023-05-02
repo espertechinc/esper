@@ -17,7 +17,7 @@ then
 fi
 
 LIB_COMPILER=../../../dependencies/compiler
-LIB_COMMON_XMLXSD=../../../dependencies/common_xmlxsd
+LIB_COMMON_XMLXSD=../../../dependencies/common-xmlxsd
 
 
 CLASSPATH=.
