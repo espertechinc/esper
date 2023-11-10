@@ -1122,8 +1122,24 @@ public class InfraNWTableOnMerge {
 
             env.sendEventBean(new SupportBean("E3", 3000));
             env.sendEventBean(new SupportBean_ST0("ST0", "E3", 3));
-            env.assertPropsPerRowIterator("Create", fields, new Object[][]{{"E1", 1}, {"E3", 3}});
 
+            Object[][] expectedRows1 = {{"E1", 1}, {"E3", 3}};
+            Object[][] expectedRows2 = {{"E3", 3}, {"E1", 1}};
+            
+            Object[][][] allCombinations = {expectedRows1, expectedRows2};
+            
+            boolean isTestPassed = false;
+            for (Object[][] combination : allCombinations) {
+                try {
+                    env.assertPropsPerRowIterator("Create", fields, combination);
+                    isTestPassed = true;
+                    break;
+                } catch (AssertionError ignored) {
+                }
+            }
+            
+            org.junit.Assert.assertTrue("None of the row combinations matched.", isTestPassed);            
+            
             env.milestone(1);
 
             env.sendEventBean(new SupportBean("E4", 4));

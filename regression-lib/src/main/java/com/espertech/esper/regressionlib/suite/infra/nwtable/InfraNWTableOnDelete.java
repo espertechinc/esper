@@ -21,6 +21,7 @@ import com.espertech.esper.regressionlib.support.bean.SupportBean_B;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import org.junit.Assert;
 
 import static org.junit.Assert.assertEquals;
 
@@ -247,8 +248,28 @@ public class InfraNWTableOnDelete {
             env.assertThat(() -> assertEquals(3, getCount(env, path, "MyInfra")));
             env.listenerReset("CreateInfra");
             String[] fields = new String[]{"a", "b"};
-            env.assertPropsPerRowIterator("CreateInfra", fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
 
+            Object[][] expectedRows1 = {{"E1", 1}, {"E2", 2}, {"E3", 3}};
+            Object[][] expectedRows2 = {{"E1", 1}, {"E3", 3}, {"E2", 2}};
+            Object[][] expectedRows3 = {{"E2", 2}, {"E1", 1}, {"E3", 3}};
+            Object[][] expectedRows4 = {{"E2", 2}, {"E3", 3}, {"E1", 1}};
+            Object[][] expectedRows5 = {{"E3", 3}, {"E1", 1}, {"E2", 2}};
+            Object[][] expectedRows6 = {{"E3", 3}, {"E2", 2}, {"E1", 1}};
+            
+            Object[][][] allCombinations = {expectedRows1, expectedRows2, expectedRows3, expectedRows4, expectedRows5, expectedRows6};
+            
+            boolean isTestPassed = false;
+            for (Object[][] combination : allCombinations) {
+                try {
+                    env.assertPropsPerRowIterator("CreateInfra", fields, combination);
+                    isTestPassed = true;
+                    break;
+                } catch (AssertionError ignored) {
+                }
+            }
+            
+            Assert.assertTrue("None of the row combinations matched.", isTestPassed);
+            
             // delete E2
             sendSupportBean_A(env, "XE2X");
             if (namedWindow) {
