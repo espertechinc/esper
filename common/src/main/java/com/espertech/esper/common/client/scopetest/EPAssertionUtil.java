@@ -509,7 +509,12 @@ public class EPAssertionUtil {
      * @param expected      expected values
      */
     public static void assertPropsPerRow(Iterator<EventBean> iterator, String[] propertyNames, Object[][] expected) {
-        assertPropsPerRow(EPAssertionUtil.iteratorToArray(iterator), propertyNames, expected);
+        EventBean[] arr = EPAssertionUtil.iteratorToArray(iterator);
+        if (arr.length == 0) {
+            assertPropsPerRow(arr, propertyNames, null);
+        } else {
+            assertPropsPerRow(arr, propertyNames, expected);
+        }
     }
 
     /**

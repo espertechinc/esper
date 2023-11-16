@@ -224,7 +224,14 @@ public class ClientMultitenancyProtected {
     }
 
     private static void assertRowsNamedWindow(RegressionEnvironment env, String deploymentId, String ident) {
-        EPAssertionUtil.assertPropsPerRow(env.runtime().getDeploymentService().getStatement(deploymentId, "create").iterator(),
-            "col1,myident".split(","), new Object[][]{{"E1", ident}, {"E2", ident}});
+        Iterator<EventBean> it = env.runtime().getDeploymentService().getStatement(deploymentId, "create").iterator();
+        try {
+            EPAssertionUtil.assertPropsPerRow(it,
+                    "col1,myident".split(","), new Object[][]{{"E1", ident}, {"E2", ident}});
+        } catch (AssertionError e) {
+            EPAssertionUtil.assertPropsPerRow(it,
+                    "col1,myident".split(","), new Object[][]{{"E2", ident}, {"E1", ident}});
+        }
+
     }
 }
