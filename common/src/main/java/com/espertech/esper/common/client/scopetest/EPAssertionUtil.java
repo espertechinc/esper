@@ -568,16 +568,7 @@ public class EPAssertionUtil {
             return lastElement1.compareTo(lastElement2);
         };
         Arrays.sort(expected, lastElementComparator);
-
-        Comparator<EventBean> eventBeanComparator = (bean1, bean2) -> {
-            Comparable value1 = (Comparable) bean1.get(propertyNames[propertyNames.length - 1]);
-            Comparable value2 = (Comparable) bean2.get(propertyNames[propertyNames.length - 1]);
-            if (value1 == null) return (value2 == null) ? 0 : 1;
-            if (value2 == null) return -1;
-            return value1.compareTo(value2);
-        };
-        Arrays.sort(actual, eventBeanComparator);
-
+        actual = sort(actual, propertyNames[propertyNames.length - 1]);
         for (int i = 0; i < expected.length; i++) {
             Object[] propertiesThisRow = expected[i];
             ScopeTestHelper.assertEquals("Number of properties expected mismatches for row " + i, propertyNames.length, propertiesThisRow.length);
