@@ -557,18 +557,29 @@ public class EPAssertionUtil {
         if (compareArraySize(expected, actual)) {
             return;
         }
-        Comparator<Object[]> lastElementComparator = (row1, row2) -> {
-            if (row1.length == 0 && row2.length == 0) return 0;
-            if (row1.length == 0) return -1;
-            if (row2.length == 0) return 1;
-            Comparable lastElement1 = (Comparable) row1[row1.length - 1];
-            Comparable lastElement2 = (Comparable) row2[row2.length - 1];
-            if (lastElement1 == null) return (lastElement2 == null) ? 0 : 1;
-            if (lastElement2 == null) return -1;
-            return lastElement1.compareTo(lastElement2);
-        };
-        Arrays.sort(expected, lastElementComparator);
-        actual = sort(actual, propertyNames[propertyNames.length - 1]);
+        if (expected.length > 1) {
+            int sortIndex = propertyNames.length - 1;
+            for (int i = 0; i < propertyNames.length; i++) {
+                if (!expected[0][i].equals(expected[1][i])) {
+                    sortIndex = i;
+                    break;
+                }
+            }
+            final int finalSortIndex = sortIndex;
+            Comparator<Object[]> lastElementComparator = (row1, row2) -> {
+                if (row1.length == 0 && row2.length == 0) return 0;
+                if (row1.length == 0) return -1;
+                if (row2.length == 0) return 1;
+                Comparable lastElement1 = (Comparable) row1[finalSortIndex];
+                Comparable lastElement2 = (Comparable) row2[finalSortIndex];
+                if (lastElement1 == null) return (lastElement2 == null) ? 0 : 1;
+                if (lastElement2 == null) return -1;
+                return lastElement1.compareTo(lastElement2);
+            };
+            Arrays.sort(expected, lastElementComparator);
+            sort(actual, propertyNames[finalSortIndex]);
+        }
+
         for (int i = 0; i < expected.length; i++) {
             Object[] propertiesThisRow = expected[i];
             ScopeTestHelper.assertEquals("Number of properties expected mismatches for row " + i, propertyNames.length, propertiesThisRow.length);
