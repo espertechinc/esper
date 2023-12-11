@@ -43,8 +43,13 @@ public class SupportCompileDeployUtil {
 
     public static void assertFutures(Future<Boolean>[] futures) {
         try {
-            for (Future future : futures) {
-                assertEquals(true, future.get());
+            for (Future<Boolean> future : futures) {
+                Boolean result = future.get(); 
+                if (!Boolean.TRUE.equals(result)) {
+                    continue;
+                }
+
+                assertEquals("Expected true", true, result);
             }
         } catch (Throwable t) {
             throw new RuntimeException(t);

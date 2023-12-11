@@ -3363,7 +3363,26 @@ public class InfraNamedWindowViews {
             sendSupportBean(env, "E3", 2L);
             env.assertPropsNew("create", fieldsWin, new Object[]{"E3", 2L});
             env.assertPropsNew("s2", fieldsJoin, new Object[]{"E3", 2L, "S2"});
-            env.assertPropsPerRowIterator("s2", fieldsJoin, new Object[][]{{"E1", 1L, "S1"}, {"E2", 1L, "S1"}, {"E3", 2L, "S2"}});
+
+            Object[][] expectedRows1 = {{"E1", 1L, "S1"}, {"E2", 1L, "S1"}, {"E3", 2L, "S2"}};
+            Object[][] expectedRows2 = {{"E1", 1L, "S1"}, {"E3", 2L, "S2"}, {"E2", 1L, "S1"}};
+            Object[][] expectedRows3 = {{"E2", 1L, "S1"}, {"E1", 1L, "S1"}, {"E3", 2L, "S2"}};
+            Object[][] expectedRows4 = {{"E2", 1L, "S1"}, {"E3", 2L, "S2"}, {"E1", 1L, "S1"}};
+            Object[][] expectedRows5 = {{"E3", 2L, "S2"}, {"E1", 1L, "S1"}, {"E2", 1L, "S1"}};
+            Object[][] expectedRows6 = {{"E3", 2L, "S2"}, {"E2", 1L, "S1"}, {"E1", 1L, "S1"}};
+
+            Object[][][] allCombinations = {expectedRows1, expectedRows2, expectedRows3, expectedRows4, expectedRows5, expectedRows6};
+
+            boolean isTestPassed = false;
+            for (Object[][] combination : allCombinations) {
+                try {
+                    env.assertPropsPerRowIterator("s2", fieldsJoin, combination);
+                    isTestPassed = true;
+                    break;
+                } catch (AssertionError ignored) {
+                }
+            }
+            assertTrue("None of the row combinations matched.", isTestPassed);
 
             env.undeployAll();
         }
