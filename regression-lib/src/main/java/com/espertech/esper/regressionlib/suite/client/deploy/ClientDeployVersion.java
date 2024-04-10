@@ -54,7 +54,7 @@ public class ClientDeployVersion {
                 throw new RuntimeException(ex);
             }
 
-            String versionMismatchMsg = "Major or minor version of compiler and runtime mismatch; The runtime version is 8.9.0 and the compiler version of the compiled unit is 8.0.0";
+            String versionMismatchMsg = "Major or minor version of compiler and runtime mismatch; The runtime version is 8.10.0 and the compiler version of the compiled unit is 8.0.0";
             try {
                 env.runtime().getDeploymentService().deploy(compiled);
                 fail();
@@ -78,7 +78,7 @@ public class ClientDeployVersion {
                 env.runtime().getFireAndForgetService().executeQuery(compiled);
                 fail();
             } catch (EPException ex) {
-                assertMessage(ex, "Major or minor version of compiler and runtime mismatch; The runtime version is 8.9.0 and the compiler version of the compiled unit is 8.0.0");
+                assertMessage(ex, "Major or minor version of compiler and runtime mismatch; The runtime version is 8.10.0 and the compiler version of the compiled unit is 8.0.0");
             }
         }
 

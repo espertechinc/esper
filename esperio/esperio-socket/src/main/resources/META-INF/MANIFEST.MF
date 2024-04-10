@@ -9,7 +9,7 @@ Bundle-Name: EsperIO-Socket
 Bundle-RequiredExecutionEnvironment: J2SE-1.8
 Bundle-SymbolicName: com.espertech.esperio-socket
 Bundle-Vendor: EsperTech
-Bundle-Version: 8.9.0
+Bundle-Version: 8.10.0
 Created-By: Apache Maven Bundle Plugin
 Eclipse-BuddyPolicy: dependent
 Export-Package: com.espertech.esperio.socket;uses:="com.espertech.esper.
@@ -18,7 +18,7 @@ Export-Package: com.espertech.esperio.socket;uses:="com.espertech.esper.
  0.0",com.espertech.esperio.socket.core;uses:="com.espertech.esper.commo
  n.internal.event.core,com.espertech.esper.common.internal.util,com.espe
  rtech.esper.runtime.internal.kernel.service,com.espertech.esperio.socke
- t.config";version="8.9.0"
+ t.config";version="8.10.0"
 Import-Package: com.espertech.esper.common.client,com.espertech.esper.co
  mmon.client.configuration,com.espertech.esper.common.internal.event.avr
  o,com.espertech.esper.common.internal.event.core,com.espertech.esper.co

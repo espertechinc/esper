@@ -17,7 +17,7 @@ public class RuntimeVersion {
     /**
      * Current runtime version.
      */
-    public static final String RUNTIME_VERSION = "8.9.0";
+    public static final String RUNTIME_VERSION = "8.10.0";
 
     /**
      * Current runtime major version.

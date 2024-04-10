@@ -8,115 +8,115 @@ Bundle-License: http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 Bundle-ManifestVersion: 2
 Bundle-Name: Esper Common
 Bundle-SymbolicName: com.espertech.esper-common
-Bundle-Version: 8.9.0
+Bundle-Version: 8.10.0
 Created-By: Apache Maven Bundle Plugin
 Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
- sper.common.client.meta";version="8.9.0",com.espertech.esper.common.cli
+ sper.common.client.meta";version="8.10.0",com.espertech.esper.common.cli
  ent.annotation;uses:="com.espertech.esper.common.client.util,com.espert
- ech.esper.common.internal.epl.annotation";version="8.9.0",com.espertech
+ ech.esper.common.internal.epl.annotation";version="8.10.0",com.espertech
  .esper.common.client.configuration;uses:="com.espertech.esper.common.cl
  ient,com.espertech.esper.common.client.configuration.common,com.esperte
  ch.esper.common.client.configuration.compiler,com.espertech.esper.commo
- n.client.configuration.runtime,org.w3c.dom";version="8.9.0",com.esperte
+ n.client.configuration.runtime,org.w3c.dom";version="8.10.0",com.esperte
  ch.esper.common.client.configuration.common;uses:="com.espertech.esper.
  common.client.configuration,com.espertech.esper.common.client.util,java
- x.xml.namespace,org.w3c.dom";version="8.9.0",com.espertech.esper.common
+ x.xml.namespace,org.w3c.dom";version="8.10.0",com.espertech.esper.common
  .client.configuration.compiler;uses:="com.espertech.esper.common.client
  .soda,com.espertech.esper.common.client.util,org.w3c.dom";version="8.0.
  0",com.espertech.esper.common.client.configuration.runtime;uses:="com.e
  spertech.esper.common.client.util,com.espertech.esper.common.internal.c
  ollection,com.espertech.esper.common.internal.type,org.w3c.dom";version
- ="8.9.0",com.espertech.esper.common.client.context;uses:="com.espertech
- .esper.common.client";version="8.9.0",com.espertech.esper.common.client
- .dataflow.annotations;version="8.9.0",com.espertech.esper.common.client
+ ="8.10.0",com.espertech.esper.common.client.context;uses:="com.espertech
+ .esper.common.client";version="8.10.0",com.espertech.esper.common.client
+ .dataflow.annotations;version="8.10.0",com.espertech.esper.common.client
  .dataflow.core;uses:="com.espertech.esper.common.client,com.espertech.e
  sper.common.client.dataflow.util,com.espertech.esper.common.internal.ep
  l.dataflow.interfaces,com.espertech.esper.common.internal.epl.dataflow.
  runnables,com.espertech.esper.common.internal.event.core,com.espertech.
  esper.common.internal.event.util,com.espertech.esper.common.internal.ut
- il";version="8.9.0",com.espertech.esper.common.client.dataflow.util;use
+ il";version="8.10.0",com.espertech.esper.common.client.dataflow.util;use
  s:="com.espertech.esper.common.client,com.espertech.esper.common.intern
  al.epl.dataflow.interfaces,com.espertech.esper.common.internal.epl.expr
- ession.core";version="8.9.0",com.espertech.esper.common.client.fireandf
+ ession.core";version="8.10.0",com.espertech.esper.common.client.fireandf
  orget;uses:="com.espertech.esper.common.client,com.espertech.esper.comm
- on.client.context";version="8.9.0",com.espertech.esper.common.client.ho
+ on.client.context";version="8.10.0",com.espertech.esper.common.client.ho
  ok.aggfunc;uses:="com.espertech.esper.common.client.hook.forgeinject,co
  m.espertech.esper.common.internal.epl.agg.method.core,com.espertech.esp
- er.common.internal.epl.expression.core";version="8.9.0",com.espertech.e
+ er.common.internal.epl.expression.core";version="8.10.0",com.espertech.e
  sper.common.client.hook.aggmultifunc;uses:="com.espertech.esper.common.
  client,com.espertech.esper.common.client.configuration.compiler,com.esp
  ertech.esper.common.client.hook.forgeinject,com.espertech.esper.common.
  internal.epl.agg.core,com.espertech.esper.common.internal.epl.expressio
  n.core,com.espertech.esper.common.internal.epl.table.compiletime,com.es
- pertech.esper.common.internal.rettype";version="8.9.0",com.espertech.es
+ pertech.esper.common.internal.rettype";version="8.10.0",com.espertech.es
  per.common.client.hook.condition;uses:="com.espertech.esper.common.inte
- rnal.util";version="8.9.0",com.espertech.esper.common.client.hook.excep
- tion;uses:="com.espertech.esper.common.client";version="8.9.0",com.espe
+ rnal.util";version="8.10.0",com.espertech.esper.common.client.hook.excep
+ tion;uses:="com.espertech.esper.common.client";version="8.10.0",com.espe
  rtech.esper.common.client.hook.expr;uses:="com.espertech.esper.common.c
- lient,org.w3c.dom";version="8.9.0",com.espertech.esper.common.client.ho
+ lient,org.w3c.dom";version="8.10.0",com.espertech.esper.common.client.ho
  ok.forgeinject;uses:="com.espertech.esper.common.internal.bytecodemodel
  .base,com.espertech.esper.common.internal.bytecodemodel.model.expressio
  n,com.espertech.esper.common.internal.context.aifactory.core,com.espert
- ech.esper.common.internal.epl.expression.core";version="8.9.0",com.espe
+ ech.esper.common.internal.epl.expression.core";version="8.10.0",com.espe
  rtech.esper.common.client.hook.type;uses:="com.espertech.esper.common.c
- lient,com.espertech.esper.common.internal.util";version="8.9.0",com.esp
+ lient,com.espertech.esper.common.internal.util";version="8.10.0",com.esp
  ertech.esper.common.client.hook.vdw;uses:="com.espertech.esper.common.c
  lient,com.espertech.esper.common.client.hook.forgeinject,com.espertech.
  esper.common.internal.context.module,com.espertech.esper.common.interna
  l.context.util,com.espertech.esper.common.internal.epl.expression.core,
  com.espertech.esper.common.internal.epl.virtualdw,com.espertech.esper.c
- ommon.internal.view.core";version="8.9.0",com.espertech.esper.common.cl
+ ommon.internal.view.core";version="8.10.0",com.espertech.esper.common.cl
  ient.meta;uses:="com.espertech.esper.common.client.util,com.espertech.e
- sper.common.internal.bytecodemodel.model.expression";version="8.9.0",co
+ sper.common.internal.bytecodemodel.model.expression";version="8.10.0",co
  m.espertech.esper.common.client.metric;uses:="com.espertech.esper.commo
- n.client.configuration";version="8.9.0",com.espertech.esper.common.clie
- nt.module;uses:="com.espertech.esper.common.client.soda";version="8.9.0
+ n.client.configuration";version="8.10.0",com.espertech.esper.common.clie
+ nt.module;uses:="com.espertech.esper.common.client.soda";version="8.10.0
  ",com.espertech.esper.common.client.render;uses:="com.espertech.esper.c
  ommon.client,com.espertech.esper.common.internal.event.render";version=
- "8.9.0",com.espertech.esper.common.client.scopetest;uses:="com.espertec
+ "8.10.0",com.espertech.esper.common.client.scopetest;uses:="com.espertec
  h.esper.common.client,com.espertech.esper.common.client.util,com.espert
- ech.esper.common.internal.collection";version="8.9.0",com.espertech.esp
+ ech.esper.common.internal.collection";version="8.10.0",com.espertech.esp
  er.common.client.soda;uses:="com.espertech.esper.common.internal.type";
- version="8.9.0",com.espertech.esper.common.client.util;uses:="com.esper
+ version="8.10.0",com.espertech.esper.common.client.util;uses:="com.esper
  tech.esper.common.internal.bytecodemodel.base,com.espertech.esper.commo
  n.internal.bytecodemodel.model.expression,com.espertech.esper.common.in
- ternal.epl.approx.countminsketch";version="8.9.0",com.espertech.esper.c
+ ternal.epl.approx.countminsketch";version="8.10.0",com.espertech.esper.c
  ommon.client.variable;uses:="com.espertech.esper.common.client,com.espe
  rtech.esper.common.client.context,com.espertech.esper.common.internal.u
- til";version="8.9.0",com.espertech.esper.common.internal.bytecodemodel.
+ til";version="8.10.0",com.espertech.esper.common.internal.bytecodemodel.
  base;uses:="com.espertech.esper.common.internal.bytecodemodel.core,com.
  espertech.esper.common.internal.bytecodemodel.model.expression,com.espe
  rtech.esper.common.internal.bytecodemodel.model.statement,com.espertech
  .esper.common.internal.bytecodemodel.name,com.espertech.esper.common.in
- ternal.util";version="8.9.0",com.espertech.esper.common.internal.byteco
+ ternal.util";version="8.10.0",com.espertech.esper.common.internal.byteco
  demodel.core;uses:="com.espertech.esper.common.internal.bytecodemodel.b
  ase,com.espertech.esper.common.internal.bytecodemodel.model.expression"
- ;version="8.9.0",com.espertech.esper.common.internal.bytecodemodel.mode
+ ;version="8.10.0",com.espertech.esper.common.internal.bytecodemodel.mode
  l.expression;uses:="com.espertech.esper.common.internal.bytecodemodel.b
  ase,com.espertech.esper.common.internal.bytecodemodel.core,com.espertec
- h.esper.common.internal.bytecodemodel.model.statement";version="8.9.0",
+ h.esper.common.internal.bytecodemodel.model.statement";version="8.10.0",
  com.espertech.esper.common.internal.bytecodemodel.model.statement;uses:
  ="com.espertech.esper.common.internal.bytecodemodel.base,com.espertech.
  esper.common.internal.bytecodemodel.core,com.espertech.esper.common.int
- ernal.bytecodemodel.model.expression";version="8.9.0",com.espertech.esp
- er.common.internal.bytecodemodel.name;version="8.9.0",com.espertech.esp
+ ernal.bytecodemodel.model.expression";version="8.10.0",com.espertech.esp
+ er.common.internal.bytecodemodel.name;version="8.10.0",com.espertech.esp
  er.common.internal.bytecodemodel.util;uses:="com.espertech.esper.common
  .internal.bytecodemodel.base,com.espertech.esper.common.internal.byteco
  demodel.core,com.espertech.esper.common.internal.bytecodemodel.model.ex
  pression,com.espertech.esper.common.internal.context.aifactory.core";ve
- rsion="8.9.0",com.espertech.esper.common.internal.collection;uses:="com
+ rsion="8.10.0",com.espertech.esper.common.internal.collection;uses:="com
  .espertech.esper.common.client,com.espertech.esper.common.internal.view
- .core";version="8.9.0",com.espertech.esper.common.internal.collection.a
- pachecommons;version="8.9.0",com.espertech.esper.common.internal.compil
+ .core";version="8.10.0",com.espertech.esper.common.internal.collection.a
+ pachecommons;version="8.10.0",com.espertech.esper.common.internal.compil
  e.faf;uses:="com.espertech.esper.common.internal.bytecodemodel.base,com
  .espertech.esper.common.internal.bytecodemodel.core,com.espertech.esper
  .common.internal.compile.stage3,com.espertech.esper.common.internal.epl
- .fafquery.querymethod";version="8.9.0",com.espertech.esper.common.inter
+ .fafquery.querymethod";version="8.10.0",com.espertech.esper.common.inter
  nal.compile.stage1;uses:="com.espertech.esper.common.internal.compile.s
  tage1.spec,com.espertech.esper.common.internal.compile.stage1.specmappe
  r,com.espertech.esper.common.internal.compile.stage2,com.espertech.espe
  r.common.internal.compile.stage3,com.espertech.esper.common.internal.ep
- l.expression.core";version="8.9.0",com.espertech.esper.common.internal.
+ l.expression.core";version="8.10.0",com.espertech.esper.common.internal.
  compile.stage1.spec;uses:="com.espertech.esper.common.client,com.espert
  ech.esper.common.client.configuration,com.espertech.esper.common.client
  .configuration.compiler,com.espertech.esper.common.client.soda,com.espe
@@ -135,7 +135,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  letime,com.espertech.esper.common.internal.event.core,com.espertech.esp
  er.common.internal.filterspec,com.espertech.esper.common.internal.sched
  ule,com.espertech.esper.common.internal.settings,com.espertech.esper.co
- mmon.internal.type";version="8.9.0",com.espertech.esper.common.internal
+ mmon.internal.type";version="8.10.0",com.espertech.esper.common.internal
  .compile.stage1.specmapper;uses:="com.espertech.esper.common.client.con
  figuration,com.espertech.esper.common.client.configuration.compiler,com
  .espertech.esper.common.client.hook.aggmultifunc,com.espertech.esper.co
@@ -149,7 +149,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  .internal.epl.script.compiletime,com.espertech.esper.common.internal.ep
  l.table.compiletime,com.espertech.esper.common.internal.epl.variable.co
  mpiletime,com.espertech.esper.common.internal.settings,com.espertech.es
- per.common.internal.util";version="8.9.0",com.espertech.esper.common.in
+ per.common.internal.util";version="8.10.0",com.espertech.esper.common.in
  ternal.compile.stage2;uses:="com.espertech.esper.common.client,com.espe
  rtech.esper.common.client.util,com.espertech.esper.common.internal.byte
  codemodel.base,com.espertech.esper.common.internal.collection,com.esper
@@ -166,7 +166,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  .matchuntil,com.espertech.esper.common.internal.epl.streamtype,com.espe
  rtech.esper.common.internal.epl.table.compiletime,com.espertech.esper.c
  ommon.internal.event.core,com.espertech.esper.common.internal.filterspe
- c";version="8.9.0",com.espertech.esper.common.internal.compile.stage3;u
+ c";version="8.10.0",com.espertech.esper.common.internal.compile.stage3;u
  ses:="com.espertech.esper.common.client.configuration,com.espertech.esp
  er.common.client.util,com.espertech.esper.common.internal.bytecodemodel
  .base,com.espertech.esper.common.internal.bytecodemodel.core,com.espert
@@ -193,7 +193,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  .internal.event.eventtyperepo,com.espertech.esper.common.internal.event
  .xml,com.espertech.esper.common.internal.filterspec,com.espertech.esper
  .common.internal.schedule,com.espertech.esper.common.internal.settings,
- com.espertech.esper.common.internal.view.core";version="8.9.0",com.espe
+ com.espertech.esper.common.internal.view.core";version="8.10.0",com.espe
  rtech.esper.common.internal.context.activator;uses:="com.espertech.espe
  r.common.client,com.espertech.esper.common.internal.bytecodemodel.base,
  com.espertech.esper.common.internal.bytecodemodel.model.expression,com.
@@ -211,7 +211,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  mon.internal.epl.table.core,com.espertech.esper.common.internal.event.c
  ore,com.espertech.esper.common.internal.event.map,com.espertech.esper.c
  ommon.internal.filterspec,com.espertech.esper.common.internal.filtersvc
- ,com.espertech.esper.common.internal.view.core";version="8.9.0",com.esp
+ ,com.espertech.esper.common.internal.view.core";version="8.10.0",com.esp
  ertech.esper.common.internal.context.aifactory.core;uses:="com.espertec
  h.esper.common.client,com.espertech.esper.common.internal.bytecodemodel
  .base,com.espertech.esper.common.internal.bytecodemodel.model.expressio
@@ -228,7 +228,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  .esper.common.internal.epl.table.strategy,com.espertech.esper.common.in
  ternal.epl.variable.compiletime,com.espertech.esper.common.internal.eve
  nt.core,com.espertech.esper.common.internal.view.core,com.espertech.esp
- er.common.internal.view.previous";version="8.9.0",com.espertech.esper.c
+ er.common.internal.view.previous";version="8.10.0",com.espertech.esper.c
  ommon.internal.context.aifactory.createcontext;uses:="com.espertech.esp
  er.common.client,com.espertech.esper.common.internal.bytecodemodel.base
  ,com.espertech.esper.common.internal.compile.stage2,com.espertech.esper
@@ -244,7 +244,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  .common.internal.epl.table.strategy,com.espertech.esper.common.internal
  .filterspec,com.espertech.esper.common.internal.schedule,com.espertech.
  esper.common.internal.view.core,com.espertech.esper.common.internal.vie
- w.previous";version="8.9.0",com.espertech.esper.common.internal.context
+ w.previous";version="8.10.0",com.espertech.esper.common.internal.context
  .aifactory.createdataflow;uses:="com.espertech.esper.common.client,com.
  espertech.esper.common.internal.bytecodemodel.base,com.espertech.esper.
  common.internal.bytecodemodel.model.expression,com.espertech.esper.comm
@@ -255,14 +255,14 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  aflow.interfaces,com.espertech.esper.common.internal.epl.dataflow.reali
  ze,com.espertech.esper.common.internal.epl.dataflow.util,com.espertech.
  esper.common.internal.epl.expression.core,com.espertech.esper.common.in
- ternal.view.core";version="8.9.0",com.espertech.esper.common.internal.c
+ ternal.view.core";version="8.10.0",com.espertech.esper.common.internal.c
  ontext.aifactory.createexpression;uses:="com.espertech.esper.common.cli
  ent,com.espertech.esper.common.internal.bytecodemodel.base,com.espertec
  h.esper.common.internal.compile.stage3,com.espertech.esper.common.inter
  nal.context.aifactory.core,com.espertech.esper.common.internal.context.
  airegistry,com.espertech.esper.common.internal.context.util,com.esperte
  ch.esper.common.internal.epl.expression.core,com.espertech.esper.common
- .internal.view.core";version="8.9.0",com.espertech.esper.common.interna
+ .internal.view.core";version="8.10.0",com.espertech.esper.common.interna
  l.context.aifactory.createindex;uses:="com.espertech.esper.common.clien
  t,com.espertech.esper.common.internal.bytecodemodel.base,com.espertech.
  esper.common.internal.compile.stage3,com.espertech.esper.common.interna
@@ -274,14 +274,14 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  pertech.esper.common.internal.epl.namedwindow.path,com.espertech.esper.
  common.internal.epl.table.compiletime,com.espertech.esper.common.intern
  al.epl.table.core,com.espertech.esper.common.internal.view.core";versio
- n="8.9.0",com.espertech.esper.common.internal.context.aifactory.creates
+ n="8.10.0",com.espertech.esper.common.internal.context.aifactory.creates
  chema;uses:="com.espertech.esper.common.client,com.espertech.esper.comm
  on.internal.bytecodemodel.base,com.espertech.esper.common.internal.comp
  ile.stage3,com.espertech.esper.common.internal.context.aifactory.core,c
  om.espertech.esper.common.internal.context.airegistry,com.espertech.esp
  er.common.internal.context.util,com.espertech.esper.common.internal.epl
  .expression.core,com.espertech.esper.common.internal.view.core";version
- ="8.9.0",com.espertech.esper.common.internal.context.aifactory.createta
+ ="8.10.0",com.espertech.esper.common.internal.context.aifactory.createta
  ble;uses:="com.espertech.esper.common.client,com.espertech.esper.common
  .internal.bytecodemodel.base,com.espertech.esper.common.internal.compil
  e.stage3,com.espertech.esper.common.internal.context.aifactory.core,com
@@ -291,7 +291,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  h.esper.common.internal.epl.expression.core,com.espertech.esper.common.
  internal.epl.table.compiletime,com.espertech.esper.common.internal.epl.
  table.core,com.espertech.esper.common.internal.serde,com.espertech.espe
- r.common.internal.view.core";version="8.9.0",com.espertech.esper.common
+ r.common.internal.view.core";version="8.10.0",com.espertech.esper.common
  .internal.context.aifactory.createvariable;uses:="com.espertech.esper.c
  ommon.client,com.espertech.esper.common.internal.bytecodemodel.base,com
  .espertech.esper.common.internal.compile.stage3,com.espertech.esper.com
@@ -300,7 +300,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  com.espertech.esper.common.internal.context.util,com.espertech.esper.co
  mmon.internal.epl.expression.core,com.espertech.esper.common.internal.e
  pl.resultset.core,com.espertech.esper.common.internal.epl.variable.core
- ,com.espertech.esper.common.internal.view.core";version="8.9.0",com.esp
+ ,com.espertech.esper.common.internal.view.core";version="8.10.0",com.esp
  ertech.esper.common.internal.context.aifactory.createwindow;uses:="com.
  espertech.esper.common.client,com.espertech.esper.common.internal.bytec
  odemodel.base,com.espertech.esper.common.internal.compile.stage1.spec,c
@@ -313,7 +313,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  om.espertech.esper.common.internal.epl.namedwindow.core,com.espertech.e
  sper.common.internal.epl.namedwindow.path,com.espertech.esper.common.in
  ternal.epl.resultset.core,com.espertech.esper.common.internal.view.core
- ";version="8.9.0",com.espertech.esper.common.internal.context.aifactory
+ ";version="8.10.0",com.espertech.esper.common.internal.context.aifactory
  .ontrigger.core;uses:="com.espertech.esper.common.client,com.espertech.
  esper.common.internal.bytecodemodel.base,com.espertech.esper.common.int
  ernal.bytecodemodel.model.expression,com.espertech.esper.common.interna
@@ -329,7 +329,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  mon.internal.epl.rowrecog.core,com.espertech.esper.common.internal.epl.
  subselect,com.espertech.esper.common.internal.epl.table.strategy,com.es
  pertech.esper.common.internal.view.core,com.espertech.esper.common.inte
- rnal.view.previous";version="8.9.0",com.espertech.esper.common.internal
+ rnal.view.previous";version="8.10.0",com.espertech.esper.common.internal
  .context.aifactory.ontrigger.onset;uses:="com.espertech.esper.common.cl
  ient,com.espertech.esper.common.internal.bytecodemodel.base,com.esperte
  ch.esper.common.internal.bytecodemodel.model.expression,com.espertech.e
@@ -345,7 +345,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  l.resultset.select.core,com.espertech.esper.common.internal.epl.subsele
  ct,com.espertech.esper.common.internal.epl.table.strategy,com.espertech
  .esper.common.internal.epl.variable.core,com.espertech.esper.common.int
- ernal.view.core";version="8.9.0",com.espertech.esper.common.internal.co
+ ernal.view.core";version="8.10.0",com.espertech.esper.common.internal.co
  ntext.aifactory.ontrigger.onsplit;uses:="com.espertech.esper.common.cli
  ent,com.espertech.esper.common.internal.bytecodemodel.base,com.espertec
  h.esper.common.internal.bytecodemodel.model.expression,com.espertech.es
@@ -364,7 +364,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  internal.epl.table.compiletime,com.espertech.esper.common.internal.epl.
  table.core,com.espertech.esper.common.internal.epl.table.strategy,com.e
  spertech.esper.common.internal.filterspec,com.espertech.esper.common.in
- ternal.view.core";version="8.9.0",com.espertech.esper.common.internal.c
+ ternal.view.core";version="8.10.0",com.espertech.esper.common.internal.c
  ontext.aifactory.ontrigger.ontrigger;uses:="com.espertech.esper.common.
  client,com.espertech.esper.common.client.soda,com.espertech.esper.commo
  n.internal.bytecodemodel.base,com.espertech.esper.common.internal.bytec
@@ -386,7 +386,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  l.table.compiletime,com.espertech.esper.common.internal.epl.table.core,
  com.espertech.esper.common.internal.epl.table.strategy,com.espertech.es
  per.common.internal.epl.updatehelper,com.espertech.esper.common.interna
- l.view.core";version="8.9.0",com.espertech.esper.common.internal.contex
+ l.view.core";version="8.10.0",com.espertech.esper.common.internal.contex
  t.aifactory.select;uses:="com.espertech.esper.common.client,com.esperte
  ch.esper.common.internal.bytecodemodel.base,com.espertech.esper.common.
  internal.bytecodemodel.core,com.espertech.esper.common.internal.bytecod
@@ -409,7 +409,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  nternal.epl.table.core,com.espertech.esper.common.internal.epl.table.st
  rategy,com.espertech.esper.common.internal.view.access,com.espertech.es
  per.common.internal.view.core,com.espertech.esper.common.internal.view.
- previous";version="8.9.0",com.espertech.esper.common.internal.context.a
+ previous";version="8.10.0",com.espertech.esper.common.internal.context.a
  ifactory.update;uses:="com.espertech.esper.common.client,com.espertech.
  esper.common.internal.bytecodemodel.base,com.espertech.esper.common.int
  ernal.bytecodemodel.model.expression,com.espertech.esper.common.interna
@@ -421,7 +421,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  h.esper.common.internal.epl.expression.subquery,com.espertech.esper.com
  mon.internal.epl.subselect,com.espertech.esper.common.internal.event.co
  re,com.espertech.esper.common.internal.util,com.espertech.esper.common.
- internal.view.core";version="8.9.0",com.espertech.esper.common.internal
+ internal.view.core";version="8.10.0",com.espertech.esper.common.internal
  .context.airegistry;uses:="com.espertech.esper.common.client,com.espert
  ech.esper.common.internal.collection,com.espertech.esper.common.interna
  l.epl.agg.core,com.espertech.esper.common.internal.epl.expression.core,
@@ -430,13 +430,13 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  l.rowrecog.core,com.espertech.esper.common.internal.epl.rowrecog.state,
  com.espertech.esper.common.internal.epl.subselect,com.espertech.esper.c
  ommon.internal.epl.table.strategy,com.espertech.esper.common.internal.v
- iew.previous";version="8.9.0",com.espertech.esper.common.internal.conte
+ iew.previous";version="8.10.0",com.espertech.esper.common.internal.conte
  xt.compile;uses:="com.espertech.esper.common.client,com.espertech.esper
  .common.client.util,com.espertech.esper.common.internal.bytecodemodel.m
  odel.expression,com.espertech.esper.common.internal.collection,com.espe
  rtech.esper.common.internal.context.controller.core,com.espertech.esper
  .common.internal.context.module,com.espertech.esper.common.internal.con
- text.util,com.espertech.esper.common.internal.epl.util";version="8.9.0"
+ text.util,com.espertech.esper.common.internal.epl.util";version="8.10.0"
  ,com.espertech.esper.common.internal.context.controller.category;uses:=
  "com.espertech.esper.common.client,com.espertech.esper.common.client.co
  ntext,com.espertech.esper.common.internal.bytecodemodel.base,com.espert
@@ -449,14 +449,14 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ller.core,com.espertech.esper.common.internal.context.mgr,com.espertech
  .esper.common.internal.context.util,com.espertech.esper.common.internal
  .epl.expression.core,com.espertech.esper.common.internal.filterspec";ve
- rsion="8.9.0",com.espertech.esper.common.internal.context.controller.co
+ rsion="8.10.0",com.espertech.esper.common.internal.context.controller.co
  ndition;uses:="com.espertech.esper.common.client,com.espertech.esper.co
  mmon.internal.collection,com.espertech.esper.common.internal.context.co
  ntroller.core,com.espertech.esper.common.internal.context.mgr,com.esper
  tech.esper.common.internal.epl.expression.core,com.espertech.esper.comm
  on.internal.epl.expression.time.eval,com.espertech.esper.common.interna
  l.epl.pattern.core,com.espertech.esper.common.internal.filterspec,com.e
- spertech.esper.common.internal.schedule";version="8.9.0",com.espertech.
+ spertech.esper.common.internal.schedule";version="8.10.0",com.espertech.
  esper.common.internal.context.controller.core;uses:="com.espertech.espe
  r.common.client,com.espertech.esper.common.client.context,com.espertech
  .esper.common.internal.bytecodemodel.base,com.espertech.esper.common.in
@@ -467,7 +467,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ntext.airegistry,com.espertech.esper.common.internal.context.mgr,com.es
  pertech.esper.common.internal.context.util,com.espertech.esper.common.i
  nternal.epl.expression.core,com.espertech.esper.common.internal.filters
- pec";version="8.9.0",com.espertech.esper.common.internal.context.contro
+ pec";version="8.10.0",com.espertech.esper.common.internal.context.contro
  ller.hash;uses:="com.espertech.esper.common.client,com.espertech.esper.
  common.client.context,com.espertech.esper.common.internal.bytecodemodel
  .base,com.espertech.esper.common.internal.bytecodemodel.model.expressio
@@ -481,7 +481,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  .common.internal.epl.expression.core,com.espertech.esper.common.interna
  l.event.core,com.espertech.esper.common.internal.filterspec,com.esperte
  ch.esper.common.internal.filtersvc,com.espertech.esper.common.internal.
- settings,com.espertech.esper.common.internal.util";version="8.9.0",com.
+ settings,com.espertech.esper.common.internal.util";version="8.10.0",com.
  espertech.esper.common.internal.context.controller.initterm;uses:="com.
  espertech.esper.common.client,com.espertech.esper.common.client.context
  ,com.espertech.esper.common.internal.bytecodemodel.base,com.espertech.e
@@ -509,8 +509,8 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  common.internal.context.module,com.espertech.esper.common.internal.cont
  ext.util,com.espertech.esper.common.internal.epl.expression.core,com.es
  pertech.esper.common.internal.filterspec,com.espertech.esper.common.int
- ernal.filtersvc";version="8.9.0",com.espertech.esper.common.internal.co
- ntext.cpidsvc;version="8.9.0",com.espertech.esper.common.internal.conte
+ ernal.filtersvc";version="8.10.0",com.espertech.esper.common.internal.co
+ ntext.cpidsvc;version="8.10.0",com.espertech.esper.common.internal.conte
  xt.mgr;uses:="com.espertech.esper.common.client,com.espertech.esper.com
  mon.client.context,com.espertech.esper.common.client.util,com.espertech
  .esper.common.internal.collection,com.espertech.esper.common.internal.c
@@ -523,7 +523,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  dsvc,com.espertech.esper.common.internal.context.module,com.espertech.e
  sper.common.internal.context.util,com.espertech.esper.common.internal.e
  vent.core,com.espertech.esper.common.internal.filterspec,com.espertech.
- esper.common.internal.serde";version="8.9.0",com.espertech.esper.common
+ esper.common.internal.serde";version="8.10.0",com.espertech.esper.common
  .internal.context.module;uses:="com.espertech.esper.common.client,com.e
  spertech.esper.common.client.module,com.espertech.esper.common.client.u
  til,com.espertech.esper.common.internal.bytecodemodel.base,com.espertec
@@ -561,10 +561,10 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  pertech.esper.common.internal.settings,com.espertech.esper.common.inter
  nal.statement.resource,com.espertech.esper.common.internal.type,com.esp
  ertech.esper.common.internal.view.core,com.espertech.esper.common.inter
- nal.view.previous";version="8.9.0",com.espertech.esper.common.internal.
+ nal.view.previous";version="8.10.0",com.espertech.esper.common.internal.
  context.query;uses:="com.espertech.esper.common.internal.context.module
  ,com.espertech.esper.common.internal.epl.fafquery.querymethod";version=
- "8.9.0",com.espertech.esper.common.internal.context.util;uses:="com.esp
+ "8.10.0",com.espertech.esper.common.internal.context.util;uses:="com.esp
  ertech.esper.common.client,com.espertech.esper.common.client.context,co
  m.espertech.esper.common.client.hook.expr,com.espertech.esper.common.cl
  ient.render,com.espertech.esper.common.client.util,com.espertech.esper.
@@ -599,7 +599,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  pertech.esper.common.internal.statement.multimatch,com.espertech.esper.
  common.internal.statement.resource,com.espertech.esper.common.internal.
  util,com.espertech.esper.common.internal.view.core,com.espertech.esper.
- common.internal.view.previous,javax.naming";version="8.9.0",com.esperte
+ common.internal.view.previous,javax.naming";version="8.10.0",com.esperte
  ch.esper.common.internal.epl.agg.access.core;uses:="com.espertech.esper
  .common.client,com.espertech.esper.common.client.hook.aggmultifunc,com.
  espertech.esper.common.internal.bytecodemodel.base,com.espertech.esper.
@@ -609,7 +609,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  .espertech.esper.common.internal.epl.agg.method.core,com.espertech.espe
  r.common.internal.epl.expression.codegen,com.espertech.esper.common.int
  ernal.epl.expression.core,com.espertech.esper.common.internal.settings"
- ;version="8.9.0",com.espertech.esper.common.internal.epl.agg.access.cou
+ ;version="8.10.0",com.espertech.esper.common.internal.epl.agg.access.cou
  ntminsketch;uses:="com.espertech.esper.common.client,com.espertech.espe
  r.common.client.hook.aggmultifunc,com.espertech.esper.common.internal.b
  ytecodemodel.base,com.espertech.esper.common.internal.bytecodemodel.cor
@@ -621,7 +621,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  sagg,com.espertech.esper.common.internal.epl.expression.agg.base,com.es
  pertech.esper.common.internal.epl.expression.codegen,com.espertech.espe
  r.common.internal.epl.expression.core,com.espertech.esper.common.intern
- al.settings";version="8.9.0",com.espertech.esper.common.internal.epl.ag
+ al.settings";version="8.10.0",com.espertech.esper.common.internal.epl.ag
  g.access.linear;uses:="com.espertech.esper.common.client,com.espertech.
  esper.common.client.hook.aggmultifunc,com.espertech.esper.common.intern
  al.bytecodemodel.base,com.espertech.esper.common.internal.bytecodemodel
@@ -633,7 +633,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  gg,com.espertech.esper.common.internal.epl.expression.agg.base,com.espe
  rtech.esper.common.internal.epl.expression.codegen,com.espertech.esper.
  common.internal.epl.expression.core,com.espertech.esper.common.internal
- .settings";version="8.9.0",com.espertech.esper.common.internal.epl.agg.
+ .settings";version="8.10.0",com.espertech.esper.common.internal.epl.agg.
  access.plugin;uses:="com.espertech.esper.common.client,com.espertech.es
  per.common.client.hook.aggmultifunc,com.espertech.esper.common.internal
  .bytecodemodel.base,com.espertech.esper.common.internal.bytecodemodel.c
@@ -644,7 +644,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  n.agg.accessagg,com.espertech.esper.common.internal.epl.expression.agg.
  base,com.espertech.esper.common.internal.epl.expression.codegen,com.esp
  ertech.esper.common.internal.epl.expression.core,com.espertech.esper.co
- mmon.internal.settings";version="8.9.0",com.espertech.esper.common.inte
+ mmon.internal.settings";version="8.10.0",com.espertech.esper.common.inte
  rnal.epl.agg.access.sorted;uses:="com.espertech.esper.common.client,com
  .espertech.esper.common.client.hook.aggmultifunc,com.espertech.esper.co
  mmon.internal.bytecodemodel.base,com.espertech.esper.common.internal.by
@@ -657,7 +657,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  pertech.esper.common.internal.epl.expression.codegen,com.espertech.espe
  r.common.internal.epl.expression.core,com.espertech.esper.common.intern
  al.epl.table.compiletime,com.espertech.esper.common.internal.settings";
- version="8.9.0",com.espertech.esper.common.internal.epl.agg.core;uses:=
+ version="8.10.0",com.espertech.esper.common.internal.epl.agg.core;uses:=
  "com.espertech.esper.common.client,com.espertech.esper.common.client.ho
  ok.aggmultifunc,com.espertech.esper.common.internal.bytecodemodel.base,
  com.espertech.esper.common.internal.bytecodemodel.core,com.espertech.es
@@ -675,11 +675,11 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  time.abacus,com.espertech.esper.common.internal.epl.table.compiletime,c
  om.espertech.esper.common.internal.epl.variable.compiletime,com.esperte
  ch.esper.common.internal.serde,com.espertech.esper.common.internal.sett
- ings,com.espertech.esper.common.internal.util";version="8.9.0",com.espe
+ ings,com.espertech.esper.common.internal.util";version="8.10.0",com.espe
  rtech.esper.common.internal.epl.agg.groupall;uses:="com.espertech.esper
  .common.internal.bytecodemodel.base,com.espertech.esper.common.internal
  .bytecodemodel.core,com.espertech.esper.common.internal.epl.agg.core";v
- ersion="8.9.0",com.espertech.esper.common.internal.epl.agg.groupby;uses
+ ersion="8.10.0",com.espertech.esper.common.internal.epl.agg.groupby;uses
  :="com.espertech.esper.common.internal.bytecodemodel.base,com.espertech
  .esper.common.internal.bytecodemodel.core,com.espertech.esper.common.in
  ternal.bytecodemodel.model.expression,com.espertech.esper.common.intern
@@ -687,13 +687,13 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  pertech.esper.common.internal.epl.expression.core,com.espertech.esper.c
  ommon.internal.epl.expression.time.abacus,com.espertech.esper.common.in
  ternal.epl.variable.compiletime,com.espertech.esper.common.internal.epl
- .variable.core";version="8.9.0",com.espertech.esper.common.internal.epl
+ .variable.core";version="8.10.0",com.espertech.esper.common.internal.epl
  .agg.groupbylocal;uses:="com.espertech.esper.common.internal.bytecodemo
  del.base,com.espertech.esper.common.internal.bytecodemodel.core,com.esp
  ertech.esper.common.internal.bytecodemodel.model.expression,com.esperte
  ch.esper.common.internal.epl.agg.core,com.espertech.esper.common.intern
  al.epl.expression.core,com.espertech.esper.common.internal.serde,com.es
- pertech.esper.common.internal.settings";version="8.9.0",com.espertech.e
+ pertech.esper.common.internal.settings";version="8.10.0",com.espertech.e
  sper.common.internal.epl.agg.method.avedev;uses:="com.espertech.esper.c
  ommon.client,com.espertech.esper.common.internal.bytecodemodel.base,com
  .espertech.esper.common.internal.bytecodemodel.core,com.espertech.esper
@@ -704,7 +704,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  n.internal.epl.expression.agg.base,com.espertech.esper.common.internal.
  epl.expression.agg.method,com.espertech.esper.common.internal.epl.expre
  ssion.codegen,com.espertech.esper.common.internal.epl.expression.core";
- version="8.9.0",com.espertech.esper.common.internal.epl.agg.method.avg;
+ version="8.10.0",com.espertech.esper.common.internal.epl.agg.method.avg;
  uses:="com.espertech.esper.common.client,com.espertech.esper.common.int
  ernal.bytecodemodel.base,com.espertech.esper.common.internal.bytecodemo
  del.core,com.espertech.esper.common.internal.bytecodemodel.model.expres
@@ -714,7 +714,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  method.sum,com.espertech.esper.common.internal.epl.expression.agg.base,
  com.espertech.esper.common.internal.epl.expression.agg.method,com.esper
  tech.esper.common.internal.epl.expression.codegen,com.espertech.esper.c
- ommon.internal.epl.expression.core";version="8.9.0",com.espertech.esper
+ ommon.internal.epl.expression.core";version="8.10.0",com.espertech.esper
  .common.internal.epl.agg.method.core;uses:="com.espertech.esper.common.
  client.hook.aggmultifunc,com.espertech.esper.common.internal.bytecodemo
  del.base,com.espertech.esper.common.internal.bytecodemodel.core,com.esp
@@ -722,7 +722,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ch.esper.common.internal.epl.agg.access.core,com.espertech.esper.common
  .internal.epl.agg.core,com.espertech.esper.common.internal.epl.expressi
  on.codegen,com.espertech.esper.common.internal.epl.expression.core,com.
- espertech.esper.common.internal.settings";version="8.9.0",com.espertech
+ espertech.esper.common.internal.settings";version="8.10.0",com.espertech
  .esper.common.internal.epl.agg.method.count;uses:="com.espertech.esper.
  common.client,com.espertech.esper.common.internal.bytecodemodel.base,co
  m.espertech.esper.common.internal.bytecodemodel.core,com.espertech.espe
@@ -732,7 +732,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  com.espertech.esper.common.internal.epl.expression.agg.base,com.esperte
  ch.esper.common.internal.epl.expression.agg.method,com.espertech.esper.
  common.internal.epl.expression.codegen,com.espertech.esper.common.inter
- nal.epl.expression.core";version="8.9.0",com.espertech.esper.common.int
+ nal.epl.expression.core";version="8.10.0",com.espertech.esper.common.int
  ernal.epl.agg.method.firstlastever;uses:="com.espertech.esper.common.cl
  ient,com.espertech.esper.common.internal.bytecodemodel.base,com.esperte
  ch.esper.common.internal.bytecodemodel.core,com.espertech.esper.common.
@@ -742,7 +742,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  tech.esper.common.internal.epl.expression.agg.base,com.espertech.esper.
  common.internal.epl.expression.agg.method,com.espertech.esper.common.in
  ternal.epl.expression.codegen,com.espertech.esper.common.internal.epl.e
- xpression.core";version="8.9.0",com.espertech.esper.common.internal.epl
+ xpression.core";version="8.10.0",com.espertech.esper.common.internal.epl
  .agg.method.leaving;uses:="com.espertech.esper.common.client,com.espert
  ech.esper.common.internal.bytecodemodel.base,com.espertech.esper.common
  .internal.bytecodemodel.core,com.espertech.esper.common.internal.byteco
@@ -752,7 +752,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  on.internal.epl.expression.agg.base,com.espertech.esper.common.internal
  .epl.expression.agg.method,com.espertech.esper.common.internal.epl.expr
  ession.codegen,com.espertech.esper.common.internal.epl.expression.core"
- ;version="8.9.0",com.espertech.esper.common.internal.epl.agg.method.med
+ ;version="8.10.0",com.espertech.esper.common.internal.epl.agg.method.med
  ian;uses:="com.espertech.esper.common.client,com.espertech.esper.common
  .internal.bytecodemodel.base,com.espertech.esper.common.internal.byteco
  demodel.core,com.espertech.esper.common.internal.bytecodemodel.model.ex
@@ -762,7 +762,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  d.core,com.espertech.esper.common.internal.epl.expression.agg.base,com.
  espertech.esper.common.internal.epl.expression.agg.method,com.espertech
  .esper.common.internal.epl.expression.codegen,com.espertech.esper.commo
- n.internal.epl.expression.core";version="8.9.0",com.espertech.esper.com
+ n.internal.epl.expression.core";version="8.10.0",com.espertech.esper.com
  mon.internal.epl.agg.method.minmax;uses:="com.espertech.esper.common.cl
  ient,com.espertech.esper.common.internal.bytecodemodel.base,com.esperte
  ch.esper.common.internal.bytecodemodel.core,com.espertech.esper.common.
@@ -772,7 +772,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  tech.esper.common.internal.epl.expression.agg.base,com.espertech.esper.
  common.internal.epl.expression.agg.method,com.espertech.esper.common.in
  ternal.epl.expression.codegen,com.espertech.esper.common.internal.epl.e
- xpression.core";version="8.9.0",com.espertech.esper.common.internal.epl
+ xpression.core";version="8.10.0",com.espertech.esper.common.internal.epl
  .agg.method.nth;uses:="com.espertech.esper.common.client,com.espertech.
  esper.common.internal.bytecodemodel.base,com.espertech.esper.common.int
  ernal.bytecodemodel.core,com.espertech.esper.common.internal.bytecodemo
@@ -782,7 +782,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  nternal.epl.expression.agg.base,com.espertech.esper.common.internal.epl
  .expression.agg.method,com.espertech.esper.common.internal.epl.expressi
  on.codegen,com.espertech.esper.common.internal.epl.expression.core,com.
- espertech.esper.common.internal.serde";version="8.9.0",com.espertech.es
+ espertech.esper.common.internal.serde";version="8.10.0",com.espertech.es
  per.common.internal.epl.agg.method.plugin;uses:="com.espertech.esper.co
  mmon.client,com.espertech.esper.common.client.hook.aggfunc,com.espertec
  h.esper.common.internal.bytecodemodel.base,com.espertech.esper.common.i
@@ -793,7 +793,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  .internal.epl.expression.agg.base,com.espertech.esper.common.internal.e
  pl.expression.agg.method,com.espertech.esper.common.internal.epl.expres
  sion.codegen,com.espertech.esper.common.internal.epl.expression.core";v
- ersion="8.9.0",com.espertech.esper.common.internal.epl.agg.method.rate;
+ ersion="8.10.0",com.espertech.esper.common.internal.epl.agg.method.rate;
  uses:="com.espertech.esper.common.client,com.espertech.esper.common.int
  ernal.bytecodemodel.base,com.espertech.esper.common.internal.bytecodemo
  del.core,com.espertech.esper.common.internal.bytecodemodel.model.expres
@@ -803,7 +803,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ession.agg.base,com.espertech.esper.common.internal.epl.expression.agg.
  method,com.espertech.esper.common.internal.epl.expression.codegen,com.e
  spertech.esper.common.internal.epl.expression.core,com.espertech.esper.
- common.internal.epl.expression.time.abacus";version="8.9.0",com.esperte
+ common.internal.epl.expression.time.abacus";version="8.10.0",com.esperte
  ch.esper.common.internal.epl.agg.method.stddev;uses:="com.espertech.esp
  er.common.client,com.espertech.esper.common.internal.bytecodemodel.base
  ,com.espertech.esper.common.internal.bytecodemodel.core,com.espertech.e
@@ -813,7 +813,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  re,com.espertech.esper.common.internal.epl.expression.agg.base,com.espe
  rtech.esper.common.internal.epl.expression.agg.method,com.espertech.esp
  er.common.internal.epl.expression.codegen,com.espertech.esper.common.in
- ternal.epl.expression.core";version="8.9.0",com.espertech.esper.common.
+ ternal.epl.expression.core";version="8.10.0",com.espertech.esper.common.
  internal.epl.agg.method.sum;uses:="com.espertech.esper.common.client,co
  m.espertech.esper.common.internal.bytecodemodel.base,com.espertech.espe
  r.common.internal.bytecodemodel.core,com.espertech.esper.common.interna
@@ -823,7 +823,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  per.common.internal.epl.expression.agg.base,com.espertech.esper.common.
  internal.epl.expression.agg.method,com.espertech.esper.common.internal.
  epl.expression.codegen,com.espertech.esper.common.internal.epl.expressi
- on.core,com.espertech.esper.common.internal.util";version="8.9.0",com.e
+ on.core,com.espertech.esper.common.internal.util";version="8.10.0",com.e
  spertech.esper.common.internal.epl.agg.rollup;uses:="com.espertech.espe
  r.common.client,com.espertech.esper.common.internal.bytecodemodel.base,
  com.espertech.esper.common.internal.bytecodemodel.core,com.espertech.es
@@ -831,10 +831,10 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  rnal.compile.stage1.specmapper,com.espertech.esper.common.internal.epl.
  agg.core,com.espertech.esper.common.internal.epl.expression.core,com.es
  pertech.esper.common.internal.epl.resultset.order,com.espertech.esper.c
- ommon.internal.epl.resultset.select.core";version="8.9.0",com.espertech
+ ommon.internal.epl.resultset.select.core";version="8.10.0",com.espertech
  .esper.common.internal.epl.agg.rowrecog;uses:="com.espertech.esper.comm
  on.client,com.espertech.esper.common.internal.epl.agg.core,com.espertec
- h.esper.common.internal.epl.expression.core";version="8.9.0",com.espert
+ h.esper.common.internal.epl.expression.core";version="8.10.0",com.espert
  ech.esper.common.internal.epl.agg.table;uses:="com.espertech.esper.comm
  on.client,com.espertech.esper.common.client.hook.aggmultifunc,com.esper
  tech.esper.common.internal.bytecodemodel.base,com.espertech.esper.commo
@@ -844,18 +844,18 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ertech.esper.common.internal.epl.agg.core,com.espertech.esper.common.in
  ternal.epl.expression.core,com.espertech.esper.common.internal.epl.tabl
  e.compiletime,com.espertech.esper.common.internal.epl.table.core,com.es
- pertech.esper.common.internal.settings";version="8.9.0",com.espertech.e
+ pertech.esper.common.internal.settings";version="8.10.0",com.espertech.e
  sper.common.internal.epl.annotation;uses:="com.espertech.esper.common.i
  nternal.bytecodemodel.base,com.espertech.esper.common.internal.compile.
  stage1,com.espertech.esper.common.internal.compile.stage1.spec,com.espe
  rtech.esper.common.internal.compile.stage2,com.espertech.esper.common.i
  nternal.epl.expression.core,com.espertech.esper.common.internal.setting
- s";version="8.9.0",com.espertech.esper.common.internal.epl.approx.count
+ s";version="8.10.0",com.espertech.esper.common.internal.epl.approx.count
  minsketch;uses:="com.espertech.esper.common.client,com.espertech.esper.
  common.client.hook.aggmultifunc,com.espertech.esper.common.client.util,
  com.espertech.esper.common.internal.bytecodemodel.base,com.espertech.es
  per.common.internal.bytecodemodel.model.expression,com.espertech.esper.
- common.internal.epl.expression.core";version="8.9.0",com.espertech.espe
+ common.internal.epl.expression.core";version="8.10.0",com.espertech.espe
  r.common.internal.epl.contained;uses:="com.espertech.esper.common.clien
  t,com.espertech.esper.common.internal.bytecodemodel.base,com.espertech.
  esper.common.internal.bytecodemodel.model.expression,com.espertech.espe
@@ -865,17 +865,17 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  esper.common.internal.context.module,com.espertech.esper.common.interna
  l.epl.expression.core,com.espertech.esper.common.internal.epl.resultset
  .select.core,com.espertech.esper.common.internal.event.core,com.esperte
- ch.esper.common.internal.filterspec";version="8.9.0",com.espertech.espe
+ ch.esper.common.internal.filterspec";version="8.10.0",com.espertech.espe
  r.common.internal.epl.dataflow.core;uses:="com.espertech.esper.common.c
  lient.dataflow.core,com.espertech.esper.common.internal.context.aifacto
  ry.createdataflow,com.espertech.esper.common.internal.context.util,com.
  espertech.esper.common.internal.epl.dataflow.realize,com.espertech.espe
  r.common.internal.epl.dataflow.runnables,com.espertech.esper.common.int
  ernal.epl.expression.core,com.espertech.esper.common.internal.util";ver
- sion="8.9.0",com.espertech.esper.common.internal.epl.dataflow.filtersvc
+ sion="8.10.0",com.espertech.esper.common.internal.epl.dataflow.filtersvc
  adapter;uses:="com.espertech.esper.common.client,com.espertech.esper.co
  mmon.internal.context.util,com.espertech.esper.common.internal.filtersp
- ec,com.espertech.esper.common.internal.filtersvc";version="8.9.0",com.e
+ ec,com.espertech.esper.common.internal.filtersvc";version="8.10.0",com.e
  spertech.esper.common.internal.epl.dataflow.interfaces;uses:="com.esper
  tech.esper.common.client.dataflow.core,com.espertech.esper.common.clien
  t.dataflow.util,com.espertech.esper.common.internal.bytecodemodel.base,
@@ -885,14 +885,14 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  pile.stage3,com.espertech.esper.common.internal.context.aifactory.core,
  com.espertech.esper.common.internal.context.util,com.espertech.esper.co
  mmon.internal.epl.dataflow.util,com.espertech.esper.common.internal.epl
- .expression.core";version="8.9.0",com.espertech.esper.common.internal.e
+ .expression.core";version="8.10.0",com.espertech.esper.common.internal.e
  pl.dataflow.ops;uses:="com.espertech.esper.common.client.dataflow.annot
  ations,com.espertech.esper.common.client.dataflow.core,com.espertech.es
  per.common.internal.bytecodemodel.base,com.espertech.esper.common.inter
  nal.bytecodemodel.model.expression,com.espertech.esper.common.internal.
  compile.stage2,com.espertech.esper.common.internal.context.aifactory.co
  re,com.espertech.esper.common.internal.epl.dataflow.interfaces,com.espe
- rtech.esper.common.internal.epl.expression.core";version="8.9.0",com.es
+ rtech.esper.common.internal.epl.expression.core";version="8.10.0",com.es
  pertech.esper.common.internal.epl.dataflow.realize;uses:="com.espertech
  .esper.common.client.dataflow.core,com.espertech.esper.common.client.da
  taflow.util,com.espertech.esper.common.internal.bytecodemodel.base,com.
@@ -902,12 +902,12 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  mmon.internal.context.util,com.espertech.esper.common.internal.epl.data
  flow.interfaces,com.espertech.esper.common.internal.epl.dataflow.util,c
  om.espertech.esper.common.internal.epl.expression.core,com.espertech.es
- per.common.internal.settings";version="8.9.0",com.espertech.esper.commo
+ per.common.internal.settings";version="8.10.0",com.espertech.esper.commo
  n.internal.epl.dataflow.runnables;uses:="com.espertech.esper.common.cli
  ent.dataflow.core,com.espertech.esper.common.client.dataflow.util,com.e
  spertech.esper.common.internal.context.util,com.espertech.esper.common.
  internal.epl.dataflow.interfaces,com.espertech.esper.common.internal.ep
- l.dataflow.util";version="8.9.0",com.espertech.esper.common.internal.ep
+ l.dataflow.util";version="8.10.0",com.espertech.esper.common.internal.ep
  l.dataflow.util;uses:="com.espertech.esper.common.client,com.espertech.
  esper.common.client.configuration,com.espertech.esper.common.client.dat
  aflow.annotations,com.espertech.esper.common.client.dataflow.core,com.e
@@ -916,7 +916,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  model.model.expression,com.espertech.esper.common.internal.context.aifa
  ctory.core,com.espertech.esper.common.internal.epl.dataflow.interfaces,
  com.espertech.esper.common.internal.epl.expression.core,com.espertech.e
- sper.common.internal.event.core";version="8.9.0",com.espertech.esper.co
+ sper.common.internal.event.core";version="8.10.0",com.espertech.esper.co
  mmon.internal.epl.datetime.calop;uses:="com.espertech.esper.common.clie
  nt,com.espertech.esper.common.client.util,com.espertech.esper.common.in
  ternal.bytecodemodel.base,com.espertech.esper.common.internal.bytecodem
@@ -925,7 +925,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  pertech.esper.common.internal.epl.expression.codegen,com.espertech.espe
  r.common.internal.epl.expression.core,com.espertech.esper.common.intern
  al.epl.expression.time.abacus,com.espertech.esper.common.internal.retty
- pe";version="8.9.0",com.espertech.esper.common.internal.epl.datetime.dt
+ pe";version="8.10.0",com.espertech.esper.common.internal.epl.datetime.dt
  local;uses:="com.espertech.esper.common.client,com.espertech.esper.comm
  on.internal.bytecodemodel.base,com.espertech.esper.common.internal.byte
  codemodel.model.expression,com.espertech.esper.common.internal.epl.date
@@ -934,7 +934,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  .esper.common.internal.epl.expression.codegen,com.espertech.esper.commo
  n.internal.epl.expression.core,com.espertech.esper.common.internal.epl.
  expression.time.abacus,com.espertech.esper.common.internal.event.core";
- version="8.9.0",com.espertech.esper.common.internal.epl.datetime.eval;u
+ version="8.10.0",com.espertech.esper.common.internal.epl.datetime.eval;u
  ses:="com.espertech.esper.common.client,com.espertech.esper.common.inte
  rnal.bytecodemodel.base,com.espertech.esper.common.internal.bytecodemod
  el.model.expression,com.espertech.esper.common.internal.collection,com.
@@ -949,7 +949,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  raph,com.espertech.esper.common.internal.epl.lookup,com.espertech.esper
  .common.internal.epl.methodbase,com.espertech.esper.common.internal.epl
  .streamtype,com.espertech.esper.common.internal.epl.table.compiletime,c
- om.espertech.esper.common.internal.rettype";version="8.9.0",com.esperte
+ om.espertech.esper.common.internal.rettype";version="8.10.0",com.esperte
  ch.esper.common.internal.epl.datetime.interval;uses:="com.espertech.esp
  er.common.client,com.espertech.esper.common.internal.bytecodemodel.base
  ,com.espertech.esper.common.internal.bytecodemodel.model.expression,com
@@ -959,7 +959,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ion.dot.core,com.espertech.esper.common.internal.epl.expression.time.ab
  acus,com.espertech.esper.common.internal.epl.streamtype,com.espertech.e
  sper.common.internal.epl.table.compiletime,com.espertech.esper.common.i
- nternal.event.core";version="8.9.0",com.espertech.esper.common.internal
+ nternal.event.core";version="8.10.0",com.espertech.esper.common.internal
  .epl.datetime.interval.deltaexpr;uses:="com.espertech.esper.common.clie
  nt,com.espertech.esper.common.internal.bytecodemodel.base,com.espertech
  .esper.common.internal.bytecodemodel.model.expression,com.espertech.esp
@@ -967,7 +967,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ernal.epl.expression.codegen,com.espertech.esper.common.internal.epl.ex
  pression.core,com.espertech.esper.common.internal.epl.expression.time.a
  bacus,com.espertech.esper.common.internal.epl.expression.time.node";ver
- sion="8.9.0",com.espertech.esper.common.internal.epl.datetime.reformato
+ sion="8.10.0",com.espertech.esper.common.internal.epl.datetime.reformato
  p;uses:="com.espertech.esper.common.client,com.espertech.esper.common.i
  nternal.bytecodemodel.base,com.espertech.esper.common.internal.bytecode
  model.model.expression,com.espertech.esper.common.internal.epl.datetime
@@ -976,14 +976,14 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  mmon.internal.epl.expression.core,com.espertech.esper.common.internal.e
  pl.expression.dot.core,com.espertech.esper.common.internal.epl.expressi
  on.time.abacus,com.espertech.esper.common.internal.epl.join.analyze,com
- .espertech.esper.common.internal.rettype";version="8.9.0",com.espertech
+ .espertech.esper.common.internal.rettype";version="8.10.0",com.espertech
  .esper.common.internal.epl.enummethod.cache;uses:="com.espertech.esper.
- common.client";version="8.9.0",com.espertech.esper.common.internal.epl.
+ common.client";version="8.10.0",com.espertech.esper.common.internal.epl.
  enummethod.codegen;uses:="com.espertech.esper.common.internal.bytecodem
  odel.core,com.espertech.esper.common.internal.bytecodemodel.model.expre
- ssion";version="8.9.0",com.espertech.esper.common.internal.epl.enummeth
+ ssion";version="8.10.0",com.espertech.esper.common.internal.epl.enummeth
  od.compile;uses:="com.espertech.esper.common.internal.epl.enummethod.ca
- che";version="8.9.0",com.espertech.esper.common.internal.epl.enummethod
+ che";version="8.10.0",com.espertech.esper.common.internal.epl.enummethod
  .dot;uses:="com.espertech.esper.common.client,com.espertech.esper.commo
  n.internal.bytecodemodel.base,com.espertech.esper.common.internal.bytec
  odemodel.model.expression,com.espertech.esper.common.internal.compile.s
@@ -1006,7 +1006,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  enummethod.dot,com.espertech.esper.common.internal.epl.expression.core,
  com.espertech.esper.common.internal.epl.streamtype,com.espertech.esper.
  common.internal.event.arr,com.espertech.esper.common.internal.rettype";
- version="8.9.0",com.espertech.esper.common.internal.epl.expression.agg.
+ version="8.10.0",com.espertech.esper.common.internal.epl.expression.agg.
  accessagg;uses:="com.espertech.esper.common.client,com.espertech.esper.
  common.client.configuration.compiler,com.espertech.esper.common.client.
  hook.aggmultifunc,com.espertech.esper.common.internal.bytecodemodel.bas
@@ -1018,24 +1018,24 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  sper.common.internal.epl.expression.agg.base,com.espertech.esper.common
  .internal.epl.expression.codegen,com.espertech.esper.common.internal.ep
  l.expression.core,com.espertech.esper.common.internal.epl.streamtype,co
- m.espertech.esper.common.internal.epl.table.compiletime";version="8.9.0
+ m.espertech.esper.common.internal.epl.table.compiletime";version="8.10.0
  ",com.espertech.esper.common.internal.epl.expression.agg.base;uses:="co
  m.espertech.esper.common.client,com.espertech.esper.common.internal.byt
  ecodemodel.base,com.espertech.esper.common.internal.bytecodemodel.model
  .expression,com.espertech.esper.common.internal.bytecodemodel.name,com.
  espertech.esper.common.internal.epl.agg.core,com.espertech.esper.common
  .internal.epl.expression.codegen,com.espertech.esper.common.internal.ep
- l.expression.core";version="8.9.0",com.espertech.esper.common.internal.
+ l.expression.core";version="8.10.0",com.espertech.esper.common.internal.
  epl.expression.agg.method;uses:="com.espertech.esper.common.client,com.
  espertech.esper.common.client.hook.aggfunc,com.espertech.esper.common.i
  nternal.epl.agg.core,com.espertech.esper.common.internal.epl.expression
  .agg.base,com.espertech.esper.common.internal.epl.expression.core";vers
- ion="8.9.0",com.espertech.esper.common.internal.epl.expression.codegen;
+ ion="8.10.0",com.espertech.esper.common.internal.epl.expression.codegen;
  uses:="com.espertech.esper.common.client,com.espertech.esper.common.int
  ernal.bytecodemodel.base,com.espertech.esper.common.internal.bytecodemo
  del.core,com.espertech.esper.common.internal.bytecodemodel.model.expres
  sion,com.espertech.esper.common.internal.epl.expression.core";version="
- 8.9.0",com.espertech.esper.common.internal.epl.expression.core;uses:="c
+ 8.10.0",com.espertech.esper.common.internal.epl.expression.core;uses:="c
  om.espertech.esper.common.client,com.espertech.esper.common.client.data
  flow.core,com.espertech.esper.common.client.hook.expr,com.espertech.esp
  er.common.client.util,com.espertech.esper.common.internal.bytecodemodel
@@ -1062,7 +1062,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  per.common.internal.schedule,com.espertech.esper.common.internal.settin
  gs,com.espertech.esper.common.internal.type,com.espertech.esper.common.
  internal.util,com.espertech.esper.common.internal.view.access";version=
- "8.9.0",com.espertech.esper.common.internal.epl.expression.declared.com
+ "8.10.0",com.espertech.esper.common.internal.epl.expression.declared.com
  piletime;uses:="com.espertech.esper.common.client,com.espertech.esper.c
  ommon.internal.bytecodemodel.base,com.espertech.esper.common.internal.b
  ytecodemodel.model.expression,com.espertech.esper.common.internal.colle
@@ -1076,17 +1076,17 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  e,com.espertech.esper.common.internal.epl.expression.declared.core,com.
  espertech.esper.common.internal.epl.expression.visitor,com.espertech.es
  per.common.internal.epl.script.core,com.espertech.esper.common.internal
- .epl.util";version="8.9.0",com.espertech.esper.common.internal.epl.expr
+ .epl.util";version="8.10.0",com.espertech.esper.common.internal.epl.expr
  ession.declared.core;uses:="com.espertech.esper.common.internal.bytecod
  emodel.base,com.espertech.esper.common.internal.bytecodemodel.model.exp
  ression,com.espertech.esper.common.internal.compile.stage1.spec";versio
- n="8.9.0",com.espertech.esper.common.internal.epl.expression.declared.r
+ n="8.10.0",com.espertech.esper.common.internal.epl.expression.declared.r
  untime;uses:="com.espertech.esper.common.client.util,com.espertech.espe
  r.common.internal.bytecodemodel.base,com.espertech.esper.common.interna
  l.bytecodemodel.model.expression,com.espertech.esper.common.internal.co
  mpile.stage1.spec,com.espertech.esper.common.internal.context.module,co
  m.espertech.esper.common.internal.epl.expression.declared.core";version
- ="8.9.0",com.espertech.esper.common.internal.epl.expression.dot.core;us
+ ="8.10.0",com.espertech.esper.common.internal.epl.expression.dot.core;us
  es:="com.espertech.esper.common.client,com.espertech.esper.common.inter
  nal.bytecodemodel.base,com.espertech.esper.common.internal.bytecodemode
  l.model.expression,com.espertech.esper.common.internal.compile.stage2,c
@@ -1099,19 +1099,19 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  iable.compiletime,com.espertech.esper.common.internal.event.arr,com.esp
  ertech.esper.common.internal.event.core,com.espertech.esper.common.inte
  rnal.filterspec,com.espertech.esper.common.internal.rettype,com.esperte
- ch.esper.common.internal.settings";version="8.9.0",com.espertech.esper.
+ ch.esper.common.internal.settings";version="8.10.0",com.espertech.esper.
  common.internal.epl.expression.dot.inner;uses:="com.espertech.esper.com
  mon.client,com.espertech.esper.common.internal.bytecodemodel.base,com.e
  spertech.esper.common.internal.bytecodemodel.model.expression,com.esper
  tech.esper.common.internal.epl.expression.codegen,com.espertech.esper.c
  ommon.internal.epl.expression.core,com.espertech.esper.common.internal.
  epl.expression.dot.core,com.espertech.esper.common.internal.rettype";ve
- rsion="8.9.0",com.espertech.esper.common.internal.epl.expression.dot.pr
+ rsion="8.10.0",com.espertech.esper.common.internal.epl.expression.dot.pr
  opertydot;uses:="com.espertech.esper.common.client,com.espertech.esper.
  common.internal.bytecodemodel.base,com.espertech.esper.common.internal.
  bytecodemodel.model.expression,com.espertech.esper.common.internal.epl.
  expression.codegen,com.espertech.esper.common.internal.epl.expression.c
- ore,com.espertech.esper.common.internal.event.core";version="8.9.0",com
+ ore,com.espertech.esper.common.internal.event.core";version="8.10.0",com
  .espertech.esper.common.internal.epl.expression.etc;uses:="com.espertec
  h.esper.common.client,com.espertech.esper.common.internal.bytecodemodel
  .base,com.espertech.esper.common.internal.bytecodemodel.model.expressio
@@ -1119,7 +1119,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ech.esper.common.internal.epl.expression.core,com.espertech.esper.commo
  n.internal.epl.table.compiletime,com.espertech.esper.common.internal.ep
  l.table.core,com.espertech.esper.common.internal.event.core,com.esperte
- ch.esper.common.internal.util";version="8.9.0",com.espertech.esper.comm
+ ch.esper.common.internal.util";version="8.10.0",com.espertech.esper.comm
  on.internal.epl.expression.funcs;uses:="com.espertech.esper.common.clie
  nt,com.espertech.esper.common.internal.bytecodemodel.base,com.espertech
  .esper.common.internal.bytecodemodel.model.expression,com.espertech.esp
@@ -1138,20 +1138,20 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  stage3,com.espertech.esper.common.internal.epl.expression.codegen,com.e
  spertech.esper.common.internal.epl.expression.core,com.espertech.esper.
  common.internal.event.bean.manufacturer,com.espertech.esper.common.inte
- rnal.type,com.espertech.esper.common.internal.util";version="8.9.0",com
+ rnal.type,com.espertech.esper.common.internal.util";version="8.10.0",com
  .espertech.esper.common.internal.epl.expression.prev;uses:="com.esperte
  ch.esper.common.client,com.espertech.esper.common.internal.bytecodemode
  l.base,com.espertech.esper.common.internal.bytecodemodel.model.expressi
  on,com.espertech.esper.common.internal.compile.stage2,com.espertech.esp
  er.common.internal.compile.stage3,com.espertech.esper.common.internal.e
  pl.expression.codegen,com.espertech.esper.common.internal.epl.expressio
- n.core,com.espertech.esper.common.internal.view.access";version="8.9.0"
+ n.core,com.espertech.esper.common.internal.view.access";version="8.10.0"
  ,com.espertech.esper.common.internal.epl.expression.prior;uses:="com.es
  pertech.esper.common.client,com.espertech.esper.common.internal.bytecod
  emodel.base,com.espertech.esper.common.internal.bytecodemodel.model.exp
  ression,com.espertech.esper.common.internal.epl.expression.codegen,com.
  espertech.esper.common.internal.epl.expression.core,com.espertech.esper
- .common.internal.view.access";version="8.9.0",com.espertech.esper.commo
+ .common.internal.view.access";version="8.10.0",com.espertech.esper.commo
  n.internal.epl.expression.subquery;uses:="com.espertech.esper.common.cl
  ient,com.espertech.esper.common.internal.bytecodemodel.base,com.esperte
  ch.esper.common.internal.bytecodemodel.model.expression,com.espertech.e
@@ -1162,7 +1162,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  .internal.epl.streamtype,com.espertech.esper.common.internal.epl.table.
  compiletime,com.espertech.esper.common.internal.settings,com.espertech.
  esper.common.internal.type,com.espertech.esper.common.internal.util";ve
- rsion="8.9.0",com.espertech.esper.common.internal.epl.expression.table;
+ rsion="8.10.0",com.espertech.esper.common.internal.epl.expression.table;
  uses:="com.espertech.esper.common.client,com.espertech.esper.common.cli
  ent.hook.aggmultifunc,com.espertech.esper.common.internal.bytecodemodel
  .base,com.espertech.esper.common.internal.bytecodemodel.model.expressio
@@ -1171,13 +1171,13 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  l.expression.agg.base,com.espertech.esper.common.internal.epl.expressio
  n.codegen,com.espertech.esper.common.internal.epl.expression.core,com.e
  spertech.esper.common.internal.epl.table.compiletime,com.espertech.espe
- r.common.internal.epl.table.strategy";version="8.9.0",com.espertech.esp
+ r.common.internal.epl.table.strategy";version="8.10.0",com.espertech.esp
  er.common.internal.epl.expression.time.abacus;uses:="com.espertech.espe
  r.common.internal.bytecodemodel.base,com.espertech.esper.common.interna
- l.bytecodemodel.model.expression";version="8.9.0",com.espertech.esper.c
+ l.bytecodemodel.model.expression";version="8.10.0",com.espertech.esper.c
  ommon.internal.epl.expression.time.adder;uses:="com.espertech.esper.com
  mon.internal.bytecodemodel.base,com.espertech.esper.common.internal.byt
- ecodemodel.model.expression";version="8.9.0",com.espertech.esper.common
+ ecodemodel.model.expression";version="8.10.0",com.espertech.esper.common
  .internal.epl.expression.time.eval;uses:="com.espertech.esper.common.cl
  ient,com.espertech.esper.common.client.util,com.espertech.esper.common.
  internal.bytecodemodel.base,com.espertech.esper.common.internal.bytecod
@@ -1185,7 +1185,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ion.core,com.espertech.esper.common.internal.epl.expression.time.abacus
  ,com.espertech.esper.common.internal.epl.expression.time.adder,com.espe
  rtech.esper.common.internal.epl.expression.time.node,com.espertech.espe
- r.common.internal.schedule";version="8.9.0",com.espertech.esper.common.
+ r.common.internal.schedule";version="8.10.0",com.espertech.esper.common.
  internal.epl.expression.time.node;uses:="com.espertech.esper.common.cli
  ent,com.espertech.esper.common.client.util,com.espertech.esper.common.i
  nternal.bytecodemodel.base,com.espertech.esper.common.internal.bytecode
@@ -1194,13 +1194,13 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  espertech.esper.common.internal.epl.expression.time.abacus,com.espertec
  h.esper.common.internal.epl.expression.time.adder,com.espertech.esper.c
  ommon.internal.epl.expression.time.eval,com.espertech.esper.common.inte
- rnal.schedule";version="8.9.0",com.espertech.esper.common.internal.epl.
+ rnal.schedule";version="8.10.0",com.espertech.esper.common.internal.epl.
  expression.variable;uses:="com.espertech.esper.common.client,com.espert
  ech.esper.common.internal.bytecodemodel.base,com.espertech.esper.common
  .internal.bytecodemodel.model.expression,com.espertech.esper.common.int
  ernal.epl.expression.codegen,com.espertech.esper.common.internal.epl.ex
  pression.core,com.espertech.esper.common.internal.epl.variable.compilet
- ime";version="8.9.0",com.espertech.esper.common.internal.epl.expression
+ ime";version="8.10.0",com.espertech.esper.common.internal.epl.expression
  .visitor;uses:="com.espertech.esper.common.internal.collection,com.espe
  rtech.esper.common.internal.epl.expression.core,com.espertech.esper.com
  mon.internal.epl.expression.declared.compiletime,com.espertech.esper.co
@@ -1220,7 +1220,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  er.common.internal.epl.namedwindow.path,com.espertech.esper.common.inte
  rnal.epl.table.compiletime,com.espertech.esper.common.internal.epl.tabl
  e.core,com.espertech.esper.common.internal.epl.virtualdw,com.espertech.
- esper.common.internal.view.core";version="8.9.0",com.espertech.esper.co
+ esper.common.internal.view.core";version="8.10.0",com.espertech.esper.co
  mmon.internal.epl.fafquery.querymethod;uses:="com.espertech.esper.commo
  n.client,com.espertech.esper.common.client.context,com.espertech.esper.
  common.internal.bytecodemodel.base,com.espertech.esper.common.internal.
@@ -1238,7 +1238,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  core,com.espertech.esper.common.internal.epl.table.core,com.espertech.e
  sper.common.internal.epl.table.strategy,com.espertech.esper.common.inte
  rnal.epl.table.update,com.espertech.esper.common.internal.epl.updatehel
- per,com.espertech.esper.common.internal.event.core";version="8.9.0",com
+ per,com.espertech.esper.common.internal.event.core";version="8.10.0",com
  .espertech.esper.common.internal.epl.historical.common;uses:="com.esper
  tech.esper.common.client,com.espertech.esper.common.internal.bytecodemo
  del.base,com.espertech.esper.common.internal.bytecodemodel.model.expres
@@ -1254,12 +1254,12 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ch.esper.common.internal.epl.join.querygraph,com.espertech.esper.common
  .internal.epl.join.strategy,com.espertech.esper.common.internal.epl.str
  eamtype,com.espertech.esper.common.internal.schedule,com.espertech.espe
- r.common.internal.view.core";version="8.9.0",com.espertech.esper.common
+ r.common.internal.view.core";version="8.10.0",com.espertech.esper.common
  .internal.epl.historical.database.connection;uses:="com.espertech.esper
  .common.client.configuration.common,com.espertech.esper.common.internal
  .context.util,com.espertech.esper.common.internal.epl.historical.databa
  se.core,com.espertech.esper.common.internal.epl.historical.datacache,co
- m.espertech.esper.common.internal.settings";version="8.9.0",com.esperte
+ m.espertech.esper.common.internal.settings";version="8.10.0",com.esperte
  ch.esper.common.internal.epl.historical.database.core;uses:="com.espert
  ech.esper.common.client,com.espertech.esper.common.client.configuration
  .common,com.espertech.esper.common.client.hook.type,com.espertech.esper
@@ -1273,28 +1273,28 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  r.common.internal.epl.historical.database.connection,com.espertech.espe
  r.common.internal.epl.historical.execstrategy,com.espertech.esper.commo
  n.internal.epl.streamtype,com.espertech.esper.common.internal.util";ver
- sion="8.9.0",com.espertech.esper.common.internal.epl.historical.datacac
+ sion="8.10.0",com.espertech.esper.common.internal.epl.historical.datacac
  he;uses:="com.espertech.esper.common.client.configuration.common,com.es
  pertech.esper.common.client.util,com.espertech.esper.common.internal.co
  ntext.util,com.espertech.esper.common.internal.epl.index.base,com.esper
- tech.esper.common.internal.schedule";version="8.9.0",com.espertech.espe
+ tech.esper.common.internal.schedule";version="8.10.0",com.espertech.espe
  r.common.internal.epl.historical.execstrategy;uses:="com.espertech.espe
  r.common.client,com.espertech.esper.common.internal.context.util";versi
- on="8.9.0",com.espertech.esper.common.internal.epl.historical.indexings
+ on="8.10.0",com.espertech.esper.common.internal.epl.historical.indexings
  trategy;uses:="com.espertech.esper.common.client,com.espertech.esper.co
  mmon.internal.bytecodemodel.base,com.espertech.esper.common.internal.by
  tecodemodel.model.expression,com.espertech.esper.common.internal.contex
  t.aifactory.core,com.espertech.esper.common.internal.context.util,com.e
  spertech.esper.common.internal.epl.expression.core,com.espertech.esper.
  common.internal.epl.index.base,com.espertech.esper.common.internal.epl.
- index.composite";version="8.9.0",com.espertech.esper.common.internal.ep
+ index.composite";version="8.10.0",com.espertech.esper.common.internal.ep
  l.historical.lookupstrategy;uses:="com.espertech.esper.common.client,co
  m.espertech.esper.common.internal.bytecodemodel.base,com.espertech.espe
  r.common.internal.bytecodemodel.model.expression,com.espertech.esper.co
  mmon.internal.context.aifactory.core,com.espertech.esper.common.interna
  l.epl.expression.core,com.espertech.esper.common.internal.epl.index.bas
  e,com.espertech.esper.common.internal.epl.join.exec.composite,com.esper
- tech.esper.common.internal.epl.join.querygraph";version="8.9.0",com.esp
+ tech.esper.common.internal.epl.join.querygraph";version="8.10.0",com.esp
  ertech.esper.common.internal.epl.historical.method.core;uses:="com.espe
  rtech.esper.common.client,com.espertech.esper.common.internal.bytecodem
  odel.base,com.espertech.esper.common.internal.bytecodemodel.model.expre
@@ -1307,7 +1307,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  orical.execstrategy,com.espertech.esper.common.internal.epl.historical.
  method.poll,com.espertech.esper.common.internal.epl.script.core,com.esp
  ertech.esper.common.internal.epl.streamtype,com.espertech.esper.common.
- internal.epl.variable.compiletime";version="8.9.0",com.espertech.esper.
+ internal.epl.variable.compiletime";version="8.10.0",com.espertech.esper.
  common.internal.epl.historical.method.poll;uses:="com.espertech.esper.c
  ommon.client,com.espertech.esper.common.internal.bytecodemodel.base,com
  .espertech.esper.common.internal.bytecodemodel.model.expression,com.esp
@@ -1315,7 +1315,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  .common.internal.context.module,com.espertech.esper.common.internal.con
  text.util,com.espertech.esper.common.internal.epl.script.core,com.esper
  tech.esper.common.internal.epl.variable.compiletime,com.espertech.esper
- .common.internal.epl.variable.core";version="8.9.0",com.espertech.esper
+ .common.internal.epl.variable.core";version="8.10.0",com.espertech.esper
  .common.internal.epl.index.advanced.index.quadtree;uses:="com.espertech
  .esper.common.client,com.espertech.esper.common.internal.bytecodemodel.
  base,com.espertech.esper.common.internal.bytecodemodel.model.expression
@@ -1330,7 +1330,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  om.espertech.esper.common.internal.epl.spatial.quadtree.pointregion,com
  .espertech.esper.common.internal.epl.virtualdw,com.espertech.esper.comm
  on.internal.filterspec,com.espertech.esper.common.internal.settings";ve
- rsion="8.9.0",com.espertech.esper.common.internal.epl.index.advanced.in
+ rsion="8.10.0",com.espertech.esper.common.internal.epl.index.advanced.in
  dex.service;uses:="com.espertech.esper.common.client,com.espertech.espe
  r.common.internal.bytecodemodel.base,com.espertech.esper.common.interna
  l.bytecodemodel.model.expression,com.espertech.esper.common.internal.co
@@ -1340,7 +1340,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  re,com.espertech.esper.common.internal.epl.index.base,com.espertech.esp
  er.common.internal.epl.join.analyze,com.espertech.esper.common.internal
  .epl.join.querygraph,com.espertech.esper.common.internal.epl.lookup";ve
- rsion="8.9.0",com.espertech.esper.common.internal.epl.index.base;uses:=
+ rsion="8.10.0",com.espertech.esper.common.internal.epl.index.base;uses:=
  "com.espertech.esper.common.client,com.espertech.esper.common.internal.
  bytecodemodel.base,com.espertech.esper.common.internal.bytecodemodel.mo
  del.expression,com.espertech.esper.common.internal.context.aifactory.co
@@ -1349,7 +1349,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  .expression.core,com.espertech.esper.common.internal.epl.index.advanced
  .index.service,com.espertech.esper.common.internal.epl.index.compile,co
  m.espertech.esper.common.internal.epl.join.queryplan,com.espertech.espe
- r.common.internal.event.core";version="8.9.0",com.espertech.esper.commo
+ r.common.internal.event.core";version="8.10.0",com.espertech.esper.commo
  n.internal.epl.index.compile;uses:="com.espertech.esper.common.client.u
  til,com.espertech.esper.common.internal.bytecodemodel.base,com.espertec
  h.esper.common.internal.bytecodemodel.model.expression,com.espertech.es
@@ -1357,52 +1357,52 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ext.aifactory.core,com.espertech.esper.common.internal.epl.join.lookup,
  com.espertech.esper.common.internal.epl.join.queryplan,com.espertech.es
  per.common.internal.epl.namedwindow.path,com.espertech.esper.common.int
- ernal.epl.table.compiletime";version="8.9.0",com.espertech.esper.common
+ ernal.epl.table.compiletime";version="8.10.0",com.espertech.esper.common
  .internal.epl.index.composite;uses:="com.espertech.esper.common.client,
  com.espertech.esper.common.internal.bytecodemodel.base,com.espertech.es
  per.common.internal.bytecodemodel.model.expression,com.espertech.esper.
  common.internal.context.aifactory.core,com.espertech.esper.common.inter
  nal.context.util,com.espertech.esper.common.internal.epl.expression.cor
  e,com.espertech.esper.common.internal.epl.index.base,com.espertech.espe
- r.common.internal.epl.join.exec.composite";version="8.9.0",com.espertec
+ r.common.internal.epl.join.exec.composite";version="8.10.0",com.espertec
  h.esper.common.internal.epl.index.hash;uses:="com.espertech.esper.commo
  n.client,com.espertech.esper.common.internal.bytecodemodel.base,com.esp
  ertech.esper.common.internal.bytecodemodel.model.expression,com.esperte
  ch.esper.common.internal.context.aifactory.core,com.espertech.esper.com
  mon.internal.context.util,com.espertech.esper.common.internal.epl.expre
  ssion.core,com.espertech.esper.common.internal.epl.index.base,com.esper
- tech.esper.common.internal.epl.join.queryplan";version="8.9.0",com.espe
+ tech.esper.common.internal.epl.join.queryplan";version="8.10.0",com.espe
  rtech.esper.common.internal.epl.index.inkeyword;uses:="com.espertech.es
  per.common.client,com.espertech.esper.common.internal.bytecodemodel.bas
  e,com.espertech.esper.common.internal.bytecodemodel.model.expression,co
  m.espertech.esper.common.internal.context.aifactory.core,com.espertech.
  esper.common.internal.context.util,com.espertech.esper.common.internal.
  epl.index.base,com.espertech.esper.common.internal.epl.index.hash";vers
- ion="8.9.0",com.espertech.esper.common.internal.epl.index.sorted;uses:=
+ ion="8.10.0",com.espertech.esper.common.internal.epl.index.sorted;uses:=
  "com.espertech.esper.common.client,com.espertech.esper.common.internal.
  bytecodemodel.base,com.espertech.esper.common.internal.bytecodemodel.mo
  del.expression,com.espertech.esper.common.internal.context.aifactory.co
  re,com.espertech.esper.common.internal.context.util,com.espertech.esper
  .common.internal.epl.expression.core,com.espertech.esper.common.interna
  l.epl.index.base,com.espertech.esper.common.internal.epl.join.exec.util
- ,com.espertech.esper.common.internal.epl.join.queryplan";version="8.9.0
+ ,com.espertech.esper.common.internal.epl.join.queryplan";version="8.10.0
  ",com.espertech.esper.common.internal.epl.index.unindexed;uses:="com.es
  pertech.esper.common.client,com.espertech.esper.common.internal.bytecod
  emodel.base,com.espertech.esper.common.internal.bytecodemodel.model.exp
  ression,com.espertech.esper.common.internal.context.aifactory.core,com.
  espertech.esper.common.internal.context.util,com.espertech.esper.common
  .internal.epl.expression.core,com.espertech.esper.common.internal.epl.i
- ndex.base";version="8.9.0",com.espertech.esper.common.internal.epl.join
+ ndex.base";version="8.10.0",com.espertech.esper.common.internal.epl.join
  .analyze;uses:="com.espertech.esper.common.internal.compile.stage1.spec
  ,com.espertech.esper.common.internal.epl.expression.core,com.espertech.
  esper.common.internal.epl.expression.ops,com.espertech.esper.common.int
- ernal.epl.join.querygraph";version="8.9.0",com.espertech.esper.common.i
+ ernal.epl.join.querygraph";version="8.10.0",com.espertech.esper.common.i
  nternal.epl.join.assemble;uses:="com.espertech.esper.common.client,com.
  espertech.esper.common.internal.bytecodemodel.base,com.espertech.esper.
  common.internal.bytecodemodel.model.expression,com.espertech.esper.comm
  on.internal.bytecodemodel.util,com.espertech.esper.common.internal.cont
  ext.aifactory.core,com.espertech.esper.common.internal.epl.join.rep,com
- .espertech.esper.common.internal.util";version="8.9.0",com.espertech.es
+ .espertech.esper.common.internal.util";version="8.10.0",com.espertech.es
  per.common.internal.epl.join.base;uses:="com.espertech.esper.common.cli
  ent,com.espertech.esper.common.internal.bytecodemodel.base,com.espertec
  h.esper.common.internal.bytecodemodel.model.expression,com.espertech.es
@@ -1420,7 +1420,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  sper.common.internal.epl.resultset.core,com.espertech.esper.common.inte
  rnal.epl.streamtype,com.espertech.esper.common.internal.event.core,com.
  espertech.esper.common.internal.view.core,com.espertech.esper.common.in
- ternal.view.util";version="8.9.0",com.espertech.esper.common.internal.e
+ ternal.view.util";version="8.10.0",com.espertech.esper.common.internal.e
  pl.join.exec.base;uses:="com.espertech.esper.common.client,com.espertec
  h.esper.common.internal.epl.expression.core,com.espertech.esper.common.
  internal.epl.historical.common,com.espertech.esper.common.internal.epl.
@@ -1429,45 +1429,45 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  se,com.espertech.esper.common.internal.epl.index.unindexed,com.espertec
  h.esper.common.internal.epl.join.rep,com.espertech.esper.common.interna
  l.epl.join.strategy,com.espertech.esper.common.internal.epl.lookup,com.
- espertech.esper.common.internal.util";version="8.9.0",com.espertech.esp
+ espertech.esper.common.internal.util";version="8.10.0",com.espertech.esp
  er.common.internal.epl.join.exec.composite;uses:="com.espertech.esper.c
  ommon.client,com.espertech.esper.common.internal.epl.expression.core,co
  m.espertech.esper.common.internal.epl.index.composite,com.espertech.esp
  er.common.internal.epl.join.exec.base,com.espertech.esper.common.intern
  al.epl.join.exec.util,com.espertech.esper.common.internal.epl.join.quer
  ygraph,com.espertech.esper.common.internal.epl.join.rep,com.espertech.e
- sper.common.internal.epl.lookup";version="8.9.0",com.espertech.esper.co
+ sper.common.internal.epl.lookup";version="8.10.0",com.espertech.esper.co
  mmon.internal.epl.join.exec.hash;uses:="com.espertech.esper.common.clie
  nt,com.espertech.esper.common.internal.epl.expression.core,com.espertec
  h.esper.common.internal.epl.index.hash,com.espertech.esper.common.inter
  nal.epl.join.exec.base,com.espertech.esper.common.internal.epl.join.ind
  exlookupplan,com.espertech.esper.common.internal.epl.join.rep,com.esper
- tech.esper.common.internal.epl.lookup";version="8.9.0",com.espertech.es
+ tech.esper.common.internal.epl.lookup";version="8.10.0",com.espertech.es
  per.common.internal.epl.join.exec.inkeyword;uses:="com.espertech.esper.
  common.client,com.espertech.esper.common.internal.epl.expression.core,c
  om.espertech.esper.common.internal.epl.index.base,com.espertech.esper.c
  ommon.internal.epl.index.hash,com.espertech.esper.common.internal.epl.j
  oin.exec.base,com.espertech.esper.common.internal.epl.join.indexlookupp
  lan,com.espertech.esper.common.internal.epl.join.rep,com.espertech.espe
- r.common.internal.epl.lookup";version="8.9.0",com.espertech.esper.commo
+ r.common.internal.epl.lookup";version="8.10.0",com.espertech.esper.commo
  n.internal.epl.join.exec.outer;uses:="com.espertech.esper.common.client
  ,com.espertech.esper.common.internal.epl.expression.core,com.espertech.
  esper.common.internal.epl.join.assemble,com.espertech.esper.common.inte
  rnal.epl.join.exec.base,com.espertech.esper.common.internal.epl.join.re
  p,com.espertech.esper.common.internal.epl.join.strategy,com.espertech.e
- sper.common.internal.util";version="8.9.0",com.espertech.esper.common.i
+ sper.common.internal.util";version="8.10.0",com.espertech.esper.common.i
  nternal.epl.join.exec.sorted;uses:="com.espertech.esper.common.client,c
  om.espertech.esper.common.internal.epl.expression.core,com.espertech.es
  per.common.internal.epl.index.sorted,com.espertech.esper.common.interna
  l.epl.join.exec.base,com.espertech.esper.common.internal.epl.join.query
  graph,com.espertech.esper.common.internal.epl.join.rep,com.espertech.es
- per.common.internal.epl.lookup";version="8.9.0",com.espertech.esper.com
+ per.common.internal.epl.lookup";version="8.10.0",com.espertech.esper.com
  mon.internal.epl.join.exec.util;uses:="com.espertech.esper.common.inter
- nal.epl.join.querygraph";version="8.9.0",com.espertech.esper.common.int
+ nal.epl.join.querygraph";version="8.10.0",com.espertech.esper.common.int
  ernal.epl.join.hint;uses:="com.espertech.esper.common.client,com.espert
  ech.esper.common.internal.compile.stage2,com.espertech.esper.common.int
  ernal.compile.stage3,com.espertech.esper.common.internal.epl.expression
- .core,com.espertech.esper.common.internal.event.arr";version="8.9.0",co
+ .core,com.espertech.esper.common.internal.event.arr";version="8.10.0",co
  m.espertech.esper.common.internal.epl.join.indexlookupplan;uses:="com.e
  spertech.esper.common.client,com.espertech.esper.common.internal.byteco
  demodel.base,com.espertech.esper.common.internal.bytecodemodel.model.ex
@@ -1479,7 +1479,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  0",com.espertech.esper.common.internal.epl.join.lookup;uses:="com.esper
  tech.esper.common.internal.bytecodemodel.base,com.espertech.esper.commo
  n.internal.bytecodemodel.model.expression,com.espertech.esper.common.in
- ternal.epl.lookup";version="8.9.0",com.espertech.esper.common.internal.
+ ternal.epl.lookup";version="8.10.0",com.espertech.esper.common.internal.
  epl.join.querygraph;uses:="com.espertech.esper.common.client,com.espert
  ech.esper.common.internal.bytecodemodel.base,com.espertech.esper.common
  .internal.bytecodemodel.model.expression,com.espertech.esper.common.int
@@ -1487,7 +1487,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  core,com.espertech.esper.common.internal.epl.expression.core,com.espert
  ech.esper.common.internal.epl.join.hint,com.espertech.esper.common.inte
  rnal.event.core,com.espertech.esper.common.internal.filterspec,com.espe
- rtech.esper.common.internal.type";version="8.9.0",com.espertech.esper.c
+ rtech.esper.common.internal.type";version="8.10.0",com.espertech.esper.c
  ommon.internal.epl.join.queryplan;uses:="com.espertech.esper.common.cli
  ent,com.espertech.esper.common.internal.bytecodemodel.base,com.espertec
  h.esper.common.internal.bytecodemodel.model.expression,com.espertech.es
@@ -1506,7 +1506,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ch.esper.common.internal.epl.join.strategy,com.espertech.esper.common.i
  nternal.epl.lookupplan,com.espertech.esper.common.internal.epl.virtuald
  w,com.espertech.esper.common.internal.util,com.espertech.esper.common.i
- nternal.view.core";version="8.9.0",com.espertech.esper.common.internal.
+ nternal.view.core";version="8.10.0",com.espertech.esper.common.internal.
  epl.join.queryplanbuild;uses:="com.espertech.esper.common.client,com.es
  pertech.esper.common.internal.compile.stage1.spec,com.espertech.esper.c
  ommon.internal.compile.stage2,com.espertech.esper.common.internal.compi
@@ -1518,7 +1518,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  tech.esper.common.internal.epl.join.queryplanouter,com.espertech.esper.
  common.internal.epl.lookupplan,com.espertech.esper.common.internal.epl.
  table.compiletime,com.espertech.esper.common.internal.type,com.espertec
- h.esper.common.internal.util";version="8.9.0",com.espertech.esper.commo
+ h.esper.common.internal.util";version="8.10.0",com.espertech.esper.commo
  n.internal.epl.join.queryplanouter;uses:="com.espertech.esper.common.cl
  ient,com.espertech.esper.common.internal.bytecodemodel.base,com.esperte
  ch.esper.common.internal.bytecodemodel.model.expression,com.espertech.e
@@ -1529,15 +1529,15 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  al.epl.index.base,com.espertech.esper.common.internal.epl.join.exec.out
  er,com.espertech.esper.common.internal.epl.join.queryplan,com.espertech
  .esper.common.internal.epl.virtualdw,com.espertech.esper.common.interna
- l.util,com.espertech.esper.common.internal.view.core";version="8.9.0",c
+ l.util,com.espertech.esper.common.internal.view.core";version="8.10.0",c
  om.espertech.esper.common.internal.epl.join.rep;uses:="com.espertech.es
- per.common.client";version="8.9.0",com.espertech.esper.common.internal.
+ per.common.client";version="8.10.0",com.espertech.esper.common.internal.
  epl.join.strategy;uses:="com.espertech.esper.common.client,com.espertec
  h.esper.common.internal.collection,com.espertech.esper.common.internal.
  epl.expression.core,com.espertech.esper.common.internal.util";version="
- 8.9.0",com.espertech.esper.common.internal.epl.join.support;uses:="com.
+ 8.10.0",com.espertech.esper.common.internal.epl.join.support;uses:="com.
  espertech.esper.common.internal.epl.join.queryplan,com.espertech.esper.
- common.internal.settings";version="8.9.0",com.espertech.esper.common.in
+ common.internal.settings";version="8.10.0",com.espertech.esper.common.in
  ternal.epl.lookup;uses:="com.espertech.esper.common.client,com.espertec
  h.esper.common.internal.bytecodemodel.base,com.espertech.esper.common.i
  nternal.bytecodemodel.model.expression,com.espertech.esper.common.inter
@@ -1553,11 +1553,11 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  oin.exec.sorted,com.espertech.esper.common.internal.epl.join.querygraph
  ,com.espertech.esper.common.internal.epl.join.queryplan,com.espertech.e
  sper.common.internal.epl.lookupplan,com.espertech.esper.common.internal
- .epl.virtualdw";version="8.9.0",com.espertech.esper.common.internal.epl
+ .epl.virtualdw";version="8.10.0",com.espertech.esper.common.internal.epl
  .lookupplan;uses:="com.espertech.esper.common.client,com.espertech.espe
  r.common.internal.epl.expression.core,com.espertech.esper.common.intern
  al.epl.join.querygraph,com.espertech.esper.common.internal.epl.join.que
- ryplan,com.espertech.esper.common.internal.epl.lookup";version="8.9.0",
+ ryplan,com.espertech.esper.common.internal.epl.lookup";version="8.10.0",
  com.espertech.esper.common.internal.epl.lookupplansubord;uses:="com.esp
  ertech.esper.common.client,com.espertech.esper.common.internal.bytecode
  model.base,com.espertech.esper.common.internal.bytecodemodel.model.expr
@@ -1572,7 +1572,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  .join.queryplan,com.espertech.esper.common.internal.epl.lookup,com.espe
  rtech.esper.common.internal.epl.lookupplan,com.espertech.esper.common.i
  nternal.epl.virtualdw,com.espertech.esper.common.internal.settings,org.
- slf4j";version="8.9.0",com.espertech.esper.common.internal.epl.lookupsu
+ slf4j";version="8.10.0",com.espertech.esper.common.internal.epl.lookupsu
  bord;uses:="com.espertech.esper.common.client,com.espertech.esper.commo
  n.internal.bytecodemodel.base,com.espertech.esper.common.internal.bytec
  odemodel.model.expression,com.espertech.esper.common.internal.context.a
@@ -1580,13 +1580,13 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  rtech.esper.common.internal.epl.expression.core,com.espertech.esper.com
  mon.internal.epl.index.base,com.espertech.esper.common.internal.epl.loo
  kup,com.espertech.esper.common.internal.epl.lookupplansubord,com.espert
- ech.esper.common.internal.epl.virtualdw";version="8.9.0",com.espertech.
+ ech.esper.common.internal.epl.virtualdw";version="8.10.0",com.espertech.
  esper.common.internal.epl.methodbase;uses:="com.espertech.esper.common.
  internal.epl.expression.core,com.espertech.esper.common.internal.epl.ut
- il";version="8.9.0",com.espertech.esper.common.internal.epl.namedwindow
+ il";version="8.10.0",com.espertech.esper.common.internal.epl.namedwindow
  .compile;uses:="com.espertech.esper.common.client,com.espertech.esper.c
  ommon.internal.epl.namedwindow.path,com.espertech.esper.common.internal
- .epl.util";version="8.9.0",com.espertech.esper.common.internal.epl.name
+ .epl.util";version="8.10.0",com.espertech.esper.common.internal.epl.name
  dwindow.consume;uses:="com.espertech.esper.common.client,com.espertech.
  esper.common.client.util,com.espertech.esper.common.internal.context.mo
  dule,com.espertech.esper.common.internal.context.util,com.espertech.esp
@@ -1595,7 +1595,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ndow.core,com.espertech.esper.common.internal.epl.namedwindow.path,com.
  espertech.esper.common.internal.filterspec,com.espertech.esper.common.i
  nternal.schedule,com.espertech.esper.common.internal.view.core";version
- ="8.9.0",com.espertech.esper.common.internal.epl.namedwindow.core;uses:
+ ="8.10.0",com.espertech.esper.common.internal.epl.namedwindow.core;uses:
  ="com.espertech.esper.common.client,com.espertech.esper.common.client.c
  onfiguration.runtime,com.espertech.esper.common.client.util,com.esperte
  ch.esper.common.internal.bytecodemodel.model.expression,com.espertech.e
@@ -1611,7 +1611,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  pertech.esper.common.internal.epl.output.core,com.espertech.esper.commo
  n.internal.epl.updatehelper,com.espertech.esper.common.internal.epl.vir
  tualdw,com.espertech.esper.common.internal.schedule,com.espertech.esper
- .common.internal.view.core";version="8.9.0",com.espertech.esper.common.
+ .common.internal.view.core";version="8.10.0",com.espertech.esper.common.
  internal.epl.namedwindow.path;uses:="com.espertech.esper.common.client,
  com.espertech.esper.common.internal.bytecodemodel.model.expression,com.
  espertech.esper.common.internal.collection,com.espertech.esper.common.i
@@ -1620,7 +1620,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ch.esper.common.internal.epl.join.queryplan,com.espertech.esper.common.
  internal.epl.lookupplansubord,com.espertech.esper.common.internal.epl.n
  amedwindow.compile,com.espertech.esper.common.internal.epl.util";versio
- n="8.9.0",com.espertech.esper.common.internal.epl.ontrigger;uses:="com.
+ n="8.10.0",com.espertech.esper.common.internal.epl.ontrigger;uses:="com.
  espertech.esper.common.client,com.espertech.esper.common.client.soda,co
  m.espertech.esper.common.internal.bytecodemodel.base,com.espertech.espe
  r.common.internal.bytecodemodel.model.expression,com.espertech.esper.co
@@ -1639,7 +1639,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ble.core,com.espertech.esper.common.internal.epl.table.update,com.esper
  tech.esper.common.internal.epl.updatehelper,com.espertech.esper.common.
  internal.event.core,com.espertech.esper.common.internal.util,com.espert
- ech.esper.common.internal.view.core";version="8.9.0",com.espertech.espe
+ ech.esper.common.internal.view.core";version="8.10.0",com.espertech.espe
  r.common.internal.epl.output.condition;uses:="com.espertech.esper.commo
  n.client,com.espertech.esper.common.internal.bytecodemodel.base,com.esp
  ertech.esper.common.internal.bytecodemodel.model.expression,com.esperte
@@ -1655,7 +1655,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  om.espertech.esper.common.internal.epl.variable.compiletime,com.esperte
  ch.esper.common.internal.epl.variable.core,com.espertech.esper.common.i
  nternal.event.bean.service,com.espertech.esper.common.internal.schedule
- ";version="8.9.0",com.espertech.esper.common.internal.epl.output.core;u
+ ";version="8.10.0",com.espertech.esper.common.internal.epl.output.core;u
  ses:="com.espertech.esper.common.client,com.espertech.esper.common.inte
  rnal.bytecodemodel.base,com.espertech.esper.common.internal.bytecodemod
  el.model.expression,com.espertech.esper.common.internal.collection,com.
@@ -1669,7 +1669,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  common.internal.epl.resultset.core,com.espertech.esper.common.internal.
  epl.table.compiletime,com.espertech.esper.common.internal.schedule,com.
  espertech.esper.common.internal.statement.dispatch,com.espertech.esper.
- common.internal.view.core";version="8.9.0",com.espertech.esper.common.i
+ common.internal.view.core";version="8.10.0",com.espertech.esper.common.i
  nternal.epl.output.polled;uses:="com.espertech.esper.common.internal.by
  tecodemodel.base,com.espertech.esper.common.internal.bytecodemodel.mode
  l.expression,com.espertech.esper.common.internal.compile.stage1.spec,co
@@ -1680,7 +1680,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  r.common.internal.epl.expression.time.node,com.espertech.esper.common.i
  nternal.epl.variable.compiletime,com.espertech.esper.common.internal.ep
  l.variable.core,com.espertech.esper.common.internal.event.arr,com.esper
- tech.esper.common.internal.schedule";version="8.9.0",com.espertech.espe
+ tech.esper.common.internal.schedule";version="8.10.0",com.espertech.espe
  r.common.internal.epl.output.view;uses:="com.espertech.esper.common.cli
  ent,com.espertech.esper.common.internal.bytecodemodel.base,com.espertec
  h.esper.common.internal.collection,com.espertech.esper.common.internal.
@@ -1693,13 +1693,13 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ch.esper.common.internal.epl.resultset.core,com.espertech.esper.common.
  internal.epl.table.core,com.espertech.esper.common.internal.event.core,
  com.espertech.esper.common.internal.schedule,com.espertech.esper.common
- .internal.statement.dispatch";version="8.9.0",com.espertech.esper.commo
+ .internal.statement.dispatch";version="8.10.0",com.espertech.esper.commo
  n.internal.epl.pattern.and;uses:="com.espertech.esper.common.client,com
  .espertech.esper.common.internal.bytecodemodel.base,com.espertech.esper
  .common.internal.compile.stage2,com.espertech.esper.common.internal.con
  text.aifactory.core,com.espertech.esper.common.internal.epl.pattern.cor
  e,com.espertech.esper.common.internal.filterspec,com.espertech.esper.co
- mmon.internal.schedule";version="8.9.0",com.espertech.esper.common.inte
+ mmon.internal.schedule";version="8.10.0",com.espertech.esper.common.inte
  rnal.epl.pattern.core;uses:="com.espertech.esper.common.client,com.espe
  rtech.esper.common.internal.bytecodemodel.base,com.espertech.esper.comm
  on.internal.bytecodemodel.model.expression,com.espertech.esper.common.i
@@ -1718,13 +1718,13 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  rver,com.espertech.esper.common.internal.epl.pattern.or,com.espertech.e
  sper.common.internal.filterspec,com.espertech.esper.common.internal.fil
  tersvc,com.espertech.esper.common.internal.schedule,com.espertech.esper
- .common.internal.util";version="8.9.0",com.espertech.esper.common.inter
+ .common.internal.util";version="8.10.0",com.espertech.esper.common.inter
  nal.epl.pattern.every;uses:="com.espertech.esper.common.client,com.espe
  rtech.esper.common.internal.bytecodemodel.base,com.espertech.esper.comm
  on.internal.compile.stage2,com.espertech.esper.common.internal.context.
  aifactory.core,com.espertech.esper.common.internal.epl.pattern.core,com
  .espertech.esper.common.internal.filterspec,com.espertech.esper.common.
- internal.schedule";version="8.9.0",com.espertech.esper.common.internal.
+ internal.schedule";version="8.10.0",com.espertech.esper.common.internal.
  epl.pattern.everydistinct;uses:="com.espertech.esper.common.client,com.
  espertech.esper.common.internal.bytecodemodel.base,com.espertech.esper.
  common.internal.compile.stage2,com.espertech.esper.common.internal.cont
@@ -1732,7 +1732,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ore,com.espertech.esper.common.internal.epl.expression.time.eval,com.es
  pertech.esper.common.internal.epl.pattern.core,com.espertech.esper.comm
  on.internal.filterspec,com.espertech.esper.common.internal.schedule";ve
- rsion="8.9.0",com.espertech.esper.common.internal.epl.pattern.filter;us
+ rsion="8.10.0",com.espertech.esper.common.internal.epl.pattern.filter;us
  es:="com.espertech.esper.common.client,com.espertech.esper.common.inter
  nal.bytecodemodel.base,com.espertech.esper.common.internal.compile.stag
  e1.spec,com.espertech.esper.common.internal.compile.stage2,com.espertec
@@ -1740,7 +1740,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  on.internal.context.util,com.espertech.esper.common.internal.epl.patter
  n.core,com.espertech.esper.common.internal.filterspec,com.espertech.esp
  er.common.internal.filtersvc,com.espertech.esper.common.internal.schedu
- le";version="8.9.0",com.espertech.esper.common.internal.epl.pattern.fol
+ le";version="8.10.0",com.espertech.esper.common.internal.epl.pattern.fol
  lowedby;uses:="com.espertech.esper.common.client,com.espertech.esper.co
  mmon.internal.bytecodemodel.base,com.espertech.esper.common.internal.co
  mpile.stage2,com.espertech.esper.common.internal.context.aifactory.core
@@ -1748,7 +1748,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  .common.internal.context.util,com.espertech.esper.common.internal.epl.e
  xpression.core,com.espertech.esper.common.internal.epl.pattern.core,com
  .espertech.esper.common.internal.filterspec,com.espertech.esper.common.
- internal.schedule";version="8.9.0",com.espertech.esper.common.internal.
+ internal.schedule";version="8.10.0",com.espertech.esper.common.internal.
  epl.pattern.guard;uses:="com.espertech.esper.common.client,com.espertec
  h.esper.common.internal.bytecodemodel.base,com.espertech.esper.common.i
  nternal.bytecodemodel.model.expression,com.espertech.esper.common.inter
@@ -1757,20 +1757,20 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  per.common.internal.context.aifactory.core,com.espertech.esper.common.i
  nternal.epl.expression.core,com.espertech.esper.common.internal.epl.pat
  tern.core,com.espertech.esper.common.internal.filterspec,com.espertech.
- esper.common.internal.schedule";version="8.9.0",com.espertech.esper.com
+ esper.common.internal.schedule";version="8.10.0",com.espertech.esper.com
  mon.internal.epl.pattern.matchuntil;uses:="com.espertech.esper.common.c
  lient,com.espertech.esper.common.internal.bytecodemodel.base,com.espert
  ech.esper.common.internal.compile.stage2,com.espertech.esper.common.int
  ernal.context.aifactory.core,com.espertech.esper.common.internal.epl.ex
  pression.core,com.espertech.esper.common.internal.epl.pattern.core,com.
  espertech.esper.common.internal.filterspec,com.espertech.esper.common.i
- nternal.schedule";version="8.9.0",com.espertech.esper.common.internal.e
+ nternal.schedule";version="8.10.0",com.espertech.esper.common.internal.e
  pl.pattern.not;uses:="com.espertech.esper.common.client,com.espertech.e
  sper.common.internal.bytecodemodel.base,com.espertech.esper.common.inte
  rnal.compile.stage2,com.espertech.esper.common.internal.context.aifacto
  ry.core,com.espertech.esper.common.internal.epl.pattern.core,com.espert
  ech.esper.common.internal.filterspec,com.espertech.esper.common.interna
- l.schedule";version="8.9.0",com.espertech.esper.common.internal.epl.pat
+ l.schedule";version="8.10.0",com.espertech.esper.common.internal.epl.pat
  tern.observer;uses:="com.espertech.esper.common.client,com.espertech.es
  per.common.client.util,com.espertech.esper.common.internal.bytecodemode
  l.base,com.espertech.esper.common.internal.bytecodemodel.model.expressi
@@ -1782,19 +1782,19 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  r.common.internal.epl.expression.time.eval,com.espertech.esper.common.i
  nternal.epl.expression.time.node,com.espertech.esper.common.internal.ep
  l.pattern.core,com.espertech.esper.common.internal.filterspec,com.esper
- tech.esper.common.internal.schedule";version="8.9.0",com.espertech.espe
+ tech.esper.common.internal.schedule";version="8.10.0",com.espertech.espe
  r.common.internal.epl.pattern.or;uses:="com.espertech.esper.common.clie
  nt,com.espertech.esper.common.internal.bytecodemodel.base,com.espertech
  .esper.common.internal.compile.stage2,com.espertech.esper.common.intern
  al.context.aifactory.core,com.espertech.esper.common.internal.epl.patte
  rn.core,com.espertech.esper.common.internal.filterspec,com.espertech.es
- per.common.internal.schedule";version="8.9.0",com.espertech.esper.commo
+ per.common.internal.schedule";version="8.10.0",com.espertech.esper.commo
  n.internal.epl.pattern.pool;uses:="com.espertech.esper.common.internal.
  context.util,com.espertech.esper.common.internal.epl.pattern.core";vers
- ion="8.9.0",com.espertech.esper.common.internal.epl.prior;uses:="com.es
+ ion="8.10.0",com.espertech.esper.common.internal.epl.prior;uses:="com.es
  pertech.esper.common.internal.epl.expression.prior,com.espertech.esper.
  common.internal.view.core,com.espertech.esper.common.internal.view.prio
- r";version="8.9.0",com.espertech.esper.common.internal.epl.resultset.ag
+ r";version="8.10.0",com.espertech.esper.common.internal.epl.resultset.ag
  ggrouped;uses:="com.espertech.esper.common.client,com.espertech.esper.c
  ommon.internal.bytecodemodel.base,com.espertech.esper.common.internal.b
  ytecodemodel.core,com.espertech.esper.common.internal.collection,com.es
@@ -1802,9 +1802,9 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ommon.internal.epl.agg.core,com.espertech.esper.common.internal.epl.exp
  ression.core,com.espertech.esper.common.internal.epl.output.polled,com.
  espertech.esper.common.internal.epl.resultset.core,com.espertech.esper.
- common.internal.epl.resultset.select.core";version="8.9.0",com.espertec
+ common.internal.epl.resultset.select.core";version="8.10.0",com.espertec
  h.esper.common.internal.epl.resultset.codegen;uses:="com.espertech.espe
- r.common.internal.bytecodemodel.model.expression";version="8.9.0",com.e
+ r.common.internal.bytecodemodel.model.expression";version="8.10.0",com.e
  spertech.esper.common.internal.epl.resultset.core;uses:="com.espertech.
  esper.common.client,com.espertech.esper.common.client.configuration,com
  .espertech.esper.common.internal.bytecodemodel.base,com.espertech.esper
@@ -1828,7 +1828,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  nal.epl.resultset.simple,com.espertech.esper.common.internal.epl.stream
  type,com.espertech.esper.common.internal.epl.variable.core,com.espertec
  h.esper.common.internal.util,com.espertech.esper.common.internal.view.a
- ccess,com.espertech.esper.common.internal.view.core";version="8.9.0",co
+ ccess,com.espertech.esper.common.internal.view.core";version="8.10.0",co
  m.espertech.esper.common.internal.epl.resultset.grouped;uses:="com.espe
  rtech.esper.common.client,com.espertech.esper.common.internal.bytecodem
  odel.base,com.espertech.esper.common.internal.bytecodemodel.core,com.es
@@ -1836,13 +1836,13 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ernal.context.util,com.espertech.esper.common.internal.epl.agg.core,com
  .espertech.esper.common.internal.epl.expression.core,com.espertech.espe
  r.common.internal.epl.output.polled,com.espertech.esper.common.internal
- .epl.resultset.core";version="8.9.0",com.espertech.esper.common.interna
+ .epl.resultset.core";version="8.10.0",com.espertech.esper.common.interna
  l.epl.resultset.handthru;uses:="com.espertech.esper.common.client,com.e
  spertech.esper.common.internal.bytecodemodel.base,com.espertech.esper.c
  ommon.internal.bytecodemodel.core,com.espertech.esper.common.internal.c
  ollection,com.espertech.esper.common.internal.epl.expression.core,com.e
  spertech.esper.common.internal.epl.resultset.core,com.espertech.esper.c
- ommon.internal.epl.resultset.select.core";version="8.9.0",com.espertech
+ ommon.internal.epl.resultset.select.core";version="8.10.0",com.espertech
  .esper.common.internal.epl.resultset.order;uses:="com.espertech.esper.c
  ommon.client,com.espertech.esper.common.internal.bytecodemodel.base,com
  .espertech.esper.common.internal.bytecodemodel.core,com.espertech.esper
@@ -1852,7 +1852,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  tech.esper.common.internal.epl.agg.core,com.espertech.esper.common.inte
  rnal.epl.agg.rollup,com.espertech.esper.common.internal.epl.expression.
  core,com.espertech.esper.common.internal.epl.variable.compiletime,com.e
- spertech.esper.common.internal.epl.variable.core";version="8.9.0",com.e
+ spertech.esper.common.internal.epl.variable.core";version="8.10.0",com.e
  spertech.esper.common.internal.epl.resultset.rowforall;uses:="com.esper
  tech.esper.common.client,com.espertech.esper.common.internal.bytecodemo
  del.base,com.espertech.esper.common.internal.bytecodemodel.core,com.esp
@@ -1860,14 +1860,14 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  rnal.compile.stage1.spec,com.espertech.esper.common.internal.epl.agg.co
  re,com.espertech.esper.common.internal.epl.expression.core,com.espertec
  h.esper.common.internal.epl.resultset.core,com.espertech.esper.common.i
- nternal.epl.resultset.select.core";version="8.9.0",com.espertech.esper.
+ nternal.epl.resultset.select.core";version="8.10.0",com.espertech.esper.
  common.internal.epl.resultset.rowperevent;uses:="com.espertech.esper.co
  mmon.client,com.espertech.esper.common.internal.bytecodemodel.base,com.
  espertech.esper.common.internal.bytecodemodel.core,com.espertech.esper.
  common.internal.collection,com.espertech.esper.common.internal.compile.
  stage1.spec,com.espertech.esper.common.internal.epl.expression.core,com
  .espertech.esper.common.internal.epl.resultset.core,com.espertech.esper
- .common.internal.epl.resultset.select.core";version="8.9.0",com.esperte
+ .common.internal.epl.resultset.select.core";version="8.10.0",com.esperte
  ch.esper.common.internal.epl.resultset.rowpergroup;uses:="com.espertech
  .esper.common.client,com.espertech.esper.common.internal.bytecodemodel.
  base,com.espertech.esper.common.internal.bytecodemodel.core,com.esperte
@@ -1876,7 +1876,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  om.espertech.esper.common.internal.epl.expression.core,com.espertech.es
  per.common.internal.epl.output.polled,com.espertech.esper.common.intern
  al.epl.resultset.core,com.espertech.esper.common.internal.epl.resultset
- .select.core";version="8.9.0",com.espertech.esper.common.internal.epl.r
+ .select.core";version="8.10.0",com.espertech.esper.common.internal.epl.r
  esultset.rowpergrouprollup;uses:="com.espertech.esper.common.client,com
  .espertech.esper.common.internal.bytecodemodel.base,com.espertech.esper
  .common.internal.bytecodemodel.core,com.espertech.esper.common.internal
@@ -1887,7 +1887,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ch.esper.common.internal.epl.output.polled,com.espertech.esper.common.i
  nternal.epl.resultset.core,com.espertech.esper.common.internal.epl.resu
  ltset.grouped,com.espertech.esper.common.internal.epl.resultset.order";
- version="8.9.0",com.espertech.esper.common.internal.epl.resultset.selec
+ version="8.10.0",com.espertech.esper.common.internal.epl.resultset.selec
  t.core;uses:="com.espertech.esper.common.client,com.espertech.esper.com
  mon.client.configuration,com.espertech.esper.common.internal.bytecodemo
  del.base,com.espertech.esper.common.internal.bytecodemodel.model.expres
@@ -1904,7 +1904,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ime,com.espertech.esper.common.internal.event.avro,com.espertech.esper.
  common.internal.event.bean.service,com.espertech.esper.common.internal.
  event.core,com.espertech.esper.common.internal.settings,com.espertech.e
- sper.common.internal.util";version="8.9.0",com.espertech.esper.common.i
+ sper.common.internal.util";version="8.10.0",com.espertech.esper.common.i
  nternal.epl.resultset.select.eval;uses:="com.espertech.esper.common.cli
  ent,com.espertech.esper.common.internal.bytecodemodel.base,com.espertec
  h.esper.common.internal.bytecodemodel.model.expression,com.espertech.es
@@ -1913,21 +1913,21 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ultset.select.core,com.espertech.esper.common.internal.epl.table.compil
  etime,com.espertech.esper.common.internal.event.core,com.espertech.espe
  r.common.internal.event.variant,com.espertech.esper.common.internal.set
- tings,com.espertech.esper.common.internal.util";version="8.9.0",com.esp
+ tings,com.espertech.esper.common.internal.util";version="8.10.0",com.esp
  ertech.esper.common.internal.epl.resultset.select.typable;uses:="com.es
  pertech.esper.common.client,com.espertech.esper.common.internal.bytecod
  emodel.base,com.espertech.esper.common.internal.bytecodemodel.model.exp
  ression,com.espertech.esper.common.internal.epl.expression.codegen,com.
  espertech.esper.common.internal.epl.expression.core,com.espertech.esper
  .common.internal.event.core,com.espertech.esper.common.internal.util";v
- ersion="8.9.0",com.espertech.esper.common.internal.epl.resultset.simple
+ ersion="8.10.0",com.espertech.esper.common.internal.epl.resultset.simple
  ;uses:="com.espertech.esper.common.client,com.espertech.esper.common.in
  ternal.bytecodemodel.base,com.espertech.esper.common.internal.bytecodem
  odel.core,com.espertech.esper.common.internal.collection,com.espertech.
  esper.common.internal.compile.stage1.spec,com.espertech.esper.common.in
  ternal.epl.expression.core,com.espertech.esper.common.internal.epl.resu
  ltset.core,com.espertech.esper.common.internal.epl.resultset.select.cor
- e";version="8.9.0",com.espertech.esper.common.internal.epl.rowrecog.cor
+ e";version="8.10.0",com.espertech.esper.common.internal.epl.rowrecog.cor
  e;uses:="com.espertech.esper.common.client,com.espertech.esper.common.i
  nternal.bytecodemodel.base,com.espertech.esper.common.internal.bytecode
  model.model.expression,com.espertech.esper.common.internal.collection,c
@@ -1941,26 +1941,26 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  h.esper.common.internal.epl.rowrecog.nfa,com.espertech.esper.common.int
  ernal.epl.rowrecog.state,com.espertech.esper.common.internal.schedule,c
  om.espertech.esper.common.internal.serde,com.espertech.esper.common.int
- ernal.view.core";version="8.9.0",com.espertech.esper.common.internal.ep
+ ernal.view.core";version="8.10.0",com.espertech.esper.common.internal.ep
  l.rowrecog.expr;uses:="com.espertech.esper.common.internal.collection,c
  om.espertech.esper.common.internal.epl.expression.core,com.espertech.es
- per.common.internal.epl.rowrecog.core";version="8.9.0",com.espertech.es
+ per.common.internal.epl.rowrecog.core";version="8.10.0",com.espertech.es
  per.common.internal.epl.rowrecog.nfa;uses:="com.espertech.esper.common.
  client,com.espertech.esper.common.internal.bytecodemodel.base,com.esper
  tech.esper.common.internal.bytecodemodel.model.expression,com.espertech
  .esper.common.internal.context.aifactory.core,com.espertech.esper.commo
  n.internal.context.util,com.espertech.esper.common.internal.epl.express
  ion.core,com.espertech.esper.common.internal.epl.rowrecog.core";version
- ="8.9.0",com.espertech.esper.common.internal.epl.rowrecog.state;uses:="
+ ="8.10.0",com.espertech.esper.common.internal.epl.rowrecog.state;uses:="
  com.espertech.esper.common.client,com.espertech.esper.common.internal.c
  ontext.util,com.espertech.esper.common.internal.epl.expression.core,com
  .espertech.esper.common.internal.epl.rowrecog.core,com.espertech.esper.
  common.internal.epl.rowrecog.nfa,com.espertech.esper.common.internal.ut
- il";version="8.9.0",com.espertech.esper.common.internal.epl.script.comp
+ il";version="8.10.0",com.espertech.esper.common.internal.epl.script.comp
  iletime;uses:="com.espertech.esper.common.internal.collection,com.esper
  tech.esper.common.internal.compile.stage1.spec,com.espertech.esper.comm
  on.internal.context.module,com.espertech.esper.common.internal.epl.scri
- pt.core,com.espertech.esper.common.internal.epl.util";version="8.9.0",c
+ pt.core,com.espertech.esper.common.internal.epl.util";version="8.10.0",c
  om.espertech.esper.common.internal.epl.script.core;uses:="com.espertech
  .esper.common.client,com.espertech.esper.common.client.hook.expr,com.es
  pertech.esper.common.internal.bytecodemodel.base,com.espertech.esper.co
@@ -1971,37 +1971,37 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  nal.epl.expression.codegen,com.espertech.esper.common.internal.epl.expr
  ession.core,com.espertech.esper.common.internal.epl.expression.visitor,
  com.espertech.esper.common.internal.settings,com.espertech.esper.common
- .internal.util";version="8.9.0",com.espertech.esper.common.internal.epl
+ .internal.util";version="8.10.0",com.espertech.esper.common.internal.epl
  .script.jsr223;uses:="com.espertech.esper.common.client,com.espertech.e
  sper.common.internal.epl.expression.core,com.espertech.esper.common.int
  ernal.epl.script.core,com.espertech.esper.common.internal.util,javax.sc
- ript";version="8.9.0",com.espertech.esper.common.internal.epl.script.mv
+ ript";version="8.10.0",com.espertech.esper.common.internal.epl.script.mv
  el;uses:="com.espertech.esper.common.client,com.espertech.esper.common.
  internal.compile.stage1.spec,com.espertech.esper.common.internal.epl.ex
  pression.core,com.espertech.esper.common.internal.epl.script.core,com.e
  spertech.esper.common.internal.settings,com.espertech.esper.common.inte
- rnal.util";version="8.9.0",com.espertech.esper.common.internal.epl.spat
+ rnal.util";version="8.10.0",com.espertech.esper.common.internal.epl.spat
  ial.quadtree.core;uses:="com.espertech.esper.common.client";version="8.
  0.0",com.espertech.esper.common.internal.epl.spatial.quadtree.mxcif;use
  s:="com.espertech.esper.common.internal.epl.spatial.quadtree.core";vers
- ion="8.9.0",com.espertech.esper.common.internal.epl.spatial.quadtree.mx
+ ion="8.10.0",com.espertech.esper.common.internal.epl.spatial.quadtree.mx
  ciffilterindex;uses:="com.espertech.esper.common.client,com.espertech.e
  sper.common.internal.epl.spatial.quadtree.core,com.espertech.esper.comm
  on.internal.epl.spatial.quadtree.mxcif,com.espertech.esper.common.inter
- nal.type";version="8.9.0",com.espertech.esper.common.internal.epl.spati
+ nal.type";version="8.10.0",com.espertech.esper.common.internal.epl.spati
  al.quadtree.mxcifrowindex;uses:="com.espertech.esper.common.client,com.
  espertech.esper.common.internal.epl.spatial.quadtree.core,com.espertech
  .esper.common.internal.epl.spatial.quadtree.mxcif,com.espertech.esper.c
- ommon.internal.type";version="8.9.0",com.espertech.esper.common.interna
+ ommon.internal.type";version="8.10.0",com.espertech.esper.common.interna
  l.epl.spatial.quadtree.pointregion;uses:="com.espertech.esper.common.in
- ternal.epl.spatial.quadtree.core";version="8.9.0",com.espertech.esper.c
+ ternal.epl.spatial.quadtree.core";version="8.10.0",com.espertech.esper.c
  ommon.internal.epl.spatial.quadtree.prqdfilterindex;uses:="com.espertec
  h.esper.common.client,com.espertech.esper.common.internal.epl.spatial.q
  uadtree.core,com.espertech.esper.common.internal.epl.spatial.quadtree.p
- ointregion,com.espertech.esper.common.internal.type";version="8.9.0",co
+ ointregion,com.espertech.esper.common.internal.type";version="8.10.0",co
  m.espertech.esper.common.internal.epl.spatial.quadtree.prqdrowindex;use
  s:="com.espertech.esper.common.internal.epl.spatial.quadtree.pointregio
- n,com.espertech.esper.common.internal.type";version="8.9.0",com.esperte
+ n,com.espertech.esper.common.internal.type";version="8.10.0",com.esperte
  ch.esper.common.internal.epl.streamtype;uses:="com.espertech.esper.comm
  on.client,com.espertech.esper.common.internal.collection";version="8.0.
  0",com.espertech.esper.common.internal.epl.subselect;uses:="com.esperte
@@ -2027,7 +2027,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  n.internal.epl.table.core,com.espertech.esper.common.internal.event.cor
  e,com.espertech.esper.common.internal.view.access,com.espertech.esper.c
  ommon.internal.view.core,com.espertech.esper.common.internal.view.previ
- ous,com.espertech.esper.common.internal.view.util";version="8.9.0",com.
+ ous,com.espertech.esper.common.internal.view.util";version="8.10.0",com.
  espertech.esper.common.internal.epl.table.compiletime;uses:="com.espert
  ech.esper.common.client,com.espertech.esper.common.client.configuration
  .compiler,com.espertech.esper.common.client.hook.aggmultifunc,com.esper
@@ -2046,7 +2046,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  om.espertech.esper.common.internal.event.arr,com.espertech.esper.common
  .internal.event.core,com.espertech.esper.common.internal.rettype,com.es
  pertech.esper.common.internal.settings,com.espertech.esper.common.inter
- nal.util";version="8.9.0",com.espertech.esper.common.internal.epl.table
+ nal.util";version="8.10.0",com.espertech.esper.common.internal.epl.table
  .core;uses:="com.espertech.esper.common.client,com.espertech.esper.comm
  on.client.util,com.espertech.esper.common.internal.bytecodemodel.base,c
  om.espertech.esper.common.internal.bytecodemodel.model.expression,com.e
@@ -2061,7 +2061,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  le.compiletime,com.espertech.esper.common.internal.epl.table.strategy,c
  om.espertech.esper.common.internal.epl.table.update,com.espertech.esper
  .common.internal.event.core,com.espertech.esper.common.internal.serde,c
- om.espertech.esper.common.internal.view.core";version="8.9.0",com.esper
+ om.espertech.esper.common.internal.view.core";version="8.10.0",com.esper
  tech.esper.common.internal.epl.table.strategy;uses:="com.espertech.espe
  r.common.client,com.espertech.esper.common.client.hook.aggmultifunc,com
  .espertech.esper.common.internal.bytecodemodel.base,com.espertech.esper
@@ -2071,13 +2071,13 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  rtech.esper.common.internal.epl.expression.core,com.espertech.esper.com
  mon.internal.epl.expression.table,com.espertech.esper.common.internal.e
  pl.table.compiletime,com.espertech.esper.common.internal.epl.table.core
- ,com.espertech.esper.common.internal.event.core";version="8.9.0",com.es
+ ,com.espertech.esper.common.internal.event.core";version="8.10.0",com.es
  pertech.esper.common.internal.epl.table.update;uses:="com.espertech.esp
  er.common.client,com.espertech.esper.common.internal.epl.expression.cor
  e,com.espertech.esper.common.internal.epl.join.lookup,com.espertech.esp
  er.common.internal.epl.table.compiletime,com.espertech.esper.common.int
  ernal.epl.table.core,com.espertech.esper.common.internal.epl.updatehelp
- er";version="8.9.0",com.espertech.esper.common.internal.epl.updatehelpe
+ er";version="8.10.0",com.espertech.esper.common.internal.epl.updatehelpe
  r;uses:="com.espertech.esper.common.client,com.espertech.esper.common.i
  nternal.bytecodemodel.base,com.espertech.esper.common.internal.bytecode
  model.model.expression,com.espertech.esper.common.internal.compile.stag
@@ -2098,14 +2098,14 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  le.compiletime,com.espertech.esper.common.internal.epl.variable.core,co
  m.espertech.esper.common.internal.event.core,com.espertech.esper.common
  .internal.event.eventtyperepo,com.espertech.esper.common.internal.view.
- access,com.espertech.esper.common.internal.view.core";version="8.9.0",c
+ access,com.espertech.esper.common.internal.view.core";version="8.10.0",c
  om.espertech.esper.common.internal.epl.variable.compiletime;uses:="com.
  espertech.esper.common.client,com.espertech.esper.common.client.util,co
  m.espertech.esper.common.internal.bytecodemodel.base,com.espertech.espe
  r.common.internal.bytecodemodel.model.expression,com.espertech.esper.co
  mmon.internal.collection,com.espertech.esper.common.internal.context.mo
  dule,com.espertech.esper.common.internal.epl.util,com.espertech.esper.c
- ommon.internal.epl.variable.core";version="8.9.0",com.espertech.esper.c
+ ommon.internal.epl.variable.core";version="8.10.0",com.espertech.esper.c
  ommon.internal.epl.variable.core;uses:="com.espertech.esper.common.clie
  nt,com.espertech.esper.common.client.configuration,com.espertech.esper.
  common.client.configuration.common,com.espertech.esper.common.client.ut
@@ -2122,7 +2122,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ech.esper.common.internal.event.eventtyperepo,com.espertech.esper.commo
  n.internal.schedule,com.espertech.esper.common.internal.serde,com.esper
  tech.esper.common.internal.settings,com.espertech.esper.common.internal
- .type,com.espertech.esper.common.internal.util";version="8.9.0",com.esp
+ .type,com.espertech.esper.common.internal.util";version="8.10.0",com.esp
  ertech.esper.common.internal.epl.virtualdw;uses:="com.espertech.esper.c
  ommon.client,com.espertech.esper.common.client.hook.vdw,com.espertech.e
  sper.common.internal.bytecodemodel.base,com.espertech.esper.common.inte
@@ -2138,7 +2138,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  er.common.internal.epl.join.rep,com.espertech.esper.common.internal.epl
  .lookup,com.espertech.esper.common.internal.epl.lookupplan,com.espertec
  h.esper.common.internal.epl.lookupplansubord,com.espertech.esper.common
- .internal.view.core";version="8.9.0",com.espertech.esper.common.interna
+ .internal.view.core";version="8.10.0",com.espertech.esper.common.interna
  l.event.arr;uses:="com.espertech.esper.common.client,com.espertech.espe
  r.common.client.meta,com.espertech.esper.common.internal.bytecodemodel.
  base,com.espertech.esper.common.internal.bytecodemodel.model.expression
@@ -2148,7 +2148,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  espertech.esper.common.internal.event.core,com.espertech.esper.common.i
  nternal.event.map,com.espertech.esper.common.internal.event.property,co
  m.espertech.esper.common.internal.event.util,com.espertech.esper.common
- .internal.statement.thread";version="8.9.0",com.espertech.esper.common.
+ .internal.statement.thread";version="8.10.0",com.espertech.esper.common.
  internal.event.avro;uses:="com.espertech.esper.common.client,com.espert
  ech.esper.common.client.configuration.common,com.espertech.esper.common
  .client.meta,com.espertech.esper.common.internal.epl.expression.core,co
@@ -2156,7 +2156,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ch.esper.common.internal.event.core,com.espertech.esper.common.internal
  .event.util,com.espertech.esper.common.internal.settings,com.espertech.
  esper.common.internal.statement.thread,com.espertech.esper.common.inter
- nal.util";version="8.9.0",com.espertech.esper.common.internal.event.bea
+ nal.util";version="8.10.0",com.espertech.esper.common.internal.event.bea
  n.core;uses:="com.espertech.esper.common.client,com.espertech.esper.com
  mon.client.configuration,com.espertech.esper.common.client.configuratio
  n.common,com.espertech.esper.common.client.meta,com.espertech.esper.com
@@ -2167,24 +2167,24 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  nal.event.bean.service,com.espertech.esper.common.internal.event.core,c
  om.espertech.esper.common.internal.event.property,com.espertech.esper.c
  ommon.internal.event.util,com.espertech.esper.common.internal.settings,
- com.espertech.esper.common.internal.statement.thread";version="8.9.0",c
+ com.espertech.esper.common.internal.statement.thread";version="8.10.0",c
  om.espertech.esper.common.internal.event.bean.getter;uses:="com.esperte
  ch.esper.common.client,com.espertech.esper.common.internal.bytecodemode
  l.base,com.espertech.esper.common.internal.bytecodemodel.model.expressi
  on,com.espertech.esper.common.internal.event.bean.core,com.espertech.es
  per.common.internal.event.bean.introspect,com.espertech.esper.common.in
  ternal.event.bean.service,com.espertech.esper.common.internal.event.cor
- e";version="8.9.0",com.espertech.esper.common.internal.event.bean.insta
+ e";version="8.10.0",com.espertech.esper.common.internal.event.bean.insta
  ntiator;uses:="com.espertech.esper.common.internal.bytecodemodel.base,c
  om.espertech.esper.common.internal.bytecodemodel.model.expression,com.e
  spertech.esper.common.internal.event.bean.core,com.espertech.esper.comm
  on.internal.event.core,com.espertech.esper.common.internal.settings";ve
- rsion="8.9.0",com.espertech.esper.common.internal.event.bean.introspect
+ rsion="8.10.0",com.espertech.esper.common.internal.event.bean.introspect
  ;uses:="com.espertech.esper.common.client,com.espertech.esper.common.cl
  ient.configuration.common,com.espertech.esper.common.client.util,com.es
  pertech.esper.common.internal.event.bean.core,com.espertech.esper.commo
  n.internal.event.bean.service,com.espertech.esper.common.internal.event
- .core";version="8.9.0",com.espertech.esper.common.internal.event.bean.m
+ .core";version="8.10.0",com.espertech.esper.common.internal.event.bean.m
  anufacturer;uses:="com.espertech.esper.common.client,com.espertech.espe
  r.common.internal.bytecodemodel.base,com.espertech.esper.common.interna
  l.bytecodemodel.model.expression,com.espertech.esper.common.internal.co
@@ -2193,13 +2193,13 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  r.common.internal.event.arr,com.espertech.esper.common.internal.event.b
  ean.core,com.espertech.esper.common.internal.event.core,com.espertech.e
  sper.common.internal.event.map,com.espertech.esper.common.internal.sett
- ings";version="8.9.0",com.espertech.esper.common.internal.event.bean.se
+ ings";version="8.10.0",com.espertech.esper.common.internal.event.bean.se
  rvice;uses:="com.espertech.esper.common.client,com.espertech.esper.comm
  on.client.configuration.common,com.espertech.esper.common.client.meta,c
  om.espertech.esper.common.client.util,com.espertech.esper.common.intern
  al.event.bean.core,com.espertech.esper.common.internal.event.core,com.e
  spertech.esper.common.internal.event.eventtypefactory,com.espertech.esp
- er.common.internal.event.eventtyperepo";version="8.9.0",com.espertech.e
+ er.common.internal.event.eventtyperepo";version="8.10.0",com.espertech.e
  sper.common.internal.event.core;uses:="com.espertech.esper.common.clien
  t,com.espertech.esper.common.client.configuration,com.espertech.esper.c
  ommon.client.hook.expr,com.espertech.esper.common.client.meta,com.esper
@@ -2216,7 +2216,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  epo,com.espertech.esper.common.internal.event.map,com.espertech.esper.c
  ommon.internal.event.property,com.espertech.esper.common.internal.event
  .xml,com.espertech.esper.common.internal.settings,org.w3c.dom";version=
- "8.9.0",com.espertech.esper.common.internal.event.eventtypefactory;uses
+ "8.10.0",com.espertech.esper.common.internal.event.eventtypefactory;uses
  :="com.espertech.esper.common.client,com.espertech.esper.common.client.
  configuration.common,com.espertech.esper.common.client.meta,com.esperte
  ch.esper.common.internal.event.arr,com.espertech.esper.common.internal.
@@ -2224,14 +2224,14 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ct,com.espertech.esper.common.internal.event.bean.service,com.espertech
  .esper.common.internal.event.core,com.espertech.esper.common.internal.e
  vent.map,com.espertech.esper.common.internal.event.variant,com.espertec
- h.esper.common.internal.event.xml";version="8.9.0",com.espertech.esper.
+ h.esper.common.internal.event.xml";version="8.10.0",com.espertech.esper.
  common.internal.event.eventtyperepo;uses:="com.espertech.esper.common.c
  lient,com.espertech.esper.common.client.configuration.common,com.espert
  ech.esper.common.internal.event.avro,com.espertech.esper.common.interna
  l.event.bean.service,com.espertech.esper.common.internal.event.core,com
  .espertech.esper.common.internal.event.eventtypefactory,com.espertech.e
  sper.common.internal.event.xml,com.espertech.esper.common.internal.sett
- ings";version="8.9.0",com.espertech.esper.common.internal.event.map;use
+ ings";version="8.10.0",com.espertech.esper.common.internal.event.map;use
  s:="com.espertech.esper.common.client,com.espertech.esper.common.client
  .meta,com.espertech.esper.common.internal.bytecodemodel.base,com.espert
  ech.esper.common.internal.bytecodemodel.model.expression,com.espertech.
@@ -2241,38 +2241,38 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  nternal.event.bean.service,com.espertech.esper.common.internal.event.co
  re,com.espertech.esper.common.internal.event.property,com.espertech.esp
  er.common.internal.event.util,com.espertech.esper.common.internal.state
- ment.thread";version="8.9.0",com.espertech.esper.common.internal.event.
+ ment.thread";version="8.10.0",com.espertech.esper.common.internal.event.
  path;uses:="com.espertech.esper.common.client,com.espertech.esper.commo
  n.client.meta,com.espertech.esper.common.internal.collection,com.espert
  ech.esper.common.internal.event.avro,com.espertech.esper.common.interna
  l.event.bean.core,com.espertech.esper.common.internal.event.bean.servic
  e,com.espertech.esper.common.internal.event.core,com.espertech.esper.co
  mmon.internal.event.eventtypefactory,com.espertech.esper.common.interna
- l.event.xml";version="8.9.0",com.espertech.esper.common.internal.event.
+ l.event.xml";version="8.10.0",com.espertech.esper.common.internal.event.
  property;uses:="com.espertech.esper.common.internal.event.arr,com.esper
  tech.esper.common.internal.event.bean.core,com.espertech.esper.common.i
  nternal.event.bean.service,com.espertech.esper.common.internal.event.co
  re,com.espertech.esper.common.internal.event.map,com.espertech.esper.co
- mmon.internal.event.xml";version="8.9.0",com.espertech.esper.common.int
+ mmon.internal.event.xml";version="8.10.0",com.espertech.esper.common.int
  ernal.event.propertyparser;uses:="com.espertech.esper.common.client,com
- .espertech.esper.common.internal.event.property";version="8.9.0",com.es
+ .espertech.esper.common.internal.event.property";version="8.10.0",com.es
  pertech.esper.common.internal.event.render;uses:="com.espertech.esper.c
  ommon.client,com.espertech.esper.common.client.render,com.espertech.esp
- er.common.internal.event.util";version="8.9.0",com.espertech.esper.comm
+ er.common.internal.event.util";version="8.10.0",com.espertech.esper.comm
  on.internal.event.util;uses:="com.espertech.esper.common.client,com.esp
  ertech.esper.common.internal.bytecodemodel.base,com.espertech.esper.com
- mon.internal.event.core";version="8.9.0",com.espertech.esper.common.int
+ mon.internal.event.core";version="8.10.0",com.espertech.esper.common.int
  ernal.event.variant;uses:="com.espertech.esper.common.client,com.espert
  ech.esper.common.client.configuration.common,com.espertech.esper.common
  .client.meta,com.espertech.esper.common.internal.bytecodemodel.base,com
  .espertech.esper.common.internal.bytecodemodel.model.expression,com.esp
  ertech.esper.common.internal.epl.expression.core,com.espertech.esper.co
  mmon.internal.event.core,com.espertech.esper.common.internal.util";vers
- ion="8.9.0",com.espertech.esper.common.internal.event.wrap;uses:="com.e
+ ion="8.10.0",com.espertech.esper.common.internal.event.wrap;uses:="com.e
  spertech.esper.common.client,com.espertech.esper.common.internal.byteco
  demodel.base,com.espertech.esper.common.internal.bytecodemodel.model.ex
  pression,com.espertech.esper.common.internal.event.core,com.espertech.e
- sper.common.internal.event.map";version="8.9.0",com.espertech.esper.com
+ sper.common.internal.event.map";version="8.10.0",com.espertech.esper.com
  mon.internal.event.xml;uses:="com.espertech.esper.common.client,com.esp
  ertech.esper.common.client.configuration.common,com.espertech.esper.com
  mon.client.meta,com.espertech.esper.common.internal.bytecodemodel.base,
@@ -2284,7 +2284,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  nternal.event.util,com.espertech.esper.common.internal.settings,com.esp
  ertech.esper.common.internal.statement.thread,com.espertech.esper.commo
  n.internal.util,javax.xml.namespace,javax.xml.xpath,org.w3c.dom,org.w3c
- .dom.ls";version="8.9.0",com.espertech.esper.common.internal.filterspec
+ .dom.ls";version="8.10.0",com.espertech.esper.common.internal.filterspec
  ;uses:="com.espertech.esper.common.client,com.espertech.esper.common.in
  ternal.bytecodemodel.base,com.espertech.esper.common.internal.bytecodem
  odel.core,com.espertech.esper.common.internal.bytecodemodel.model.expre
@@ -2297,16 +2297,16 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  treamtype,com.espertech.esper.common.internal.epl.table.core,com.espert
  ech.esper.common.internal.epl.variable.core,com.espertech.esper.common.
  internal.event.core,com.espertech.esper.common.internal.settings,com.es
- pertech.esper.common.internal.util";version="8.9.0",com.espertech.esper
+ pertech.esper.common.internal.util";version="8.10.0",com.espertech.esper
  .common.internal.filtersvc;uses:="com.espertech.esper.common.client,com
- .espertech.esper.common.internal.filterspec";version="8.9.0",com.espert
+ .espertech.esper.common.internal.filterspec";version="8.10.0",com.espert
  ech.esper.common.internal.metrics.audit;uses:="com.espertech.esper.comm
  on.client,com.espertech.esper.common.client.annotation,com.espertech.es
  per.common.client.dataflow.core,com.espertech.esper.common.internal.con
  text.util,com.espertech.esper.common.internal.epl.expression.core,com.e
  spertech.esper.common.internal.epl.pattern.core,com.espertech.esper.com
  mon.internal.filterspec,com.espertech.esper.common.internal.schedule,co
- m.espertech.esper.common.internal.view.core";version="8.9.0",com.espert
+ m.espertech.esper.common.internal.view.core";version="8.10.0",com.espert
  ech.esper.common.internal.metrics.instrumentation;uses:="com.espertech.
  esper.common.client,com.espertech.esper.common.internal.bytecodemodel.b
  ase,com.espertech.esper.common.internal.bytecodemodel.model.expression,
@@ -2327,12 +2327,12 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ech.esper.common.internal.epl.pattern.or,com.espertech.esper.common.int
  ernal.epl.rowrecog.nfa,com.espertech.esper.common.internal.epl.rowrecog
  .state,com.espertech.esper.common.internal.filterspec,com.espertech.esp
- er.common.internal.view.core";version="8.9.0",com.espertech.esper.commo
+ er.common.internal.view.core";version="8.10.0",com.espertech.esper.commo
  n.internal.metrics.stmtmetrics;uses:="com.espertech.esper.common.client
  .configuration.runtime,com.espertech.esper.common.client.metric,com.esp
  ertech.esper.common.internal.event.core,com.espertech.esper.common.inte
  rnal.filtersvc,com.espertech.esper.common.internal.schedule,com.esperte
- ch.esper.common.internal.util";version="8.9.0",com.espertech.esper.comm
+ ch.esper.common.internal.util";version="8.10.0",com.espertech.esper.comm
  on.internal.rettype;uses:="com.espertech.esper.common.client,com.espert
  ech.esper.common.internal.bytecodemodel.base,com.espertech.esper.common
  .internal.bytecodemodel.model.expression,com.espertech.esper.common.int
@@ -2344,10 +2344,10 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  compile.stage2,com.espertech.esper.common.internal.compile.stage3,com.e
  spertech.esper.common.internal.epl.expression.core,com.espertech.esper.
  common.internal.epl.expression.time.abacus,com.espertech.esper.common.i
- nternal.type";version="8.9.0",com.espertech.esper.common.internal.serde
+ nternal.type";version="8.10.0",com.espertech.esper.common.internal.serde
  ;uses:="com.espertech.esper.common.client,com.espertech.esper.common.in
  ternal.bytecodemodel.base,com.espertech.esper.common.internal.bytecodem
- odel.model.expression";version="8.9.0",com.espertech.esper.common.inter
+ odel.model.expression";version="8.10.0",com.espertech.esper.common.inter
  nal.settings;uses:="com.espertech.esper.common.client,com.espertech.esp
  er.common.client.annotation,com.espertech.esper.common.client.configura
  tion.common,com.espertech.esper.common.client.configuration.compiler,co
@@ -2362,22 +2362,22 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  abacus,com.espertech.esper.common.internal.epl.index.advanced.index.ser
  vice,com.espertech.esper.common.internal.epl.join.analyze,com.espertech
  .esper.common.internal.filterspec,com.espertech.esper.common.internal.u
- til";version="8.9.0",com.espertech.esper.common.internal.statement.disp
+ til";version="8.10.0",com.espertech.esper.common.internal.statement.disp
  atch;uses:="com.espertech.esper.common.client,com.espertech.esper.commo
  n.internal.collection,com.espertech.esper.common.internal.view.core";ve
- rsion="8.9.0",com.espertech.esper.common.internal.statement.helper;uses
+ rsion="8.10.0",com.espertech.esper.common.internal.statement.helper;uses
  :="com.espertech.esper.common.internal.collection,com.espertech.esper.c
  ommon.internal.compile.stage1.spec,com.espertech.esper.common.internal.
  compile.stage2,com.espertech.esper.common.internal.compile.stage3,com.e
  spertech.esper.common.internal.epl.expression.core,com.espertech.esper.
  common.internal.epl.streamtype,com.espertech.esper.common.internal.view
- .access,com.espertech.esper.common.internal.view.core";version="8.9.0",
+ .access,com.espertech.esper.common.internal.view.core";version="8.10.0",
  com.espertech.esper.common.internal.statement.insertintolatch;uses:="co
  m.espertech.esper.common.client,com.espertech.esper.common.client.util,
- com.espertech.esper.common.internal.schedule";version="8.9.0",com.esper
+ com.espertech.esper.common.internal.schedule";version="8.10.0",com.esper
  tech.esper.common.internal.statement.multimatch;uses:="com.espertech.es
  per.common.client,com.espertech.esper.common.internal.filtersvc";versio
- n="8.9.0",com.espertech.esper.common.internal.statement.resource;uses:=
+ n="8.10.0",com.espertech.esper.common.internal.statement.resource;uses:=
  "com.espertech.esper.common.internal.context.aifactory.core,com.esperte
  ch.esper.common.internal.context.mgr,com.espertech.esper.common.interna
  l.context.util,com.espertech.esper.common.internal.epl.agg.core,com.esp
@@ -2387,32 +2387,32 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ,com.espertech.esper.common.internal.epl.subselect,com.espertech.esper.
  common.internal.epl.table.core,com.espertech.esper.common.internal.epl.
  table.strategy,com.espertech.esper.common.internal.view.core,com.espert
- ech.esper.common.internal.view.previous";version="8.9.0",com.espertech.
+ ech.esper.common.internal.view.previous";version="8.10.0",com.espertech.
  esper.common.internal.statement.thread;uses:="com.espertech.esper.commo
- n.client,com.espertech.esper.common.internal.event.util";version="8.9.0
+ n.client,com.espertech.esper.common.internal.event.util";version="8.10.0
  ",com.espertech.esper.common.internal.support;uses:="com.espertech.espe
  r.common.client,com.espertech.esper.common.client.configuration,com.esp
  ertech.esper.common.client.soda,com.espertech.esper.common.client.util,
  com.espertech.esper.common.internal.epl.expression.core,com.espertech.e
  sper.common.internal.epl.streamtype,com.espertech.esper.common.internal
- .settings";version="8.9.0",com.espertech.esper.common.internal.type;use
+ .settings";version="8.10.0",com.espertech.esper.common.internal.type;use
  s:="com.espertech.esper.common.client.annotation,com.espertech.esper.co
  mmon.client.util,com.espertech.esper.common.internal.bytecodemodel.base
  ,com.espertech.esper.common.internal.bytecodemodel.model.expression,com
  .espertech.esper.common.internal.collection,com.espertech.esper.common.
- internal.util";version="8.9.0",com.espertech.esper.common.internal.util
+ internal.util";version="8.10.0",com.espertech.esper.common.internal.util
  ;uses:="com.espertech.esper.common.client,com.espertech.esper.common.cl
  ient.configuration,com.espertech.esper.common.client.util,com.espertech
  .esper.common.internal.bytecodemodel.base,com.espertech.esper.common.in
  ternal.bytecodemodel.model.expression,com.espertech.esper.common.intern
  al.collection,com.espertech.esper.common.internal.compile.stage1.spec,o
- rg.w3c.dom";version="8.9.0",com.espertech.esper.common.internal.util.ap
- achecommonstext;version="8.9.0",com.espertech.esper.common.internal.vie
+ rg.w3c.dom";version="8.10.0",com.espertech.esper.common.internal.util.ap
+ achecommonstext;version="8.10.0",com.espertech.esper.common.internal.vie
  w.access;uses:="com.espertech.esper.common.client,com.espertech.esper.c
  ommon.internal.bytecodemodel.model.expression,com.espertech.esper.commo
  n.internal.epl.expression.core,com.espertech.esper.common.internal.epl.
  expression.prev,com.espertech.esper.common.internal.epl.expression.prio
- r,com.espertech.esper.common.internal.view.previous";version="8.9.0",co
+ r,com.espertech.esper.common.internal.view.previous";version="8.10.0",co
  m.espertech.esper.common.internal.view.core;uses:="com.espertech.esper.
  common.client,com.espertech.esper.common.client.configuration,com.esper
  tech.esper.common.client.hook.expr,com.espertech.esper.common.internal.
@@ -2452,14 +2452,14 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  lengthbatch,com.espertech.esper.common.internal.view.timetolive,com.esp
  ertech.esper.common.internal.view.timewin,com.espertech.esper.common.in
  ternal.view.union,com.espertech.esper.common.internal.view.unique";vers
- ion="8.9.0",com.espertech.esper.common.internal.view.derived;uses:="com
+ ion="8.10.0",com.espertech.esper.common.internal.view.derived;uses:="com
  .espertech.esper.common.client,com.espertech.esper.common.internal.byte
  codemodel.base,com.espertech.esper.common.internal.bytecodemodel.model.
  expression,com.espertech.esper.common.internal.context.aifactory.core,c
  om.espertech.esper.common.internal.context.module,com.espertech.esper.c
  ommon.internal.context.util,com.espertech.esper.common.internal.epl.exp
  ression.core,com.espertech.esper.common.internal.event.core,com.esperte
- ch.esper.common.internal.view.core";version="8.9.0",com.espertech.esper
+ ch.esper.common.internal.view.core";version="8.10.0",com.espertech.esper
  .common.internal.view.expression;uses:="com.espertech.esper.common.clie
  nt,com.espertech.esper.common.internal.bytecodemodel.base,com.espertech
  .esper.common.internal.bytecodemodel.model.expression,com.espertech.esp
@@ -2472,7 +2472,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  er.common.internal.event.arr,com.espertech.esper.common.internal.schedu
  le,com.espertech.esper.common.internal.view.access,com.espertech.esper.
  common.internal.view.core,com.espertech.esper.common.internal.view.prev
- ious";version="8.9.0",com.espertech.esper.common.internal.view.exttimed
+ ious";version="8.10.0",com.espertech.esper.common.internal.view.exttimed
  batch;uses:="com.espertech.esper.common.client,com.espertech.esper.comm
  on.internal.bytecodemodel.base,com.espertech.esper.common.internal.byte
  codemodel.model.expression,com.espertech.esper.common.internal.collecti
@@ -2482,7 +2482,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  core,com.espertech.esper.common.internal.epl.expression.time.eval,com.e
  spertech.esper.common.internal.view.access,com.espertech.esper.common.i
  nternal.view.core,com.espertech.esper.common.internal.view.previous";ve
- rsion="8.9.0",com.espertech.esper.common.internal.view.exttimedwin;uses
+ rsion="8.10.0",com.espertech.esper.common.internal.view.exttimedwin;uses
  :="com.espertech.esper.common.client,com.espertech.esper.common.interna
  l.bytecodemodel.base,com.espertech.esper.common.internal.bytecodemodel.
  model.expression,com.espertech.esper.common.internal.collection,com.esp
@@ -2491,24 +2491,24 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  .expression.core,com.espertech.esper.common.internal.epl.expression.tim
  e.eval,com.espertech.esper.common.internal.view.access,com.espertech.es
  per.common.internal.view.core,com.espertech.esper.common.internal.view.
- previous";version="8.9.0",com.espertech.esper.common.internal.view.filt
+ previous";version="8.10.0",com.espertech.esper.common.internal.view.filt
  er;uses:="com.espertech.esper.common.client,com.espertech.esper.common.
  internal.epl.expression.core,com.espertech.esper.common.internal.view.c
- ore";version="8.9.0",com.espertech.esper.common.internal.view.firsteven
+ ore";version="8.10.0",com.espertech.esper.common.internal.view.firsteven
  t;uses:="com.espertech.esper.common.client,com.espertech.esper.common.i
  nternal.bytecodemodel.base,com.espertech.esper.common.internal.bytecode
  model.model.expression,com.espertech.esper.common.internal.context.aifa
  ctory.core,com.espertech.esper.common.internal.context.module,com.esper
  tech.esper.common.internal.context.util,com.espertech.esper.common.inte
  rnal.epl.expression.core,com.espertech.esper.common.internal.view.core"
- ;version="8.9.0",com.espertech.esper.common.internal.view.firstlength;u
+ ;version="8.10.0",com.espertech.esper.common.internal.view.firstlength;u
  ses:="com.espertech.esper.common.client,com.espertech.esper.common.inte
  rnal.bytecodemodel.base,com.espertech.esper.common.internal.bytecodemod
  el.model.expression,com.espertech.esper.common.internal.context.aifacto
  ry.core,com.espertech.esper.common.internal.context.module,com.espertec
  h.esper.common.internal.context.util,com.espertech.esper.common.interna
  l.epl.expression.core,com.espertech.esper.common.internal.view.core";ve
- rsion="8.9.0",com.espertech.esper.common.internal.view.firsttime;uses:=
+ rsion="8.10.0",com.espertech.esper.common.internal.view.firsttime;uses:=
  "com.espertech.esper.common.client,com.espertech.esper.common.internal.
  bytecodemodel.base,com.espertech.esper.common.internal.bytecodemodel.mo
  del.expression,com.espertech.esper.common.internal.context.aifactory.co
@@ -2516,14 +2516,14 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  er.common.internal.context.util,com.espertech.esper.common.internal.epl
  .expression.core,com.espertech.esper.common.internal.epl.expression.tim
  e.eval,com.espertech.esper.common.internal.schedule,com.espertech.esper
- .common.internal.view.core";version="8.9.0",com.espertech.esper.common.
+ .common.internal.view.core";version="8.10.0",com.espertech.esper.common.
  internal.view.firstunique;uses:="com.espertech.esper.common.client,com.
  espertech.esper.common.internal.bytecodemodel.base,com.espertech.esper.
  common.internal.bytecodemodel.model.expression,com.espertech.esper.comm
  on.internal.context.aifactory.core,com.espertech.esper.common.internal.
  context.module,com.espertech.esper.common.internal.context.util,com.esp
  ertech.esper.common.internal.epl.expression.core,com.espertech.esper.co
- mmon.internal.view.core";version="8.9.0",com.espertech.esper.common.int
+ mmon.internal.view.core";version="8.10.0",com.espertech.esper.common.int
  ernal.view.groupwin;uses:="com.espertech.esper.common.client,com.espert
  ech.esper.common.internal.bytecodemodel.base,com.espertech.esper.common
  .internal.bytecodemodel.model.expression,com.espertech.esper.common.int
@@ -2531,7 +2531,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  t.module,com.espertech.esper.common.internal.context.util,com.espertech
  .esper.common.internal.epl.expression.core,com.espertech.esper.common.i
  nternal.event.core,com.espertech.esper.common.internal.view.core";versi
- on="8.9.0",com.espertech.esper.common.internal.view.intersect;uses:="co
+ on="8.10.0",com.espertech.esper.common.internal.view.intersect;uses:="co
  m.espertech.esper.common.client,com.espertech.esper.common.internal.byt
  ecodemodel.base,com.espertech.esper.common.internal.bytecodemodel.model
  .expression,com.espertech.esper.common.internal.context.aifactory.core,
@@ -2546,14 +2546,14 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  rnal.context.module,com.espertech.esper.common.internal.context.util,co
  m.espertech.esper.common.internal.epl.expression.core,com.espertech.esp
  er.common.internal.view.core,com.espertech.esper.common.internal.view.p
- revious";version="8.9.0",com.espertech.esper.common.internal.view.laste
+ revious";version="8.10.0",com.espertech.esper.common.internal.view.laste
  vent;uses:="com.espertech.esper.common.client,com.espertech.esper.commo
  n.internal.bytecodemodel.base,com.espertech.esper.common.internal.bytec
  odemodel.model.expression,com.espertech.esper.common.internal.context.a
  ifactory.core,com.espertech.esper.common.internal.context.module,com.es
  pertech.esper.common.internal.context.util,com.espertech.esper.common.i
  nternal.epl.expression.core,com.espertech.esper.common.internal.view.co
- re";version="8.9.0",com.espertech.esper.common.internal.view.length;use
+ re";version="8.10.0",com.espertech.esper.common.internal.view.length;use
  s:="com.espertech.esper.common.client,com.espertech.esper.common.intern
  al.bytecodemodel.base,com.espertech.esper.common.internal.bytecodemodel
  .model.expression,com.espertech.esper.common.internal.collection,com.es
@@ -2561,7 +2561,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  r.common.internal.context.module,com.espertech.esper.common.internal.co
  ntext.util,com.espertech.esper.common.internal.epl.expression.core,com.
  espertech.esper.common.internal.view.core,com.espertech.esper.common.in
- ternal.view.previous";version="8.9.0",com.espertech.esper.common.intern
+ ternal.view.previous";version="8.10.0",com.espertech.esper.common.intern
  al.view.lengthbatch;uses:="com.espertech.esper.common.client,com.espert
  ech.esper.common.internal.bytecodemodel.base,com.espertech.esper.common
  .internal.bytecodemodel.model.expression,com.espertech.esper.common.int
@@ -2569,12 +2569,12 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  core,com.espertech.esper.common.internal.context.module,com.espertech.e
  sper.common.internal.context.util,com.espertech.esper.common.internal.e
  pl.expression.core,com.espertech.esper.common.internal.view.core,com.es
- pertech.esper.common.internal.view.previous";version="8.9.0",com.espert
+ pertech.esper.common.internal.view.previous";version="8.10.0",com.espert
  ech.esper.common.internal.view.previous;uses:="com.espertech.esper.comm
  on.client,com.espertech.esper.common.internal.collection,com.espertech.
  esper.common.internal.epl.expression.core,com.espertech.esper.common.in
  ternal.view.access,com.espertech.esper.common.internal.view.core";versi
- on="8.9.0",com.espertech.esper.common.internal.view.prior;uses:="com.es
+ on="8.10.0",com.espertech.esper.common.internal.view.prior;uses:="com.es
  pertech.esper.common.client,com.espertech.esper.common.internal.bytecod
  emodel.base,com.espertech.esper.common.internal.bytecodemodel.model.exp
  ression,com.espertech.esper.common.internal.collection,com.espertech.es
@@ -2582,7 +2582,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  nternal.context.module,com.espertech.esper.common.internal.context.util
  ,com.espertech.esper.common.internal.epl.expression.core,com.espertech.
  esper.common.internal.view.access,com.espertech.esper.common.internal.v
- iew.core";version="8.9.0",com.espertech.esper.common.internal.view.rank
+ iew.core";version="8.10.0",com.espertech.esper.common.internal.view.rank
  ;uses:="com.espertech.esper.common.client,com.espertech.esper.common.in
  ternal.bytecodemodel.base,com.espertech.esper.common.internal.bytecodem
  odel.model.expression,com.espertech.esper.common.internal.collection,co
@@ -2591,7 +2591,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  l.context.util,com.espertech.esper.common.internal.epl.expression.core,
  com.espertech.esper.common.internal.view.access,com.espertech.esper.com
  mon.internal.view.core,com.espertech.esper.common.internal.view.previou
- s";version="8.9.0",com.espertech.esper.common.internal.view.sort;uses:=
+ s";version="8.10.0",com.espertech.esper.common.internal.view.sort;uses:=
  "com.espertech.esper.common.client,com.espertech.esper.common.internal.
  bytecodemodel.base,com.espertech.esper.common.internal.bytecodemodel.mo
  del.expression,com.espertech.esper.common.internal.collection,com.esper
@@ -2599,7 +2599,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ommon.internal.context.module,com.espertech.esper.common.internal.conte
  xt.util,com.espertech.esper.common.internal.epl.expression.core,com.esp
  ertech.esper.common.internal.view.core,com.espertech.esper.common.inter
- nal.view.previous";version="8.9.0",com.espertech.esper.common.internal.
+ nal.view.previous";version="8.10.0",com.espertech.esper.common.internal.
  view.time_accum;uses:="com.espertech.esper.common.client,com.espertech.
  esper.common.internal.bytecodemodel.base,com.espertech.esper.common.int
  ernal.bytecodemodel.model.expression,com.espertech.esper.common.interna
@@ -2609,7 +2609,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  xpression.core,com.espertech.esper.common.internal.epl.expression.time.
  eval,com.espertech.esper.common.internal.schedule,com.espertech.esper.c
  ommon.internal.view.access,com.espertech.esper.common.internal.view.cor
- e,com.espertech.esper.common.internal.view.previous";version="8.9.0",co
+ e,com.espertech.esper.common.internal.view.previous";version="8.10.0",co
  m.espertech.esper.common.internal.view.timebatch;uses:="com.espertech.e
  sper.common.client,com.espertech.esper.common.internal.bytecodemodel.ba
  se,com.espertech.esper.common.internal.bytecodemodel.model.expression,c
@@ -2619,7 +2619,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  rtech.esper.common.internal.epl.expression.core,com.espertech.esper.com
  mon.internal.epl.expression.time.eval,com.espertech.esper.common.intern
  al.schedule,com.espertech.esper.common.internal.view.core,com.espertech
- .esper.common.internal.view.previous";version="8.9.0",com.espertech.esp
+ .esper.common.internal.view.previous";version="8.10.0",com.espertech.esp
  er.common.internal.view.timelengthbatch;uses:="com.espertech.esper.comm
  on.client,com.espertech.esper.common.internal.bytecodemodel.base,com.es
  pertech.esper.common.internal.bytecodemodel.model.expression,com.espert
@@ -2629,7 +2629,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  er.common.internal.epl.expression.core,com.espertech.esper.common.inter
  nal.epl.expression.time.eval,com.espertech.esper.common.internal.schedu
  le,com.espertech.esper.common.internal.view.core,com.espertech.esper.co
- mmon.internal.view.previous";version="8.9.0",com.espertech.esper.common
+ mmon.internal.view.previous";version="8.10.0",com.espertech.esper.common
  .internal.view.timetolive;uses:="com.espertech.esper.common.client,com.
  espertech.esper.common.internal.bytecodemodel.base,com.espertech.esper.
  common.internal.bytecodemodel.model.expression,com.espertech.esper.comm
@@ -2639,7 +2639,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  mmon.internal.epl.expression.time.eval,com.espertech.esper.common.inter
  nal.schedule,com.espertech.esper.common.internal.view.access,com.espert
  ech.esper.common.internal.view.core,com.espertech.esper.common.internal
- .view.previous";version="8.9.0",com.espertech.esper.common.internal.vie
+ .view.previous";version="8.10.0",com.espertech.esper.common.internal.vie
  w.timewin;uses:="com.espertech.esper.common.client,com.espertech.esper.
  common.internal.bytecodemodel.base,com.espertech.esper.common.internal.
  bytecodemodel.model.expression,com.espertech.esper.common.internal.coll
@@ -2649,7 +2649,7 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  ion.core,com.espertech.esper.common.internal.epl.expression.time.eval,c
  om.espertech.esper.common.internal.schedule,com.espertech.esper.common.
  internal.view.core,com.espertech.esper.common.internal.view.previous";v
- ersion="8.9.0",com.espertech.esper.common.internal.view.union;uses:="co
+ ersion="8.10.0",com.espertech.esper.common.internal.view.union;uses:="co
  m.espertech.esper.common.client,com.espertech.esper.common.internal.byt
  ecodemodel.base,com.espertech.esper.common.internal.bytecodemodel.model
  .expression,com.espertech.esper.common.internal.collection,com.espertec
@@ -2657,19 +2657,19 @@ Export-Package: com.espertech.esper.common.client;uses:="com.espertech.e
  on.internal.context.module,com.espertech.esper.common.internal.context.
  util,com.espertech.esper.common.internal.epl.expression.core,com.espert
  ech.esper.common.internal.view.core,com.espertech.esper.common.internal
- .view.intersect";version="8.9.0",com.espertech.esper.common.internal.vi
+ .view.intersect";version="8.10.0",com.espertech.esper.common.internal.vi
  ew.unique;uses:="com.espertech.esper.common.client,com.espertech.esper.
  common.internal.bytecodemodel.base,com.espertech.esper.common.internal.
  bytecodemodel.model.expression,com.espertech.esper.common.internal.cont
  ext.aifactory.core,com.espertech.esper.common.internal.context.module,c
  om.espertech.esper.common.internal.context.util,com.espertech.esper.com
  mon.internal.epl.expression.core,com.espertech.esper.common.internal.vi
- ew.core";version="8.9.0",com.espertech.esper.common.internal.view.util;
+ ew.core";version="8.10.0",com.espertech.esper.common.internal.view.util;
  uses:="com.espertech.esper.common.client,com.espertech.esper.common.int
  ernal.epl.expression.core,com.espertech.esper.common.internal.epl.expre
  ssion.time.eval,com.espertech.esper.common.internal.epl.streamtype,com.
  espertech.esper.common.internal.event.core,com.espertech.esper.common.i
- nternal.view.core";version="8.9.0"
+ nternal.view.core";version="8.10.0"
 Import-Package: com.espertech.esper.common.client,com.espertech.esper.co
  mmon.client.annotation,com.espertech.esper.common.client.configuration,
  com.espertech.esper.common.client.configuration.common,com.espertech.es

@@ -22,10 +22,10 @@ LIB_COMMON_XMLXSD=../../../dependencies/common-xmlxsd
 
 CLASSPATH=.
 CLASSPATH=$CLASSPATH:../target/classes
-CLASSPATH=$CLASSPATH:../../../esper-common-8.9.0.jar
-CLASSPATH=$CLASSPATH:../../../esper-compiler-8.9.0.jar
-CLASSPATH=$CLASSPATH:../../../esper-runtime-8.9.0.jar
-CLASSPATH=$CLASSPATH:../../../esper-common-xmlxsd-8.9.0.jar
+CLASSPATH=$CLASSPATH:../../../esper-common-8.10.0.jar
+CLASSPATH=$CLASSPATH:../../../esper-compiler-8.10.0.jar
+CLASSPATH=$CLASSPATH:../../../esper-runtime-8.10.0.jar
+CLASSPATH=$CLASSPATH:../../../esper-common-xmlxsd-8.10.0.jar
 CLASSPATH=$CLASSPATH:$LIB_COMPILER/slf4j-api-1.7.36.jar
 CLASSPATH=$CLASSPATH:$LIB_COMPILER/slf4j-reload4j-1.7.36.jar
 CLASSPATH=$CLASSPATH:$LIB_COMPILER/reload4j-1.2.19.jar
