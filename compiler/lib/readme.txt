@@ -1,7 +1,7 @@
 Esper-Compiler required libraries
 ==========================
 
-antlr-runtime-4.9.3.jar
+antlr-runtime-4.13.1.jar
 - runtime for ANTLR parser generator
 - required for compiler (not required for runtime)
 - see ANTRL 4 license in file esper_3rdparties_compiler.license

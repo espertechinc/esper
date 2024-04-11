@@ -1,4 +1,4 @@
-// Generated from EsperEPL2Grammar.g by ANTLR 4.9.3
+// Generated from EsperEPL2Grammar.g by ANTLR 4.13.1
 
 /*
  ***************************************************************************************
@@ -22,6 +22,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
  * which can be extended to create a listener which only needs to handle a subset
  * of the available methods.
  */
+@SuppressWarnings("CheckReturnValue")
 public class EsperEPL2GrammarBaseListener implements EsperEPL2GrammarListener {
 	/**
 	 * {@inheritDoc}
