@@ -30,7 +30,7 @@
 		**/mockito-*.jar, 
 		**/junit.license,
 		**/hamcrest-*.jar,
-		**/mysql-connector-java-*.jar"/>
+		**/mysql-connector-*.jar"/>
 
 	<target name="dist_zip" description="Zip up distribution">
 		<echo message="Building a zip for distribution ${documentation.home}" />

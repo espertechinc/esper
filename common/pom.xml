@@ -94,8 +94,8 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
+			<groupId>com.mysql</groupId>
+			<artifactId>mysql-connector-j</artifactId>
 			<version>${mysql-connector-java.version}</version>
 			<scope>test</scope>
 		</dependency>
@@ -244,8 +244,8 @@
 							<version>${reload4j.version}</version>
 						</artifactItem>
 						<artifactItem>
-							<groupId>mysql</groupId>
-							<artifactId>mysql-connector-java</artifactId>
+							<groupId>com.mysql</groupId>
+							<artifactId>mysql-connector-j</artifactId>
 							<version>${mysql-connector-java.version}</version>
 						</artifactItem>
 						<artifactItem>
