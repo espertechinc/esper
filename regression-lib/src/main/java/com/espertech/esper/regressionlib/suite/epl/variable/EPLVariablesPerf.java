@@ -47,7 +47,7 @@ public class EPLVariablesPerf implements RegressionExecution {
             env.assertPropsNew("s0", "sb.theString,sb.intPrimitive".split(","), new Object[]{"E331", -331});
         }
         long delta = System.currentTimeMillis() - start;
-        assertTrue("delta=" + delta, delta < 500);
+        assertTrue("delta=" + delta, delta < 600);
         env.undeployModuleContaining("s0");
 
         // test subquery

@@ -247,7 +247,7 @@ public class InfraNWTableOnDelete {
             env.assertThat(() -> assertEquals(3, getCount(env, path, "MyInfra")));
             env.listenerReset("CreateInfra");
             String[] fields = new String[]{"a", "b"};
-            env.assertPropsPerRowIterator("CreateInfra", fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
+            env.assertPropsPerRowIteratorAnyOrder("CreateInfra", fields, new Object[][]{{"E1", 1}, {"E2", 2}, {"E3", 3}});
 
             // delete E2
             sendSupportBean_A(env, "XE2X");

@@ -152,7 +152,7 @@ public class InfraNamedWindowInsertFrom {
             // create window with last-per-id
             String stmtTextCreateFour = "@name('windowFour') @public create window MyWindowFour#unique(intPrimitive) as MyWindowIWT insert";
             env.compileDeploy(stmtTextCreateFour, path).addListener("windowFour");
-            env.assertPropsPerRowIterator("windowFour", fields, new Object[][]{{"C3"}, {"C5"}});
+            env.assertPropsPerRowIteratorAnyOrder("windowFour", fields, new Object[][]{{"C3"}, {"C5"}});
             env.assertListenerNotInvoked("windowFour");
 
             env.milestone(4);

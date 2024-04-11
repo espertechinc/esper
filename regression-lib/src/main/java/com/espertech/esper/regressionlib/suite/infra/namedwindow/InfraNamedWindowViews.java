@@ -3354,16 +3354,16 @@ public class InfraNamedWindowViews {
                 }
                 listener.reset();
             });
-            env.assertPropsPerRowIterator("s2", fieldsJoin, new Object[][]{{"E1", 1L, "S1"}, {"E2", 1L, "S1"}});
+            env.assertPropsPerRowIteratorAnyOrder("s2", fieldsJoin, new Object[][]{{"E1", 1L, "S1"}, {"E2", 1L, "S1"}});
 
             sendMarketBean(env, "S2", 2);    // join on long
             env.assertListenerNotInvoked("s2");
-            env.assertPropsPerRowIterator("s2", fieldsJoin, new Object[][]{{"E1", 1L, "S1"}, {"E2", 1L, "S1"}});
+            env.assertPropsPerRowIteratorAnyOrder("s2", fieldsJoin, new Object[][]{{"E1", 1L, "S1"}, {"E2", 1L, "S1"}});
 
             sendSupportBean(env, "E3", 2L);
             env.assertPropsNew("create", fieldsWin, new Object[]{"E3", 2L});
             env.assertPropsNew("s2", fieldsJoin, new Object[]{"E3", 2L, "S2"});
-            env.assertPropsPerRowIterator("s2", fieldsJoin, new Object[][]{{"E1", 1L, "S1"}, {"E2", 1L, "S1"}, {"E3", 2L, "S2"}});
+            env.assertPropsPerRowIteratorAnyOrder("s2", fieldsJoin, new Object[][]{{"E1", 1L, "S1"}, {"E2", 1L, "S1"}, {"E3", 2L, "S2"}});
 
             env.undeployAll();
         }

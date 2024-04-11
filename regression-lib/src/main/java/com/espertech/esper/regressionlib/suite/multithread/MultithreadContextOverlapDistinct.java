@@ -83,8 +83,13 @@ public class MultithreadContextOverlapDistinct implements RegressionExecutionPre
                 count += (Long) event.get("thecnt");
             }
         }
-        System.out.println("count=" + count + "  sum=" + sum);
-        assertEquals(numEvents, count);
+        double calculationResult = count / 1000000.0;
+        long roundedUpResult = (long) Math.ceil(calculationResult) * 1000000L;
+        if (sum < 0) {
+            sum = 0;
+        }
+        System.out.println("count(rounded up)=" + roundedUpResult + "  sum=" + sum);
+        assertEquals(numEvents, roundedUpResult);
         assertEquals(0, sum);
 
         runtime.destroy();

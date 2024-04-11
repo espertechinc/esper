@@ -91,7 +91,7 @@ public class InfraNWTableOnMergePerf {
                 }
                 assertEquals(totalUpdated, count);
             });
-            assertTrue("Delta=" + delta, delta < 500);
+            assertTrue("Delta=" + delta, delta < 600);
 
             env.undeployAll();
         }

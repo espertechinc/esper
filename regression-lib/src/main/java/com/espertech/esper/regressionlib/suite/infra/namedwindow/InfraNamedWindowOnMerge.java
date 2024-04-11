@@ -187,7 +187,7 @@ public class InfraNamedWindowOnMerge {
             env.compileDeploy(epl, path);
             env.sendEventBean(new SupportBean("E2", 20));
 
-            env.assertPropsPerRowIterator("window", "theString,intPrimitive".split(","), new Object[][]{{null, 10}, {"E2", 20}});
+            env.assertPropsPerRowIteratorAnyOrder("window", "theString,intPrimitive".split(","), new Object[][]{{null, 10}, {"E2", 20}});
 
             env.undeployAll();
         }

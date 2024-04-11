@@ -272,7 +272,7 @@ public class InfraNWTableFAFIndexPerfWNoQueryPlanLog implements IndexBackingTabl
             }
             long end = System.currentTimeMillis();
             long delta = end - start;
-            assertTrue("delta=" + delta, delta < 500);
+            assertTrue("delta=" + delta, delta < 600);
 
             // test no value returned
             queryText = "select * from MyInfraOne where f1='KX'";

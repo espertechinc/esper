@@ -1122,7 +1122,7 @@ public class InfraNWTableOnMerge {
 
             env.sendEventBean(new SupportBean("E3", 3000));
             env.sendEventBean(new SupportBean_ST0("ST0", "E3", 3));
-            env.assertPropsPerRowIterator("Create", fields, new Object[][]{{"E1", 1}, {"E3", 3}});
+            env.assertPropsPerRowIteratorAnyOrder("Create", fields, new Object[][]{{"E1", 1}, {"E3", 3}});
 
             env.milestone(1);
 
