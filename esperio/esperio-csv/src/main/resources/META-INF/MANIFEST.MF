@@ -1,17 +1,13 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1540225834377
-Build-Jdk: 1.8.0_192
-Built-By: EsperTechInc
+Bnd-LastModified: 1712845172317
+Build-Jdk-Spec: 17
 Bundle-Description: EsperIO CSV
 Bundle-License: http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 Bundle-ManifestVersion: 2
 Bundle-Name: EsperIO-CSV
-Bundle-RequiredExecutionEnvironment: J2SE-1.8
 Bundle-SymbolicName: com.espertech.esperio-csv
-Bundle-Vendor: EsperTech
 Bundle-Version: 9.0.0
-Created-By: Apache Maven Bundle Plugin
-Eclipse-BuddyPolicy: dependent
+Created-By: Apache Maven Bundle Plugin 5.1.9
 Export-Package: com.espertech.esperio.csv;uses:="com.espertech.esper.com
  mon.client,com.espertech.esper.runtime.client,com.espertech.esper.runti
  me.client.util,org.slf4j";version="9.0.0",com.espertech.esperio.file;us
@@ -22,26 +18,37 @@ Export-Package: com.espertech.esperio.csv;uses:="com.espertech.esper.com
  common.internal.context.aifactory.core,com.espertech.esper.common.inter
  nal.epl.dataflow.interfaces,com.espertech.esper.common.internal.epl.exp
  ression.core,com.espertech.esperio.csv";version="9.0.0"
-Import-Package: com.espertech.esper.common.client,com.espertech.esper.co
- mmon.client.dataflow.annotations,com.espertech.esper.common.client.data
- flow.util,com.espertech.esper.common.client.render,com.espertech.esper.
- common.client.util,com.espertech.esper.common.internal.bytecodemodel.ba
- se,com.espertech.esper.common.internal.bytecodemodel.model.expression,c
- om.espertech.esper.common.internal.context.aifactory.core,com.espertech
- .esper.common.internal.context.util,com.espertech.esper.common.internal
- .epl.dataflow.interfaces,com.espertech.esper.common.internal.epl.datafl
- ow.util,com.espertech.esper.common.internal.epl.expression.core,com.esp
- ertech.esper.common.internal.event.arr,com.espertech.esper.common.inter
- nal.event.avro,com.espertech.esper.common.internal.event.bean.core,com.
- espertech.esper.common.internal.event.core,com.espertech.esper.common.i
- nternal.event.eventtyperepo,com.espertech.esper.common.internal.event.m
- ap,com.espertech.esper.common.internal.event.render,com.espertech.esper
- .common.internal.metrics.stmtmetrics,com.espertech.esper.common.interna
- l.schedule,com.espertech.esper.common.internal.settings,com.espertech.e
- sper.common.internal.statement.insertintolatch,com.espertech.esper.comm
- on.internal.statement.multimatch,com.espertech.esper.common.internal.ut
- il,com.espertech.esper.runtime.client,com.espertech.esper.runtime.clien
- t.util,com.espertech.esper.runtime.internal.kernel.service,com.espertec
- h.esper.runtime.internal.schedulesvcimpl,com.espertech.esperio.csv,org.
- slf4j;version="[1.7,2)"
-Tool: Bnd-3.5.0.201709291849
+Import-Package: com.espertech.esper.common.client;version="[9.0,10)",com
+ .espertech.esper.common.client.dataflow.annotations;version="[9.0,10)",
+ com.espertech.esper.common.client.dataflow.util;version="[9.0,10)",com.
+ espertech.esper.common.client.render;version="[9.0,10)",com.espertech.e
+ sper.common.client.type,com.espertech.esper.common.client.util;version=
+ "[9.0,10)",com.espertech.esper.common.internal.bytecodemodel.base;versi
+ on="[9.0,10)",com.espertech.esper.common.internal.bytecodemodel.model.e
+ xpression;version="[9.0,10)",com.espertech.esper.common.internal.contex
+ t.aifactory.core;version="[9.0,10)",com.espertech.esper.common.internal
+ .context.util;version="[9.0,10)",com.espertech.esper.common.internal.ep
+ l.dataflow.interfaces;version="[9.0,10)",com.espertech.esper.common.int
+ ernal.epl.dataflow.util;version="[9.0,10)",com.espertech.esper.common.i
+ nternal.epl.expression.core;version="[9.0,10)",com.espertech.esper.comm
+ on.internal.event.arr;version="[9.0,10)",com.espertech.esper.common.int
+ ernal.event.avro;version="[9.0,10)",com.espertech.esper.common.internal
+ .event.bean.core;version="[9.0,10)",com.espertech.esper.common.internal
+ .event.core;version="[9.0,10)",com.espertech.esper.common.internal.even
+ t.eventtyperepo;version="[9.0,10)",com.espertech.esper.common.internal.
+ event.json.core,com.espertech.esper.common.internal.event.map;version="
+ [9.0,10)",com.espertech.esper.common.internal.event.render;version="[9.
+ 0,10)",com.espertech.esper.common.internal.metrics.stmtmetrics;version=
+ "[9.0,10)",com.espertech.esper.common.internal.schedule;version="[9.0,1
+ 0)",com.espertech.esper.common.internal.settings;version="[9.0,10)",com
+ .espertech.esper.common.internal.statement.insertintolatch;version="[9.
+ 0,10)",com.espertech.esper.common.internal.statement.multimatch;version
+ ="[9.0,10)",com.espertech.esper.common.internal.util;version="[9.0,10)"
+ ,com.espertech.esper.runtime.client;version="[9.0,10)",com.espertech.es
+ per.runtime.client.util;version="[9.0,10)",com.espertech.esper.runtime.
+ internal.kernel.service;version="[9.0,10)",com.espertech.esper.runtime.
+ internal.schedulesvcimpl;version="[9.0,10)",com.espertech.esperio.csv,j
+ ava.beans,java.io,java.lang,java.lang.invoke,java.lang.reflect,java.net
+ ,java.nio.channels,java.text,java.util,java.util.concurrent,java.util.z
+ ip,org.slf4j;version="[1.7,2)"
+Tool: Bnd-6.3.1.202206071316

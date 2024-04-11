@@ -1,17 +1,13 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1540225956485
-Build-Jdk: 1.8.0_192
-Built-By: EsperTechInc
+Bnd-LastModified: 1712845175487
+Build-Jdk-Spec: 17
 Bundle-Description: EsperIO DB
 Bundle-License: http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 Bundle-ManifestVersion: 2
 Bundle-Name: EsperIO-DB
-Bundle-RequiredExecutionEnvironment: J2SE-1.8
 Bundle-SymbolicName: com.espertech.esperio-db
-Bundle-Vendor: EsperTech
 Bundle-Version: 9.0.0
-Created-By: Apache Maven Bundle Plugin
-Eclipse-BuddyPolicy: dependent
+Created-By: Apache Maven Bundle Plugin 5.1.9
 Export-Package: com.espertech.esperio.db;uses:="com.espertech.esper.runt
  ime.client.plugin,com.espertech.esperio.db.config";version="9.0.0",com.
  espertech.esperio.db.config;uses:="com.espertech.esper.common.client.co
@@ -21,14 +17,18 @@ Export-Package: com.espertech.esperio.db;uses:="com.espertech.esper.runt
  ical.database.connection,com.espertech.esper.runtime.client,com.esperte
  ch.esper.runtime.internal.kernel.service,com.espertech.esperio.db.confi
  g";version="9.0.0"
-Import-Package: com.espertech.esper.common.client,com.espertech.esper.co
- mmon.client.configuration,com.espertech.esper.common.client.configurati
- on.common,com.espertech.esper.common.internal.epl.historical.database.c
- onnection,com.espertech.esper.common.internal.event.eventtyperepo,com.e
- spertech.esper.common.internal.settings,com.espertech.esper.common.inte
- rnal.util,com.espertech.esper.compiler.client,com.espertech.esper.runti
- me.client,com.espertech.esper.runtime.client.plugin,com.espertech.esper
- .runtime.internal.kernel.service,com.espertech.esperio.db.config,com.es
- pertech.esperio.db.core,javax.naming,javax.xml.parsers,org.slf4j;versio
- n="[1.7,2)",org.w3c.dom,org.xml.sax
-Tool: Bnd-3.5.0.201709291849
+Import-Package: com.espertech.esper.common.client;version="[9.0,10)",com
+ .espertech.esper.common.client.configuration;version="[9.0,10)",com.esp
+ ertech.esper.common.client.configuration.common;version="[9.0,10)",com.
+ espertech.esper.common.internal.epl.historical.database.connection;vers
+ ion="[9.0,10)",com.espertech.esper.common.internal.event.eventtyperepo;
+ version="[9.0,10)",com.espertech.esper.common.internal.settings;version
+ ="[9.0,10)",com.espertech.esper.common.internal.util;version="[9.0,10)"
+ ,com.espertech.esper.compiler.client;version="[9.0,10)",com.espertech.e
+ sper.runtime.client;version="[9.0,10)",com.espertech.esper.runtime.clie
+ nt.plugin;version="[9.0,10)",com.espertech.esper.runtime.internal.kerne
+ l.service;version="[9.0,10)",com.espertech.esperio.db.config,com.espert
+ ech.esperio.db.core,java.io,java.lang,java.lang.invoke,java.net,java.sq
+ l,java.util,java.util.concurrent,javax.naming,javax.xml.parsers,org.slf
+ 4j;version="[1.7,2)",org.w3c.dom,org.xml.sax
+Tool: Bnd-6.3.1.202206071316

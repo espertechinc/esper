@@ -177,4 +177,21 @@
 		<exec dir="compiler" executable="cmd">   	<arg value="/c"/> <arg value="mvn javadoc:javadoc"/></exec>
 		<exec dir="runtime" executable="cmd">   	<arg value="/c"/> <arg value="mvn javadoc:javadoc"/></exec>
 	</target>
+
+	<target name="generatemanifest" description="Generate Manifest">
+		<delete><fileset dir="." includes="**/MANIFEST.MF"/></delete>
+		<exec dir="common" executable="cmd">   	<arg value="/c"/> <arg value="mvn bundle:manifest"/></exec>
+		<exec dir="common-avro" executable="cmd">   	<arg value="/c"/> <arg value="mvn bundle:manifest"/></exec>
+		<exec dir="common-xmlxsd" executable="cmd">   	<arg value="/c"/> <arg value="mvn bundle:manifest"/></exec>
+		<exec dir="compiler" executable="cmd">   	<arg value="/c"/> <arg value="mvn bundle:manifest"/></exec>
+		<exec dir="runtime" executable="cmd">   	<arg value="/c"/> <arg value="mvn bundle:manifest"/></exec>
+		<exec dir="esperio/esperio-amqp" executable="cmd">   	<arg value="/c"/> <arg value="mvn bundle:manifest"/></exec>
+		<exec dir="esperio/esperio-csv" executable="cmd">   	<arg value="/c"/> <arg value="mvn bundle:manifest"/></exec>
+		<exec dir="esperio/esperio-db" executable="cmd">   	<arg value="/c"/> <arg value="mvn bundle:manifest"/></exec>
+		<exec dir="esperio/esperio-http" executable="cmd">   	<arg value="/c"/> <arg value="mvn bundle:manifest"/></exec>
+		<exec dir="esperio/esperio-kafka" executable="cmd">   	<arg value="/c"/> <arg value="mvn bundle:manifest"/></exec>
+		<exec dir="esperio/esperio-socket" executable="cmd">   	<arg value="/c"/> <arg value="mvn bundle:manifest"/></exec>
+		<exec dir="esperio/esperio-springjms" executable="cmd">   	<arg value="/c"/> <arg value="mvn bundle:manifest"/></exec>
+	</target>
+
 </project>

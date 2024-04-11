@@ -1,28 +1,28 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1540226405232
-Build-Jdk: 1.8.0_192
-Built-By: EsperTechInc
+Bnd-LastModified: 1712845188587
+Build-Jdk-Spec: 17
 Bundle-Description: EsperIO SpringJMS
 Bundle-License: http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 Bundle-ManifestVersion: 2
 Bundle-Name: EsperIO-SpringJMS
-Bundle-RequiredExecutionEnvironment: J2SE-1.8
 Bundle-SymbolicName: com.espertech.esperio-springjms
-Bundle-Vendor: EsperTech
 Bundle-Version: 9.0.0
-Created-By: Apache Maven Bundle Plugin
-Eclipse-BuddyPolicy: dependent
+Created-By: Apache Maven Bundle Plugin 5.1.9
 Export-Package: com.espertech.esperio.jms;uses:="com.espertech.esper.com
  mon.client,com.espertech.esper.runtime.client,com.espertech.esper.runti
  me.client.plugin,com.espertech.esper.runtime.client.util,com.espertech.
  esper.runtime.internal.kernel.service,javax.jms,org.springframework.jms
  .core";version="9.0.0"
-Import-Package: com.espertech.esper.common.client,com.espertech.esper.co
- mmon.client.configuration,com.espertech.esper.common.internal.event.cor
- e,com.espertech.esper.common.internal.event.eventtyperepo,com.espertech
- .esper.common.internal.util,com.espertech.esper.compiler.client,com.esp
- ertech.esper.runtime.client,com.espertech.esper.runtime.client.plugin,c
- om.espertech.esper.runtime.client.util,com.espertech.esper.runtime.inte
- rnal.kernel.service,javax.jms,org.slf4j;version="[1.7,2)",org.springfra
- mework.context.support,org.springframework.jms.core,org.w3c.dom
-Tool: Bnd-3.5.0.201709291849
+Import-Package: com.espertech.esper.common.client;version="[9.0,10)",com
+ .espertech.esper.common.client.configuration;version="[9.0,10)",com.esp
+ ertech.esper.common.internal.event.core;version="[9.0,10)",com.espertec
+ h.esper.common.internal.event.eventtyperepo;version="[9.0,10)",com.espe
+ rtech.esper.common.internal.event.json.core,com.espertech.esper.common.
+ internal.util;version="[9.0,10)",com.espertech.esper.compiler.client;ve
+ rsion="[9.0,10)",com.espertech.esper.runtime.client;version="[9.0,10)",
+ com.espertech.esper.runtime.client.plugin;version="[9.0,10)",com.espert
+ ech.esper.runtime.client.util;version="[9.0,10)",com.espertech.esper.ru
+ ntime.internal.kernel.service;version="[9.0,10)",java.io,java.lang,java
+ .lang.invoke,java.util,javax.jms,org.slf4j;version="[1.7,2)",org.spring
+ framework.context.support,org.springframework.jms.core,org.w3c.dom
+Tool: Bnd-6.3.1.202206071316
