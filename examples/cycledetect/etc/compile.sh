@@ -17,4 +17,4 @@ fi
 SOURCEPATH=../src/main/java
 EXAMPLESOURCEPATH=$SOURCEPATH/com/espertech/esper/example/cycledetect
 
-${JAVA_HOME}/bin/javac -cp ${CLASSPATH} -d ../target/classes -source 1.8 -sourcepath ${SOURCEPATH} ${EXAMPLESOURCEPATH}/CycleDetectMain.java ${EXAMPLESOURCEPATH}/CycleDetectorAggregationStateFactory.java ${EXAMPLESOURCEPATH}/CycleDetectorAggregationAccessorOutputFactory.java ${EXAMPLESOURCEPATH}/CycleDetectorAggregationAccessorDetectFactory.java
+${JAVA_HOME}/bin/javac -cp ${CLASSPATH} -d ../target/classes -source 17 -sourcepath ${SOURCEPATH} ${EXAMPLESOURCEPATH}/CycleDetectMain.java ${EXAMPLESOURCEPATH}/CycleDetectorAggregationStateFactory.java ${EXAMPLESOURCEPATH}/CycleDetectorAggregationAccessorOutputFactory.java ${EXAMPLESOURCEPATH}/CycleDetectorAggregationAccessorDetectFactory.java
