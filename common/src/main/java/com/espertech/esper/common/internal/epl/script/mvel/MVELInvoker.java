@@ -69,7 +69,7 @@ public class MVELInvoker {
         assertClasspath(classpathImportService);
 
         try {
-            return parserContextClass.newInstance();
+            return parserContextClass.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             throw new EPException("Failed to instantiate MVEL ParserContext: " + e.getMessage(), e);
         }

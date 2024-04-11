@@ -49,11 +49,11 @@ public class TestExprCaseNode extends TestCase {
 
         // singe child node not possible, must be 2 at least
         caseNode = new ExprCaseNode(false);
-        caseNode.addChildNode(new SupportExprNode(new Integer(4)));
+        caseNode.addChildNode(new SupportExprNode(4));
         tryInvalidValidate(caseNode);
 
         // in a case 1 expression (e.g. case when a=b then 1 else 2) the when child nodes must return boolean
-        caseNode.addChildNode(new SupportExprNode(new Integer(2)));
+        caseNode.addChildNode(new SupportExprNode(2));
         tryInvalidValidate(caseNode);
 
         // in a case 2 expression (e.g. case a when b then 1 else 2) then a and b types must be comparable

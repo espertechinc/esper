@@ -169,13 +169,15 @@ public class PopulateUtil {
 
         Object top;
         try {
-            top = applicableClass.newInstance();
-        } catch (RuntimeException e) {
+            top = applicableClass.getDeclaredConstructor().newInstance();
+        } catch (RuntimeException | InvocationTargetException e) {
             throw new ExprValidationException("Exception instantiating class " + applicableClass.getName() + ": " + e.getMessage(), e);
         } catch (InstantiationException e) {
             throw new ExprValidationException(getMessageExceptionInstantiating(applicableClass), e);
         } catch (IllegalAccessException e) {
             throw new ExprValidationException("Illegal access to construct class " + applicableClass.getName() + ": " + e.getMessage(), e);
+        } catch (NoSuchMethodException e) {
+            throw new ExprValidationException("Failed to find default constructor for " + applicableClass.getName() + ": " + e.getMessage(), e);
         }
 
         populateObject(objectProperties, top, exprNodeOrigin, exprValidationContext);

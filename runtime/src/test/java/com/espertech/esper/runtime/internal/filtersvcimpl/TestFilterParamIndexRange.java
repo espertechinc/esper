@@ -148,7 +148,7 @@ public class TestFilterParamIndexRange extends TestCase {
         FilterParamIndexDoubleRange index = makeOne("doublePrimitive", FilterOperator.RANGE_OPEN, testEventType);
 
         for (int i = 0; i < 10000; i++) {
-            DoubleRange range = new DoubleRange(new Double(i), new Double(i + 1));
+            DoubleRange range = new DoubleRange((double) i, i + 1d);
             index.put(range, testEvaluator);
         }
 
@@ -161,7 +161,7 @@ public class TestFilterParamIndexRange extends TestCase {
         FilterParamIndexDoubleRange index = makeOne("doublePrimitive", FilterOperator.RANGE_CLOSED, testEventType);
 
         for (int i = 0; i < 100; i++) {
-            DoubleRange range = new DoubleRange(new Double(i), new Double(2 * i));
+            DoubleRange range = new DoubleRange(1d * i, 2d * i);
             index.put(range, testEvaluator);
         }
 

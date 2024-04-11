@@ -106,7 +106,7 @@ public class TransactionEventSource extends EventSource {
         if (id < 0) {
             id = -1 * id;
         }
-        currentTransactionID = new Integer(id).toString();
+        currentTransactionID = Integer.toString(id);
         transactionEvents = createNextTransaction();
         transactionIterator = transactionEvents.iterator();
         return this.next();

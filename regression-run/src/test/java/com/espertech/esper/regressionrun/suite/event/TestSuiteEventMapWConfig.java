@@ -55,7 +55,7 @@ public class TestSuiteEventMapWConfig extends TestCase {
         }, "Nestable type configuration encountered an unexpected property type name 'XXX' for property 'key', expected java.lang.Class or java.util.Map or the name of a previously-declared event type");
 
         // invalid key
-        final Map<String, Object> invalid = EventMapCore.makeMap(new Object[][]{{new Integer(5), null}});
+        final Map<String, Object> invalid = EventMapCore.makeMap(new Object[][]{{5, null}});
         tryInvalidConfigure(config -> {
             config.getCommon().addEventType("InvalidMap", invalid);
         }, SupportJavaVersionUtil.getCastMessage(Integer.class, String.class));

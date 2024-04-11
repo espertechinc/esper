@@ -81,7 +81,7 @@ public class MultithreadContextDBAccess implements RegressionExecutionWithConfig
             for (int eventNum = 0; eventNum < numRepeats; eventNum++) {
                 // range: 1 to 1000
                 int partition = eventNum + 1;
-                events[threadNum].add(new SupportBean(new Integer(partition).toString(), 0));
+                events[threadNum].add(new SupportBean(Integer.toString(partition), 0));
             }
         }
 

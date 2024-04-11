@@ -1454,11 +1454,11 @@ public class JavaClassHelper {
 
         Object obj;
         try {
-            obj = clazz.newInstance();
-        } catch (InstantiationException ex) {
-            throw new ClassInstantiationException("Unable to instantiate from class '" + clazz.getName() + "' via default constructor", ex);
-        } catch (IllegalAccessException ex) {
-            throw new ClassInstantiationException("Illegal access when instantiating class '" + clazz.getName() + "' via default constructor", ex);
+            obj = clazz.getDeclaredConstructor().newInstance();
+        } catch (NoSuchMethodException ex) {
+            throw new ClassInstantiationException("Unable to instantiate from class '" + clazz.getName() + "' as there is no default constructor", ex);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException ex) {
+            throw new ClassInstantiationException("Failed to instantiate class '" + clazz.getName() + "' via default constructor", ex);
         }
 
         return obj;

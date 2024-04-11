@@ -126,9 +126,9 @@ public class ExprCoreBitWiseOperators {
     }
 
     private static SupportBean makeEvent() {
-        return makeEvent(FIRST_EVENT, new Byte(FIRST_EVENT), SECOND_EVENT, new Short(SECOND_EVENT),
-            FIRST_EVENT, new Integer(THIRD_EVENT), 3L, new Long(FOURTH_EVENT),
-            FITH_EVENT, new Boolean(FITH_EVENT));
+        return makeEvent(FIRST_EVENT, FIRST_EVENT, SECOND_EVENT, SECOND_EVENT,
+            FIRST_EVENT, THIRD_EVENT, 3L, FOURTH_EVENT,
+            FITH_EVENT, FITH_EVENT);
     }
 
     protected static SupportBean makeEvent(byte bytePrimitive, Byte byteBoxed, short shortPrimitive, Short shortBoxed,

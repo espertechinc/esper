@@ -65,7 +65,7 @@ public class ClasspathImportUtil {
 
         Object hook;
         try {
-            hook = clazz.newInstance();
+            hook = clazz.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             throw new ExprValidationException("Failed to instantiate hook provider of hook type '" + hookType + "' " +
                     "class '" + clazz.getName() + "' :" + e.getMessage());

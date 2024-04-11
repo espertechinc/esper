@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.epl.pattern.observer.ObserverForge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 /**
@@ -108,12 +109,12 @@ public class PatternObjectResolutionServiceImpl implements PatternObjectResoluti
 
         Object result;
         try {
-            result = forgeClass.newInstance();
-        } catch (IllegalAccessException e) {
+            result = forgeClass.getDeclaredConstructor().newInstance();
+        } catch (NoSuchMethodException | IllegalAccessException e) {
             String message = "Error invoking pattern object factory constructor for object '" + spec.getObjectName();
             message += "', no invocation access for Class.newInstance";
             throw new PatternObjectException(message, e);
-        } catch (InstantiationException e) {
+        } catch (InvocationTargetException | InstantiationException e) {
             String message = "Error invoking pattern object factory constructor for object '" + spec.getObjectName();
             message += "' using Class.newInstance";
             throw new PatternObjectException(message, e);

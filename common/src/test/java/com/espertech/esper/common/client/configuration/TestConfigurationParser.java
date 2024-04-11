@@ -308,7 +308,7 @@ public class TestConfigurationParser extends TestCase {
         assertEquals((Boolean) false, configDBRef.getConnectionSettings().getAutoCommit());
         assertEquals("test", configDBRef.getConnectionSettings().getCatalog());
         assertEquals(Boolean.TRUE, configDBRef.getConnectionSettings().getReadOnly());
-        assertEquals(new Integer(3), configDBRef.getConnectionSettings().getTransactionIsolation());
+        assertEquals(Integer.valueOf(3), configDBRef.getConnectionSettings().getTransactionIsolation());
         ConfigurationCommonCacheExpiryTime expCache = (ConfigurationCommonCacheExpiryTime) configDBRef.getDataCacheDesc();
         assertEquals(60.5, expCache.getMaxAgeSeconds());
         assertEquals(120.1, expCache.getPurgeIntervalSeconds());

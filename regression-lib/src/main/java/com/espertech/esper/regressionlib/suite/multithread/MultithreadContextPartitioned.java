@@ -66,7 +66,7 @@ public class MultithreadContextPartitioned implements RegressionExecution {
                 // range: 1 to 1000
                 int partition = (int) (Math.random() * 50);
                 eventId++;
-                events[threadNum].add(new SupportBean(new Integer(partition).toString(), eventId));
+                events[threadNum].add(new SupportBean(Integer.toString(partition), eventId));
             }
         }
 

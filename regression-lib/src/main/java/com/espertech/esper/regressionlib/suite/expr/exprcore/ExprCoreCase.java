@@ -378,58 +378,58 @@ public class ExprCoreCase {
             env.compileDeploy(epl).addListener("s0");
             env.assertStmtType("s0", "p1", EPTypePremade.STRING.getEPType());
 
-            sendSupportBeanEvent(env, true, new Boolean(false), 1, new Integer(0), 0L, new Long(0L), '0', new Character('a'), (short) 0, new Short((short) 0), (byte) 0, new Byte((byte) 0), 0.0f, new Float((float) 0), 0.0, new Double(0.0), null, SupportEnum.ENUM_VALUE_1);
+            sendSupportBeanEvent(env, true, false, 1, 0, 0L, 0L, '0', 'a', (short) 0, (short) 0, (byte) 0, (byte) 0, 0.0f, (float) 0, 0.0, 0.0, null, SupportEnum.ENUM_VALUE_1);
             assertP1(env, "true");
 
-            sendSupportBeanEvent(env, true, new Boolean(false), 2, new Integer(0), 0L, new Long(0L), '0', new Character('a'), (short) 0, new Short((short) 0), (byte) 0, new Byte((byte) 0), 0.0f, new Float((float) 0), 0.0, new Double(0.0), null, SupportEnum.ENUM_VALUE_1);
+            sendSupportBeanEvent(env, true, false, 2, 0, 0L, 0L, '0', 'a', (short) 0, (short) 0, (byte) 0, (byte) 0, 0.0f, (float) 0, 0.0, 0.0, null, SupportEnum.ENUM_VALUE_1);
             assertP1(env, "false");
 
-            sendSupportBeanEvent(env, true, new Boolean(false), 3, new Integer(0), 0L, new Long(0L), '0', new Character('a'), (short) 0, new Short((short) 0), (byte) 0, new Byte((byte) 0), 0.0f, new Float((float) 0), 0.0, new Double(0.0), null, SupportEnum.ENUM_VALUE_1);
+            sendSupportBeanEvent(env, true, false, 3, 0, 0L, 0L, '0', 'a', (short) 0, (short) 0, (byte) 0, (byte) 0, 0.0f, (float) 0, 0.0, 0.0, null, SupportEnum.ENUM_VALUE_1);
             assertP1(env, "3");
 
-            sendSupportBeanEvent(env, true, new Boolean(false), 4, new Integer(4), 0L, new Long(0L), '0', new Character('a'), (short) 0, new Short((short) 0), (byte) 0, new Byte((byte) 0), 0.0f, new Float((float) 0), 0.0, new Double(0.0), null, SupportEnum.ENUM_VALUE_1);
+            sendSupportBeanEvent(env, true, false, 4, 4, 0L, 0L, '0', 'a', (short) 0, (short) 0, (byte) 0, (byte) 0, 0.0f, (float) 0, 0.0, 0.0, null, SupportEnum.ENUM_VALUE_1);
             assertP1(env, "4");
 
-            sendSupportBeanEvent(env, true, new Boolean(false), 5, new Integer(0), 5L, new Long(0L), '0', new Character('a'), (short) 0, new Short((short) 0), (byte) 0, new Byte((byte) 0), 0.0f, new Float((float) 0), 0.0, new Double(0.0), null, SupportEnum.ENUM_VALUE_1);
+            sendSupportBeanEvent(env, true, false, 5, 0, 5L, 0L, '0', 'a', (short) 0, (short) 0, (byte) 0, (byte) 0, 0.0f, (float) 0, 0.0, 0.0, null, SupportEnum.ENUM_VALUE_1);
             assertP1(env, "5");
 
-            sendSupportBeanEvent(env, true, new Boolean(false), 6, new Integer(0), 0L, new Long(6L), '0', new Character('a'), (short) 0, new Short((short) 0), (byte) 0, new Byte((byte) 0), 0.0f, new Float((float) 0), 0.0, new Double(0.0), null, SupportEnum.ENUM_VALUE_1);
+            sendSupportBeanEvent(env, true, false, 6, 0, 0L, 6L, '0', 'a', (short) 0, (short) 0, (byte) 0, (byte) 0, 0.0f, (float) 0, 0.0, 0.0, null, SupportEnum.ENUM_VALUE_1);
             assertP1(env, "6");
 
-            sendSupportBeanEvent(env, true, new Boolean(false), 7, new Integer(0), 0L, new Long(0L), 'A', new Character('a'), (short) 0, new Short((short) 0), (byte) 0, new Byte((byte) 0), 0.0f, new Float((float) 0), 0.0, new Double(0.0), null, SupportEnum.ENUM_VALUE_1);
+            sendSupportBeanEvent(env, true, false, 7, 0, 0L, 0L, 'A', 'a', (short) 0, (short) 0, (byte) 0, (byte) 0, 0.0f, (float) 0, 0.0, 0.0, null, SupportEnum.ENUM_VALUE_1);
             assertP1(env, "A");
 
-            sendSupportBeanEvent(env, true, new Boolean(false), 8, new Integer(0), 0L, new Long(0L), 'A', new Character('a'), (short) 0, new Short((short) 0), (byte) 0, new Byte((byte) 0), 0.0f, new Float((float) 0), 0.0, new Double(0.0), null, SupportEnum.ENUM_VALUE_1);
+            sendSupportBeanEvent(env, true, false, 8, 0, 0L, 0L, 'A', 'a', (short) 0, (short) 0, (byte) 0, (byte) 0, 0.0f, (float) 0, 0.0, 0.0, null, SupportEnum.ENUM_VALUE_1);
             assertP1(env, "a");
 
-            sendSupportBeanEvent(env, true, new Boolean(false), 9, new Integer(0), 0L, new Long(0L), 'A', new Character('a'), (short) 9, new Short((short) 0), (byte) 0, new Byte((byte) 0), 0.0f, new Float((float) 0), 0.0, new Double(0.0), null, SupportEnum.ENUM_VALUE_1);
+            sendSupportBeanEvent(env, true, false, 9, 0, 0L, 0L, 'A', 'a', (short) 9, (short) 0, (byte) 0, (byte) 0, 0.0f, (float) 0, 0.0, 0.0, null, SupportEnum.ENUM_VALUE_1);
             assertP1(env, "9");
 
-            sendSupportBeanEvent(env, true, new Boolean(false), 10, new Integer(0), 0L, new Long(0L), 'A', new Character('a'), (short) 9, new Short((short) 10), (byte) 11, new Byte((byte) 12), 13.0f, new Float((float) 14), 15.0, new Double(16.0), "testCoercion", SupportEnum.ENUM_VALUE_1);
+            sendSupportBeanEvent(env, true, false, 10, 0, 0L, 0L, 'A', 'a', (short) 9, (short) 10, (byte) 11, (byte) 12, 13.0f, (float) 14, 15.0, 16.0, "testCoercion", SupportEnum.ENUM_VALUE_1);
             assertP1(env, "10");
 
-            sendSupportBeanEvent(env, true, new Boolean(false), 11, new Integer(0), 0L, new Long(0L), 'A', new Character('a'), (short) 9, new Short((short) 10), (byte) 11, new Byte((byte) 12), 13.0f, new Float((float) 14), 15.0, new Double(16.0), "testCoercion", SupportEnum.ENUM_VALUE_1);
+            sendSupportBeanEvent(env, true, false, 11, 0, 0L, 0L, 'A', 'a', (short) 9, (short) 10, (byte) 11, (byte) 12, 13.0f, (float) 14, 15.0, 16.0, "testCoercion", SupportEnum.ENUM_VALUE_1);
             assertP1(env, "11");
 
-            sendSupportBeanEvent(env, true, new Boolean(false), 12, new Integer(0), 0L, new Long(0L), 'A', new Character('a'), (short) 9, new Short((short) 10), (byte) 11, new Byte((byte) 12), 13.0f, new Float((float) 14), 15.0, new Double(16.0), "testCoercion", SupportEnum.ENUM_VALUE_1);
+            sendSupportBeanEvent(env, true, false, 12, 0, 0L, 0L, 'A', 'a', (short) 9, (short) 10, (byte) 11, (byte) 12, 13.0f, (float) 14, 15.0, 16.0, "testCoercion", SupportEnum.ENUM_VALUE_1);
             assertP1(env, "12");
 
-            sendSupportBeanEvent(env, true, new Boolean(false), 13, new Integer(0), 0L, new Long(0L), 'A', new Character('a'), (short) 9, new Short((short) 10), (byte) 11, new Byte((byte) 12), 13.0f, new Float((float) 14), 15.0, new Double(16.0), "testCoercion", SupportEnum.ENUM_VALUE_1);
+            sendSupportBeanEvent(env, true, false, 13, 0, 0L, 0L, 'A', 'a', (short) 9, (short) 10, (byte) 11, (byte) 12, 13.0f, (float) 14, 15.0, 16.0, "testCoercion", SupportEnum.ENUM_VALUE_1);
             assertP1(env, "13.0");
 
-            sendSupportBeanEvent(env, true, new Boolean(false), 14, new Integer(0), 0L, new Long(0L), 'A', new Character('a'), (short) 9, new Short((short) 10), (byte) 11, new Byte((byte) 12), 13.0f, new Float((float) 14), 15.0, new Double(16.0), "testCoercion", SupportEnum.ENUM_VALUE_1);
+            sendSupportBeanEvent(env, true, false, 14, 0, 0L, 0L, 'A', 'a', (short) 9, (short) 10, (byte) 11, (byte) 12, 13.0f, (float) 14, 15.0, 16.0, "testCoercion", SupportEnum.ENUM_VALUE_1);
             assertP1(env, "14.0");
 
-            sendSupportBeanEvent(env, true, new Boolean(false), 15, new Integer(0), 0L, new Long(0L), 'A', new Character('a'), (short) 9, new Short((short) 10), (byte) 11, new Byte((byte) 12), 13.0f, new Float((float) 14), 15.0, new Double(16.0), "testCoercion", SupportEnum.ENUM_VALUE_1);
+            sendSupportBeanEvent(env, true, false, 15, 0, 0L, 0L, 'A', 'a', (short) 9, (short) 10, (byte) 11, (byte) 12, 13.0f, (float) 14, 15.0, 16.0, "testCoercion", SupportEnum.ENUM_VALUE_1);
             assertP1(env, "15.0");
 
-            sendSupportBeanEvent(env, true, new Boolean(false), 16, new Integer(0), 0L, new Long(0L), 'A', new Character('a'), (short) 9, new Short((short) 10), (byte) 11, new Byte((byte) 12), 13.0f, new Float((float) 14), 15.0, new Double(16.0), "testCoercion", SupportEnum.ENUM_VALUE_1);
+            sendSupportBeanEvent(env, true, false, 16, 0, 0L, 0L, 'A', 'a', (short) 9, (short) 10, (byte) 11, (byte) 12, 13.0f, (float) 14, 15.0, 16.0, "testCoercion", SupportEnum.ENUM_VALUE_1);
             assertP1(env, "16.0");
 
-            sendSupportBeanEvent(env, true, new Boolean(false), 17, new Integer(0), 0L, new Long(0L), 'A', new Character('a'), (short) 9, new Short((short) 10), (byte) 11, new Byte((byte) 12), 13.0f, new Float((float) 14), 15.0, new Double(16.0), "testCoercion", SupportEnum.ENUM_VALUE_1);
+            sendSupportBeanEvent(env, true, false, 17, 0, 0L, 0L, 'A', 'a', (short) 9, (short) 10, (byte) 11, (byte) 12, 13.0f, (float) 14, 15.0, 16.0, "testCoercion", SupportEnum.ENUM_VALUE_1);
             assertP1(env, "testCoercion");
 
-            sendSupportBeanEvent(env, true, new Boolean(false), -1, new Integer(0), 0L, new Long(0L), 'A', new Character('a'), (short) 9, new Short((short) 10), (byte) 11, new Byte((byte) 12), 13.0f, new Float((float) 14), 15.0, new Double(16.0), "testCoercion", SupportEnum.ENUM_VALUE_1);
+            sendSupportBeanEvent(env, true, false, -1, 0, 0L, 0L, 'A', 'a', (short) 9, (short) 10, (byte) 11, (byte) 12, 13.0f, (float) 14, 15.0, 16.0, "testCoercion", SupportEnum.ENUM_VALUE_1);
             assertP1(env, "x");
 
             env.undeployAll();

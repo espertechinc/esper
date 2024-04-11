@@ -43,7 +43,7 @@ public class TestExprLikeNode extends TestCase {
 
         // singe child node not possible, must be 2 at least
         likeNodeNormal = new ExprLikeNode(false);
-        likeNodeNormal.addChildNode(new SupportExprNode(new Integer(4)));
+        likeNodeNormal.addChildNode(new SupportExprNode(4));
         tryInvalidValidate(likeNodeNormal);
 
         // test a type mismatch
@@ -54,12 +54,12 @@ public class TestExprLikeNode extends TestCase {
 
         // test numeric supported
         likeNodeNormal = new ExprLikeNode(false);
-        likeNodeNormal.addChildNode(new SupportExprNode(new Integer(4)));
+        likeNodeNormal.addChildNode(new SupportExprNode(4));
         likeNodeNormal.addChildNode(new SupportExprNode("sx"));
 
         // test invalid escape char
         likeNodeNormal = new ExprLikeNode(false);
-        likeNodeNormal.addChildNode(new SupportExprNode(new Integer(4)));
+        likeNodeNormal.addChildNode(new SupportExprNode(4));
         likeNodeNormal.addChildNode(new SupportExprNode("sx"));
         likeNodeNormal.addChildNode(new SupportExprNode(5));
     }

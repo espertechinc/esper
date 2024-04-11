@@ -52,10 +52,10 @@ public class DatabaseDSFactoryConnFactory implements DatabaseConnectionFactory {
 
         Object obj;
         try {
-            obj = clazz.newInstance();
-        } catch (InstantiationException e) {
+            obj = clazz.getDeclaredConstructor().newInstance();
+        } catch (InvocationTargetException | InstantiationException e) {
             throw new ConfigurationException("Class '" + clazz + "' cannot be instantiated", e);
-        } catch (IllegalAccessException e) {
+        } catch (NoSuchMethodException | IllegalAccessException e) {
             throw new ConfigurationException("Illegal access instantiating class '" + clazz + "'", e);
         }
 

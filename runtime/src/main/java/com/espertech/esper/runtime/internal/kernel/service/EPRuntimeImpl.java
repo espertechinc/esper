@@ -55,6 +55,7 @@ import org.slf4j.LoggerFactory;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
@@ -318,11 +319,11 @@ public class EPRuntimeImpl implements EPRuntimeSPI {
 
             Object obj;
             try {
-                obj = clazz.newInstance();
-            } catch (InstantiationException e) {
-                throw new ConfigurationException("Class '" + clazz + "' cannot be instantiated");
-            } catch (IllegalAccessException e) {
-                throw new ConfigurationException("Illegal access instantiating class '" + clazz + "'");
+                obj = clazz.getDeclaredConstructor().newInstance();
+            } catch (InvocationTargetException | InstantiationException e) {
+                throw new ConfigurationException("Class '" + clazz + "' cannot be instantiated", e);
+            } catch (NoSuchMethodException | IllegalAccessException e) {
+                throw new ConfigurationException("Illegal access instantiating class '" + clazz + "'", e);
             }
 
             epServicesContextFactory = (EPServicesContextFactory) obj;

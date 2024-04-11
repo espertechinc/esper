@@ -293,7 +293,7 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
         // use non-factory class if provided
         Object forgeObject;
         try {
-            forgeObject = clazz.newInstance();
+            forgeObject = clazz.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             throw new ExprValidationException("Failed to instantiate: " + e.getMessage());
         }
@@ -597,7 +597,7 @@ public class StmtForgeMethodCreateDataflow implements StmtForgeMethod {
         } else {
             Class propertyHolderClass = propertyHolderFields.iterator().next().getType();
             try {
-                propertyInstance = propertyHolderClass.newInstance();
+                propertyInstance = propertyHolderClass.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 throw new ExprValidationException("Failed to instantiate '" + propertyHolderClass + "': " + e.getMessage(), e);
             }

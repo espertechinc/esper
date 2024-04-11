@@ -24,7 +24,7 @@ public class TestConstructorHelper extends TestCase {
 
         SupportCtorInt objTwo = (SupportCtorInt) ConstructorHelper.invokeConstructor(SupportCtorInt.class, new Object[]{99});
         assertEquals(99, objTwo.getSomeValue());
-        objTwo = (SupportCtorInt) ConstructorHelper.invokeConstructor(SupportCtorInt.class, new Object[]{new Integer(13)});
+        objTwo = (SupportCtorInt) ConstructorHelper.invokeConstructor(SupportCtorInt.class, new Object[]{13});
         assertEquals(13, objTwo.getSomeValue());
 
         SupportCtorIntObjectArray objThree = (SupportCtorIntObjectArray) ConstructorHelper.invokeConstructor(SupportCtorIntObjectArray.class, new Object[]{1});

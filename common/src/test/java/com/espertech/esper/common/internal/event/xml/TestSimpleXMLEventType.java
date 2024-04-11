@@ -84,6 +84,6 @@ public class TestSimpleXMLEventType extends TestCase {
 
     public void testCustomProperty() {
         assertEquals(Double.class, theEvent.getEventType().getPropertyType("customProp"));
-        assertEquals(new Double(3), theEvent.get("customProp"));
+        assertEquals(3d, theEvent.get("customProp"));
     }
 }

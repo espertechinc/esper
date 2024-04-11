@@ -440,11 +440,11 @@ public class TestJavaClassHelper extends TestCase {
     public void testIsFloatingPointNumber() {
         assertTrue(JavaClassHelper.isFloatingPointNumber(1d));
         assertTrue(JavaClassHelper.isFloatingPointNumber(1f));
-        assertTrue(JavaClassHelper.isFloatingPointNumber(new Double(1)));
-        assertTrue(JavaClassHelper.isFloatingPointNumber(new Float(1)));
+        assertTrue(JavaClassHelper.isFloatingPointNumber(1d));
+        assertTrue(JavaClassHelper.isFloatingPointNumber(1f));
 
         assertFalse(JavaClassHelper.isFloatingPointNumber(1));
-        assertFalse(JavaClassHelper.isFloatingPointNumber(new Integer(1)));
+        assertFalse(JavaClassHelper.isFloatingPointNumber(1));
     }
 
     public void testIsFloatingPointClass() {

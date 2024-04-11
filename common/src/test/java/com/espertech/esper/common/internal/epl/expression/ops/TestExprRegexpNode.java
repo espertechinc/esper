@@ -40,7 +40,7 @@ public class TestExprRegexpNode extends TestCase {
 
         // singe child node not possible, must be 2 at least
         regexpNodeNormal = new ExprRegexpNode(false);
-        regexpNodeNormal.addChildNode(new SupportExprNode(new Integer(4)));
+        regexpNodeNormal.addChildNode(new SupportExprNode(4));
         tryInvalidValidate(regexpNodeNormal);
 
         // test a type mismatch
@@ -51,7 +51,7 @@ public class TestExprRegexpNode extends TestCase {
 
         // test numeric supported
         regexpNodeNormal = new ExprRegexpNode(false);
-        regexpNodeNormal.addChildNode(new SupportExprNode(new Integer(4)));
+        regexpNodeNormal.addChildNode(new SupportExprNode(4));
         regexpNodeNormal.addChildNode(new SupportExprNode("sx"));
     }
 

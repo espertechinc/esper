@@ -67,7 +67,7 @@ public class TestSchemaXMLEventType extends TestCase {
 
     public void testCustomProperty() {
         assertEquals(Double.class, eventSchemaOne.getEventType().getPropertyType("customProp"));
-        assertEquals(new Double(3), eventSchemaOne.get("customProp"));
+        assertEquals(3d, eventSchemaOne.get("customProp"));
     }
 
     public void testAttrProperty() {

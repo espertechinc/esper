@@ -27,17 +27,17 @@ public class TestExprEqualsNode extends TestCase {
 
         equalsNodes[1] = new ExprEqualsNodeImpl(false, false);
         equalsNodes[1].addChildNode(new SupportExprNode(1L));
-        equalsNodes[1].addChildNode(new SupportExprNode(new Integer(1)));
+        equalsNodes[1].addChildNode(new SupportExprNode(1));
         equalsNodes[1].validate(SupportExprValidationContextFactory.makeEmpty());
 
         equalsNodes[2] = new ExprEqualsNodeImpl(true, false);
         equalsNodes[2].addChildNode(new SupportExprNode(1.5D));
-        equalsNodes[2].addChildNode(new SupportExprNode(new Integer(1)));
+        equalsNodes[2].addChildNode(new SupportExprNode(1));
         equalsNodes[2].validate(SupportExprValidationContextFactory.makeEmpty());
 
         equalsNodes[3] = new ExprEqualsNodeImpl(false, false);
         equalsNodes[3].addChildNode(new SupportExprNode(1D));
-        equalsNodes[3].addChildNode(new SupportExprNode(new Integer(1)));
+        equalsNodes[3].addChildNode(new SupportExprNode(1));
         equalsNodes[3].validate(SupportExprValidationContextFactory.makeEmpty());
     }
 

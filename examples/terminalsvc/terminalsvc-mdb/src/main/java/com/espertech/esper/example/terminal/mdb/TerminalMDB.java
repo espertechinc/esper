@@ -26,7 +26,7 @@ import javax.jms.ObjectMessage;
 public class TerminalMDB implements MessageListener {
     private static OutboundQueueSender outboundQueueSender;
     private static RuntimeMDBAdapter mdbAdapter;
-    private static Boolean isInitialized = new Boolean(false);
+    private static Boolean isInitialized = false;
 
     public void setMessageDrivenContext(MessageDrivenContext messageDrivenContext) throws EJBException {
         // System.out.println(TerminalMDB.class.getName() + "::setMessageDrivenContext invoked");

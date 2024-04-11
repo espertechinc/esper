@@ -103,8 +103,8 @@ public class TestExprMinMaxRowNode extends TestCase {
     }
 
     private static void setupNode(ExprMinMaxRowNode nodeMin, int intValue, double doubleValue, Float floatValue) throws Exception {
-        nodeMin.addChildNode(new SupportExprNode(new Integer(intValue)));
-        nodeMin.addChildNode(new SupportExprNode(new Double(doubleValue)));
+        nodeMin.addChildNode(new SupportExprNode(intValue));
+        nodeMin.addChildNode(new SupportExprNode(doubleValue));
         if (floatValue != null) {
             nodeMin.addChildNode(new SupportExprNode(floatValue));
         }

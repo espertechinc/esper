@@ -55,7 +55,7 @@ public class SendableBeanEvent extends AbstractSendableEvent {
                 // populate writers
             }
 
-            beanToSend = beanClass.newInstance();
+            beanToSend = beanClass.getDeclaredConstructor().newInstance();
 
             for (Map.Entry<String, Object> entry : mapToSend.entrySet()) {
                 BeanEventPropertyWriter writer = writers.get(entry.getKey());

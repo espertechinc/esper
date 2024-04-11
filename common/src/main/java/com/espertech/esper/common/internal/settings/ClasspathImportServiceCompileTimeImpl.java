@@ -31,6 +31,7 @@ import com.espertech.esper.common.internal.epl.index.advanced.index.service.Adva
 import com.espertech.esper.common.internal.util.MethodResolver;
 import com.espertech.esper.common.internal.util.MethodResolverNoSuchMethodException;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.MathContext;
@@ -330,10 +331,10 @@ public class ClasspathImportServiceCompileTimeImpl extends ClasspathImportServic
 
         Object object;
         try {
-            object = forgeClass.newInstance();
-        } catch (InstantiationException e) {
+            object = forgeClass.getDeclaredConstructor().newInstance();
+        } catch (InvocationTargetException | InstantiationException e) {
             throw new ClasspathImportException("Error instantiating aggregation factory class by name '" + className + "'", e);
-        } catch (IllegalAccessException e) {
+        } catch (NoSuchMethodException | IllegalAccessException e) {
             throw new ClasspathImportException("Illegal access instantiating aggregation factory class by name '" + className + "'", e);
         }
 

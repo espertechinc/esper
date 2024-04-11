@@ -16,6 +16,8 @@ import com.espertech.esper.common.internal.collection.PathRegistry;
 import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvided;
 import com.espertech.esper.common.internal.epl.classprovided.core.ClassProvidedImportClassLoaderFactory;
 
+import java.lang.reflect.InvocationTargetException;
+
 public class ModuleProviderUtil {
     public static ModuleProviderCLPair analyze(EPCompiled compiled, ClassLoader classLoaderParent, PathRegistry<String, ClassProvided> classProvidedPathRegistry) {
         ClassLoader classLoader = ClassProvidedImportClassLoaderFactory.getClassLoader(compiled.getClasses(), classLoaderParent, classProvidedPathRegistry);
@@ -32,8 +34,8 @@ public class ModuleProviderUtil {
         // instantiate
         ModuleProvider moduleResource;
         try {
-            moduleResource = (ModuleProvider) clazz.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
+            moduleResource = (ModuleProvider) clazz.getDeclaredConstructor().newInstance();
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |InvocationTargetException e) {
             throw new EPException(e);
         }
 

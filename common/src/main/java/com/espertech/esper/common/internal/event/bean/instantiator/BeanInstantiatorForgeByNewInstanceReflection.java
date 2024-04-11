@@ -17,6 +17,8 @@ import com.espertech.esper.common.internal.bytecodemodel.model.expression.Codege
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
+
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.newInstance;
 
 public class BeanInstantiatorForgeByNewInstanceReflection implements BeanInstantiatorForge, BeanInstantiator {
@@ -30,10 +32,8 @@ public class BeanInstantiatorForgeByNewInstanceReflection implements BeanInstant
 
     public Object instantiate() {
         try {
-            return clazz.getType().newInstance();
-        } catch (IllegalAccessException e) {
-            return handle(e);
-        } catch (InstantiationException e) {
+            return clazz.getType().getDeclaredConstructor().newInstance();
+        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
             return handle(e);
         }
     }

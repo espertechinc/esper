@@ -18,6 +18,8 @@ import com.espertech.esper.common.internal.epl.virtualdw.VirtualDWViewFactoryFor
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
+
 /**
  * Resolves view namespace and name to view factory class, using configuration.
  */
@@ -60,7 +62,7 @@ public class ViewResolutionServiceImpl implements ViewResolutionService {
 
         ViewFactoryForge forge;
         try {
-            forge = (ViewFactoryForge) viewFactoryClass.newInstance();
+            forge = (ViewFactoryForge) viewFactoryClass.getDeclaredConstructor().newInstance();
 
             if (log.isDebugEnabled()) {
                 log.debug(".create Successfully instantiated view");
@@ -68,11 +70,11 @@ public class ViewResolutionServiceImpl implements ViewResolutionService {
         } catch (ClassCastException e) {
             String message = "Error casting view factory instance to " + ViewFactoryForge.class.getName() + " interface for view '" + name + "'";
             throw new ViewProcessingException(message, e);
-        } catch (IllegalAccessException e) {
+        } catch (NoSuchMethodException | IllegalAccessException e) {
             String message = "Error invoking view factory constructor for view '" + name;
             message += "', no invocation access for Class.newInstance";
             throw new ViewProcessingException(message, e);
-        } catch (InstantiationException e) {
+        } catch (InvocationTargetException | InstantiationException e) {
             String message = "Error invoking view factory constructor for view '" + name;
             message += "' using Class.newInstance";
             throw new ViewProcessingException(message, e);

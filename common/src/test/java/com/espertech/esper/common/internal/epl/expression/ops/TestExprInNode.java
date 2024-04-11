@@ -46,7 +46,7 @@ public class TestExprInNode extends TestCase {
 
         // singe child node not possible, must be 2 at least
         inNodeNormal = new ExprInNodeImpl(true);
-        inNodeNormal.addChildNode(new SupportExprNode(new Integer(4)));
+        inNodeNormal.addChildNode(new SupportExprNode(4));
         tryInvalidValidate(inNodeNormal);
 
         // test a type mismatch

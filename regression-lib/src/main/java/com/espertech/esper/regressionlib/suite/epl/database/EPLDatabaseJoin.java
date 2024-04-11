@@ -445,7 +445,7 @@ public class EPLDatabaseJoin {
     private static class EPLDatabaseMySQLDatabaseConnection implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             try {
-                Class.forName(SupportDatabaseService.DRIVER).newInstance();
+                Class.forName(SupportDatabaseService.DRIVER).getDeclaredConstructor().newInstance();
                 Connection conn = null;
                 try {
                     conn = DriverManager.getConnection(SupportDatabaseService.FULLURL);

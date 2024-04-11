@@ -89,7 +89,7 @@ public class SupportDatabaseService {
 
         Driver d;
         try {
-            d = (Driver) Class.forName(DRIVER).newInstance();
+            d = (Driver) Class.forName(DRIVER).getDeclaredConstructor().newInstance();
             DriverManager.registerDriver(d);
         } catch (Exception e) {
             String message = "Failed to load and register driver class:" + e.getMessage();

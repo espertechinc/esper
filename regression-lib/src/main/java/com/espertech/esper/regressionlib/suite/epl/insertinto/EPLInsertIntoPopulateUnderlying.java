@@ -27,6 +27,7 @@ import org.apache.avro.generic.GenericData;
 import org.w3c.dom.Node;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import static junit.framework.TestCase.fail;
@@ -524,7 +525,7 @@ public class EPLInsertIntoPopulateUnderlying {
             env.assertPropsNew("s0", "id,type,device,measurement,confidence".split(","), new Object[]{2, "A01", "DHC1000", 100.0, 5.0});
 
             try {
-                SupportBeanString.class.newInstance();
+                SupportBeanString.class.getDeclaredConstructor().newInstance();
                 fail();
             } catch (InstantiationException ex) {
                 // expected
@@ -533,11 +534,11 @@ public class EPLInsertIntoPopulateUnderlying {
             }
 
             try {
-                SupportSensorEvent.class.newInstance();
+                SupportSensorEvent.class.getDeclaredConstructor().newInstance();
                 fail();
-            } catch (IllegalAccessException ex) {
+            } catch (NoSuchMethodException | IllegalAccessException ex) {
                 // expected
-            } catch (InstantiationException e) {
+            } catch (InvocationTargetException | InstantiationException e) {
                 fail();
             }
 

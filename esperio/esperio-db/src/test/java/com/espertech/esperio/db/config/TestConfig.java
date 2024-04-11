@@ -56,7 +56,7 @@ public class TestConfig extends TestCase {
         assertEquals((Boolean) true, connection.getConnectionSettings().getAutoCommit());
         assertEquals("TEST", connection.getConnectionSettings().getCatalog());
         assertEquals(Boolean.TRUE, connection.getConnectionSettings().getReadOnly());
-        assertEquals(new Integer(0), connection.getConnectionSettings().getTransactionIsolation());
+        assertEquals(Integer.valueOf(0), connection.getConnectionSettings().getTransactionIsolation());
 
         // assert database reference - driver manager config
         connection = config.getJdbcConnections().get("db3");

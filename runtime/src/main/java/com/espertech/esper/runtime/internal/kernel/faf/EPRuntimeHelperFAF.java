@@ -24,6 +24,7 @@ import com.espertech.esper.runtime.client.util.RuntimeVersion;
 import com.espertech.esper.runtime.internal.kernel.service.EPServicesContext;
 import com.espertech.esper.runtime.internal.kernel.statement.EPStatementInitServicesImpl;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,8 +59,8 @@ public class EPRuntimeHelperFAF {
         // get FAF provider
         FAFProvider fafProvider;
         try {
-            fafProvider = (FAFProvider) clazz.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
+            fafProvider = (FAFProvider) clazz.getDeclaredConstructor().newInstance();
+        } catch (InvocationTargetException | NoSuchMethodException | InstantiationException | IllegalAccessException e) {
             throw new EPException(e);
         }
 

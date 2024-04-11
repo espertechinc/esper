@@ -39,7 +39,7 @@ public class CEPProvider {
         String className = System.getProperty("esper.benchmark.provider", EsperCEPProvider.class.getName());
         try {
             Class klass = Class.forName(className);
-            return (ICEPProvider) klass.newInstance();
+            return (ICEPProvider) klass.getDeclaredConstructor().newInstance();
         } catch (Throwable t) {
             t.printStackTrace();
             throw new RuntimeException(t);
@@ -68,7 +68,7 @@ public class CEPProvider {
             // EsperHA enablement - if available
             try {
                 Class configurationHAClass = Class.forName("com.espertech.esperha.client.ConfigurationHA");
-                configuration = (Configuration) configurationHAClass.newInstance();
+                configuration = (Configuration) configurationHAClass.getDeclaredConstructor().newInstance();
                 System.out.println("=== EsperHA is available, using ConfigurationHA ===");
             } catch (ClassNotFoundException e) {
                 configuration = new Configuration();
