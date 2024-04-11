@@ -35,7 +35,7 @@ public class ModuleProviderUtil {
         ModuleProvider moduleResource;
         try {
             moduleResource = (ModuleProvider) clazz.getDeclaredConstructor().newInstance();
-        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |InvocationTargetException e) {
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new EPException(e);
         }
 
