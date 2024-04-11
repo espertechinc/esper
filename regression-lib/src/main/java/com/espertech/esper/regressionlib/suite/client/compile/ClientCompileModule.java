@@ -119,8 +119,8 @@ public class ClientCompileModule {
             moduleTwo.setUri("uri2");
             moduleTwo.setArchiveName("archive2");
             moduleTwo.setModuleUserObjectCompileTime("obj2");
-            moduleTwo.setUses(new HashSet<>(Arrays.asList("a", "b")));
-            moduleTwo.setImports(new HashSet<>(Arrays.asList("c", "d")));
+            moduleTwo.setUses(new LinkedHashSet<>(Arrays.asList("a", "b")));
+            moduleTwo.setImports(new LinkedHashSet<>(Arrays.asList("c", "d")));
             EPCompiled compiledTwo = env.compile(moduleTwo);
             env.deploy(compiledTwo);
 
