@@ -14,4 +14,4 @@ For commercial licensing terms, please contact EsperTech Inc. for any inquiry.
 
 # Note on Master versus Releases
 
-At this time Master tracks version 6.0 and up development and therefore requires Java 8.
+At this time Master tracks version 6.0 and up development. Since version 9.0.0 Esper requires Java 17 (older versions required Java 8).
