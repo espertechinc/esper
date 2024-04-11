@@ -160,6 +160,7 @@
 		<exec dir="common-avro" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>
 		<exec dir="common-xmlxsd" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>
 		<exec dir="compiler" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>
+		<exec dir="regression-run" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>
 		<exec dir="esperio/esperio-amqp" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>
 		<exec dir="esperio/esperio-http" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>
 		<exec dir="esperio/esperio-kafka" executable="cmd">   	<arg value="/c"/> <arg value="mvn dependency:copy"/></exec>

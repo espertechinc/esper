@@ -39,6 +39,7 @@
 		<mockito.version>1.10.19</mockito.version>
 		<hamcrest-core.version>1.3</hamcrest-core.version>
 		<nashorn.version>15.4</nashorn.version>
+		<nashorn.asm.version>9.7</nashorn.asm.version>
 
 		<!-- Plugins dependencies version -->
 		<maven.bundle.plugin.version>3.5.0</maven.bundle.plugin.version>

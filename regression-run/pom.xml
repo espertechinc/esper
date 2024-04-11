@@ -156,6 +156,41 @@
 					<skip>true</skip>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>${maven.dependency.plugin.version}</version>
+				<configuration>
+					<outputDirectory>lib</outputDirectory>
+					<artifactItems>
+						<artifactItem>
+							<groupId>org.openjdk.nashorn</groupId>
+							<artifactId>nashorn-core</artifactId>
+							<version>${nashorn.version}</version>
+						</artifactItem>
+						<artifactItem>
+							<groupId>org.ow2.asm</groupId>
+							<artifactId>asm-commons</artifactId>
+							<version>${nashorn.asm.version}</version>
+						</artifactItem>
+						<artifactItem>
+							<groupId>org.ow2.asm</groupId>
+							<artifactId>asm-tree</artifactId>
+							<version>${nashorn.asm.version}</version>
+						</artifactItem>
+						<artifactItem>
+							<groupId>org.ow2.asm</groupId>
+							<artifactId>asm</artifactId>
+							<version>${nashorn.asm.version}</version>
+						</artifactItem>
+						<artifactItem>
+							<groupId>org.ow2.asm</groupId>
+							<artifactId>asm-util</artifactId>
+							<version>${nashorn.asm.version}</version>
+						</artifactItem>
+					</artifactItems>
+				</configuration>
+			</plugin>								
 		</plugins>
 	</build>
 </project>

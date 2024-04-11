@@ -35,6 +35,7 @@
 /common/target
 /compiler/target
 /regression-lib/target
+/regression-run/lib/*.jar
 /regression-run/target
 /runtime/target
 /esperio/esperio-amqp/target
