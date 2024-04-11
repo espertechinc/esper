@@ -1,11 +1,11 @@
 Esper Changelog
 ===================
 
-Changes in version 8.10.0
+Changes in version 9.0.0
 ------------------------
+  - Version 9.0.0 requires Java 17 or higher
   - The following dependent jar files are upgraded:
     - ANTLR is now 4.13.1 (antlr4-runtime-4.13.1.jar, previously antlr-runtime-4.9.3.jar)  
-
 
 Changes in version 8.9.0
 ------------------------

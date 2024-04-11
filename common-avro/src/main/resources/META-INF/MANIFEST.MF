@@ -10,7 +10,7 @@ Bundle-Name: Esper-Common-Avro
 Bundle-RequiredExecutionEnvironment: J2SE-1.8
 Bundle-SymbolicName: com.espertech.esper-common-avro
 Bundle-Vendor: EsperTech
-Bundle-Version: 8.10.0
+Bundle-Version: 9.0.0
 Created-By: Apache Maven Bundle Plugin
 Eclipse-BuddyPolicy: dependent
 Export-Package: com.espertech.esper.common.internal.avro.core;uses:="com
@@ -24,12 +24,12 @@ Export-Package: com.espertech.esper.common.internal.avro.core;uses:="com
  t.avro,com.espertech.esper.common.internal.event.core,com.espertech.esp
  er.common.internal.event.property,com.espertech.esper.common.internal.s
  ettings,com.espertech.esper.common.internal.util,org.apache.avro,org.ap
- ache.avro.generic";version="8.10.0",com.espertech.esper.common.internal.
+ ache.avro.generic";version="9.0.0",com.espertech.esper.common.internal.
  avro.getter;uses:="com.espertech.esper.common.client,com.espertech.espe
  r.common.internal.avro.core,com.espertech.esper.common.internal.bytecod
  emodel.base,com.espertech.esper.common.internal.bytecodemodel.model.exp
  ression,com.espertech.esper.common.internal.event.core,org.apache.avro.
- generic";version="8.10.0",com.espertech.esper.common.internal.avro.selec
+ generic";version="9.0.0",com.espertech.esper.common.internal.avro.selec
  texprrep;uses:="com.espertech.esper.common.client,com.espertech.esper.c
  ommon.internal.bytecodemodel.base,com.espertech.esper.common.internal.b
  ytecodemodel.model.expression,com.espertech.esper.common.internal.epl.e
@@ -38,16 +38,16 @@ Export-Package: com.espertech.esper.common.internal.avro.core;uses:="com
  pertech.esper.common.internal.epl.table.compiletime,com.espertech.esper
  .common.internal.event.avro,com.espertech.esper.common.internal.event.c
  ore,com.espertech.esper.common.internal.util,org.apache.avro";version="
- 8.10.0",com.espertech.esper.common.internal.avro.support;uses:="com.espe
+ 9.0.0",com.espertech.esper.common.internal.avro.support;uses:="com.espe
  rtech.esper.common.client,com.espertech.esper.common.internal.avro.core
- ,org.apache.avro,org.apache.avro.generic";version="8.10.0",com.espertech
+ ,org.apache.avro,org.apache.avro.generic";version="9.0.0",com.espertech
  .esper.common.internal.avro.writer;uses:="com.espertech.esper.common.cl
  ient,com.espertech.esper.common.internal.bytecodemodel.base,com.esperte
  ch.esper.common.internal.bytecodemodel.model.expression,com.espertech.e
  sper.common.internal.epl.expression.core,com.espertech.esper.common.int
  ernal.epl.resultset.select.core,com.espertech.esper.common.internal.eve
  nt.avro,com.espertech.esper.common.internal.event.core,org.apache.avro.
- generic";version="8.10.0"
+ generic";version="9.0.0"
 Import-Package: com.espertech.esper.common.client,com.espertech.esper.co
  mmon.client.annotation,com.espertech.esper.common.client.configuration.
  common,com.espertech.esper.common.client.hook.type,com.espertech.esper.

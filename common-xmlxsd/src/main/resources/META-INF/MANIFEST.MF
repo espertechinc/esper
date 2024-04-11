@@ -8,10 +8,10 @@ Bundle-License: http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 Bundle-ManifestVersion: 2
 Bundle-Name: Esper-Common-XMLXSD
 Bundle-SymbolicName: com.espertech.esper-common-xmlxsd
-Bundle-Version: 8.10.0
+Bundle-Version: 9.0.0
 Created-By: Apache Maven Bundle Plugin
 Export-Package: com.espertech.esper.common.internal.xmlxsd.core;version=
- "8.10.0";uses:="com.espertech.esper.common.client.type,com.espertech.esp
+ "9.0.0";uses:="com.espertech.esper.common.client.type,com.espertech.esp
  er.common.internal.event.xml,com.espertech.esper.common.internal.settin
  gs"
 Import-Package: com.espertech.esper.common.client;version="[8.8,9)",com.

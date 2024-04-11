@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<name>Esper (Parent)</name>
 	<groupId>com.espertech</groupId>
-	<version>8.10.0</version>
+	<version>9.0.0</version>
 	<artifactId>esper-parent</artifactId>
 	<packaging>pom</packaging>
 	<url>http://www.espertech.com/esper</url>

@@ -1,6 +1,6 @@
 <project name="esper" default="" basedir=".">
 	<!-- Name of project and version, used to create filenames -->
-	<property name="version" value="8.10.0"/>
+	<property name="version" value="9.0.0"/>
 	<property name="patchlevel" value=""/>
 	<property name="fullversion" value="${version}${patchlevel}"/>
 	<property name="fullname" value="esper-${fullversion}"/>
