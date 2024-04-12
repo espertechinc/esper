@@ -26,9 +26,11 @@ import com.espertech.esper.regressionlib.support.client.SupportAuditCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static com.espertech.esper.runtime.client.EPRuntimeProvider.DEFAULT_RUNTIME_URI;
 import static org.junit.Assert.assertEquals;
@@ -217,6 +219,20 @@ public class ClientInstrumentAudit {
             env.compileDeploy("@audit select * from SupportBean#keepall where intPrimitive in (1:3)");
             env.sendEventBean(new SupportBean("E1", 1));
             env.undeployAll();
+
+            // method versus property
+            String eplMethodVsProp = "@public @buseventtype create schema MyEventWithMap as " + MyEventWithMap.class.getName() + ";" +
+                "@audit select e.vals.get(\"test\") from MyEventWithMap as e";
+            env.compileDeploy(eplMethodVsProp);
+            env.undeployAll();
+        }
+    }
+
+    public final static class MyEventWithMap implements Serializable {
+        private Map<String, String> vals;
+
+        public Map<String, String> getVals() {
+            return vals;
         }
     }
 }

@@ -384,7 +384,8 @@ public class ExprNodeUtilityValidate {
 
         // If there is a class name, assume a static method is possible.
         if (parse.getClassName() != null) {
-            List<ExprNode> parameters = Collections.singletonList(new ExprConstantNodeImpl(parse.getArgString()));
+            List<ExprNode> parameters = new ArrayList<>(1);
+            parameters.add(new ExprConstantNodeImpl(parse.getArgString()));
             List<Chainable> chain = new ArrayList<Chainable>();
             chain.add(new ChainableName(parse.getClassName()));
             chain.add(new ChainableCall(parse.getMethodName(), parameters));
