@@ -345,7 +345,7 @@ public class ResultSetProcessorFactoryFactory {
 
         // Construct the processor for evaluating the select clause
         SelectProcessorArgs args = new SelectProcessorArgs(selectClauseSpec.getSelectExprList(), groupByRollupInfo, isUsingWildcard, null, spec.getForClauseSpec(), typeService,
-            null, isFireAndForget, spec.getAnnotations(), statementRawInfo, services);
+            isFireAndForget, spec.getAnnotations(), statementRawInfo, services);
         SelectExprProcessorDescriptor selectExprProcessorDesc = SelectExprProcessorFactory.getProcessor(args, insertIntoDesc, true);
         SelectExprProcessorForge selectExprProcessorForge = selectExprProcessorDesc.getForge();
         additionalForgeables.addAll(selectExprProcessorDesc.getAdditionalForgeables());
@@ -699,7 +699,7 @@ public class ResultSetProcessorFactoryFactory {
             ExprNode[] selectClauseLevel = groupByExpressions.getSelectClausePerLevel()[i];
             SelectClauseElementCompiled[] selectClause = getRollUpSelectClause(spec.getSelectClauseSpec(), selectClauseLevel, level, rolledupProps, groupByNodesValidated, validationContext);
             SelectProcessorArgs args = new SelectProcessorArgs(selectClause, groupByRollupInfo, false, null, spec.getForClauseSpec(), typeService,
-                statementRawInfo.getOptionalContextDescriptor(), isFireAndForget, spec.getAnnotations(), statementRawInfo, compileTimeServices);
+                isFireAndForget, spec.getAnnotations(), statementRawInfo, compileTimeServices);
             SelectExprProcessorForge forge = SelectExprProcessorFactory.getProcessor(args, insertIntoDesc, false).getForge();
             processors[i] = forge;
 

@@ -38,7 +38,27 @@ public class EPLInsertIntoPopulateEventTypeColumnBean {
         execs.add(new EPLInsertIntoColBeanSingleToMulti());
         execs.add(new EPLInsertIntoColBeanMultiToSingle());
         execs.add(new EPLInsertIntoColBeanInvalid());
+        execs.add(new EPLInsertIntoColBeanContextProp());
         return execs;
+    }
+
+    private static class EPLInsertIntoColBeanContextProp implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create context MyContext initiated by SupportBean as sb;" +
+                "create schema OutStream(col SupportBean);" +
+                "context MyContext on SupportBean_S0 " +
+                "  insert into OutStream select context.sb as col;" +
+                "@name('s0') select * from OutStream;";
+            env.compileDeploy(epl).addListener("s0");
+
+            SupportBean sb = new SupportBean("E1", 0);
+            env.sendEventBean(sb);
+
+            env.sendEventBean(new SupportBean_S0(1));
+            env.assertEventNew("s0", event -> assertSame(sb, event.get("col")));
+
+            env.undeployAll();
+        }
     }
 
     private static class EPLInsertIntoColBeanMultiToSingle implements RegressionExecution {

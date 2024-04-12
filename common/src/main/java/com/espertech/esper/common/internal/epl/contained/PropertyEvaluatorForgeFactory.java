@@ -247,7 +247,7 @@ public class PropertyEvaluatorForgeFactory {
 
             SelectClauseElementCompiled[] cumulativeSelectArr = cumulativeSelectClause.toArray(new SelectClauseElementCompiled[cumulativeSelectClause.size()]);
             SelectProcessorArgs args = new SelectProcessorArgs(cumulativeSelectArr, null, false, null, null, streamTypeService,
-                null, false, rawInfo.getAnnotations(), rawInfo, services);
+                false, rawInfo.getAnnotations(), rawInfo, services);
             SelectExprProcessorDescriptor selectExprDesc = SelectExprProcessorFactory.getProcessor(args, null, false);
 
             return new PropertyEvaluatorSelectForge(selectExprDesc, accumulative);

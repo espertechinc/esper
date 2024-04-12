@@ -171,7 +171,7 @@ public class InfraOnMergeHelperForge {
         // Get select expr processor
         SelectClauseElementCompiled[] selectClause = selectNoWildcard.toArray(new SelectClauseElementCompiled[selectNoWildcard.size()]);
         SelectProcessorArgs args = new SelectProcessorArgs(selectClause, null, false, null, null, streamTypeService,
-                null, false, statementRawInfo.getAnnotations(), statementRawInfo, services);
+            false, statementRawInfo.getAnnotations(), statementRawInfo, services);
         if (isTable && streamName.equals(infraName)) {
             args.setOptionalInsertIntoEventType(infraType);
         }

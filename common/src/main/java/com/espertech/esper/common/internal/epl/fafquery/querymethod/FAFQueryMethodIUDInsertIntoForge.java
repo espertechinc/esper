@@ -128,8 +128,7 @@ public class FAFQueryMethodIUDInsertIntoForge extends FAFQueryMethodIUDBaseForge
         EventType optionalInsertIntoEventType = processor.getEventTypeRSPInputEvents();
         SelectProcessorArgs args = new SelectProcessorArgs(selected, null,
                 false, optionalInsertIntoEventType, null, streamTypeService,
-                statementRawInfo.getOptionalContextDescriptor(),
-                true, spec.getAnnotations(), statementRawInfo, services);
+            true, spec.getAnnotations(), statementRawInfo, services);
         return SelectExprProcessorFactory.getProcessor(args, spec.getRaw().getInsertIntoDesc(), false).getForge();
     }
 

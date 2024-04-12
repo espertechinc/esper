@@ -38,21 +38,19 @@ public class SelectProcessorArgs {
     private EventType optionalInsertIntoEventType;
     private final ForClauseSpec forClauseSpec;
     private final StreamTypeService typeService;
-    private final ContextCompileTimeDescriptor contextDescriptor;
     private final boolean isFireAndForget;
     private final Annotation[] annotations;
     private final GroupByRollupInfo groupByRollupInfo;
     private final StatementRawInfo statementRawInfo;
     private final StatementCompileTimeServices compileTimeServices;
 
-    public SelectProcessorArgs(SelectClauseElementCompiled[] selectionList, GroupByRollupInfo groupByRollupInfo, boolean isUsingWildcard, EventType optionalInsertIntoEventType, ForClauseSpec forClauseSpec, StreamTypeService typeService, ContextCompileTimeDescriptor contextDescriptor, boolean isFireAndForget, Annotation[] annotations, StatementRawInfo statementRawInfo, StatementCompileTimeServices compileTimeServices) {
+    public SelectProcessorArgs(SelectClauseElementCompiled[] selectionList, GroupByRollupInfo groupByRollupInfo, boolean isUsingWildcard, EventType optionalInsertIntoEventType, ForClauseSpec forClauseSpec, StreamTypeService typeService, boolean isFireAndForget, Annotation[] annotations, StatementRawInfo statementRawInfo, StatementCompileTimeServices compileTimeServices) {
         this.selectionList = selectionList;
         this.groupByRollupInfo = groupByRollupInfo;
         this.isUsingWildcard = isUsingWildcard;
         this.optionalInsertIntoEventType = optionalInsertIntoEventType;
         this.forClauseSpec = forClauseSpec;
         this.typeService = typeService;
-        this.contextDescriptor = contextDescriptor;
         this.isFireAndForget = isFireAndForget;
         this.annotations = annotations;
         this.statementRawInfo = statementRawInfo;
@@ -100,7 +98,7 @@ public class SelectProcessorArgs {
     }
 
     public ContextCompileTimeDescriptor getContextDescriptor() {
-        return contextDescriptor;
+        return statementRawInfo.getOptionalContextDescriptor();
     }
 
     public Configuration getConfiguration() {
