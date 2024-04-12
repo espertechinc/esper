@@ -27,6 +27,9 @@ public class StatementAgentInstanceFactoryOnTriggerUtil {
             } else {
                 instance = namedWindow.getNamedWindowInstance(agentInstanceId);
             }
+            if (instance == null) {
+                return null;
+            }
             return instance.getRootViewInstance().getAgentInstanceContext().getAgentInstanceLock();
         }
 
@@ -36,6 +39,9 @@ public class StatementAgentInstanceFactoryOnTriggerUtil {
             instance = table.getTableInstanceNoContext();
         } else {
             instance = table.getTableInstance(agentInstanceId);
+        }
+        if (instance == null) {
+            return null;
         }
         return instance.getAgentInstanceContext().getAgentInstanceLock();
     }

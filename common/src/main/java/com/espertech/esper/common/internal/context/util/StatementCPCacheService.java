@@ -121,6 +121,9 @@ public class StatementCPCacheService {
     private static AgentInstanceContext makeNewAgentInstanceContextCanNull(int agentInstanceId, StatementContext statementContext, boolean partitioned) {
         // re-allocate lock: for unpartitoned cases we use the same lock associated to the statement (no need to produce more locks)
         StatementAgentInstanceLock lock = statementContext.getStatementAIFactoryProvider().getFactory().obtainAgentInstanceLock(statementContext, agentInstanceId);
+        if (lock == null) {
+            return null;
+        }
         EPStatementAgentInstanceHandle epStatementAgentInstanceHandle = new EPStatementAgentInstanceHandle(statementContext.getEpStatementHandle(), agentInstanceId, lock);
 
         // filter fault handler for create-context statements
