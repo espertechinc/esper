@@ -527,7 +527,7 @@ public class EPLInsertIntoPopulateUnderlying {
             try {
                 SupportBeanString.class.getDeclaredConstructor().newInstance();
                 fail();
-            } catch (InstantiationException ex) {
+            } catch (NoSuchMethodException ex) {
                 // expected
             } catch (Exception ex) {
                 fail();
