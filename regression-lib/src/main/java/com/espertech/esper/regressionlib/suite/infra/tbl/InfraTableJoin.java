@@ -18,6 +18,7 @@ import com.espertech.esper.common.internal.epl.join.queryplan.TableLookupNodeFor
 import com.espertech.esper.common.internal.epl.join.queryplan.TableLookupPlanForge;
 import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.common.internal.support.SupportBean_S0;
+import com.espertech.esper.common.internal.support.SupportBean_S1;
 import com.espertech.esper.compiler.client.EPCompileException;
 import com.espertech.esper.regressionlib.framework.RegressionEnvironment;
 import com.espertech.esper.regressionlib.framework.RegressionExecution;
@@ -50,7 +51,28 @@ public class InfraTableJoin implements IndexBackingTableInfo {
         execs.add(new InfraCoercion());
         execs.add(new InfraUnkeyedTable());
         execs.add(new InfraOuterJoin());
+        execs.add(new InfraInnerJoinWithOnClause());
         return execs;
+    }
+
+    private static class InfraInnerJoinWithOnClause implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create table MyTable(key1 string primary key, prop string);" +
+                "insert into MyTable select p00 as key1, p01 as prop from SupportBean_S0;" +
+                "@name('s0') select * from MyTable as mt inner join SupportBean_S1 as s1 on p10 = prop;";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new SupportBean_S0(0, "K1", "A"));
+            env.sendEventBean(new SupportBean_S1(10, "X"));
+            env.assertListenerNotInvoked("s0");
+
+            env.milestone(0);
+
+            env.sendEventBean(new SupportBean_S1(11, "A"));
+            env.assertPropsNew("s0", "mt.key1,mt.prop".split(","), new Object[] {"K1", "A"});
+
+            env.undeployAll();
+        }
     }
 
     private static class InfraOuterJoin implements RegressionExecution {

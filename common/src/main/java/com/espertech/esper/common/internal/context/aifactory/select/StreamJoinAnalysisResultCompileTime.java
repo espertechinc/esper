@@ -30,7 +30,9 @@ import com.espertech.esper.common.internal.view.core.ViewFactoryForge;
 import com.espertech.esper.common.internal.view.groupwin.GroupByViewFactoryForge;
 
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.espertech.esper.common.internal.bytecodemodel.model.expression.CodegenExpressionBuilder.*;
@@ -145,6 +147,10 @@ public class StreamJoinAnalysisResultCompileTime {
 
     public TableMetaData[] getTablesPerStream() {
         return tablesPerStream;
+    }
+
+    public boolean hasTables() {
+        return Arrays.stream(tablesPerStream).anyMatch(Objects::nonNull);
     }
 
     public void addUniquenessInfo(List<ViewFactoryForge>[] unmaterializedViewChain, Annotation[] annotations) {

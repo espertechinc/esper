@@ -88,8 +88,6 @@ public class JoinSetComposerPrototypeForgeFactory {
             return new JoinSetComposerPrototypeDesc(desc.getForge(), desc.getAdditionalForgeables(), compileTimeServices.getStateMgmtSettingsProvider().newCharge());
         }
 
-        boolean isOuterJoins = !OuterJoinDesc.consistsOfAllInnerJoins(outerJoinDescs);
-
         // Query graph for graph relationships between streams/historicals
         // For outer joins the query graph will just contain outer join relationships
         ExcludePlanHint hint = ExcludePlanHint.getHint(typeService.getStreamNames(), statementRawInfo, compileTimeServices);
@@ -102,6 +100,7 @@ public class JoinSetComposerPrototypeForgeFactory {
         }
 
         // Let the query graph reflect the where-clause
+        boolean isOuterJoins = !OuterJoinDesc.consistsOfAllInnerJoins(outerJoinDescs);
         if (whereClause != null) {
             // Analyze relationships between streams using the optional filter expression.
             // Relationships are properties in AND and EQUALS nodes of joins.
@@ -166,9 +165,10 @@ public class JoinSetComposerPrototypeForgeFactory {
         boolean selectsRemoveStream = spec.getRaw().getSelectStreamSelectorEnum().isSelectsRStream() || spec.getRaw().getOutputLimitSpec() != null;
         boolean joinRemoveStream = selectsRemoveStream || hasAggregations;
 
+        boolean hasTablesAndInnerJoinOnly = joinAnalysisResult.hasTables() && OuterJoinDesc.consistsOfAllInnerJoins(outerJoinDescs);
         ExprNode postJoinEvaluator;
-        if (JoinSetComposerUtil.isNonUnidirectionalNonSelf(isOuterJoins, joinAnalysisResult.isUnidirectional(), joinAnalysisResult.isPureSelfJoin())) {
-            postJoinEvaluator = getFilterExpressionInclOnClause(spec.getRaw().getWhereClause(), outerJoinDescs, statementRawInfo, compileTimeServices);
+        if (hasTablesAndInnerJoinOnly || JoinSetComposerUtil.isNonUnidirectionalNonSelf(isOuterJoins, joinAnalysisResult.isUnidirectional(), joinAnalysisResult.isPureSelfJoin())) {
+            postJoinEvaluator = getFilterExpressionInclOnClause(hasTablesAndInnerJoinOnly, spec.getRaw().getWhereClause(), outerJoinDescs, statementRawInfo, compileTimeServices);
         } else {
             postJoinEvaluator = spec.getRaw().getWhereClause();
         }
@@ -325,14 +325,13 @@ public class JoinSetComposerPrototypeForgeFactory {
         return new JoinSetComposerPrototypeHistorical2StreamDesc(forge, indexStrategies.getAdditionalForgeables());
     }
 
-    private static ExprNode getFilterExpressionInclOnClause(ExprNode whereClause, OuterJoinDesc[] outerJoinDescList, StatementRawInfo rawInfo, StatementCompileTimeServices services) {
-        if (whereClause == null) {   // no need to add as query planning is fully based on on-clause
-            return null;
-        }
+    private static ExprNode getFilterExpressionInclOnClause(boolean hasTablesAndInnerJoinOnly, ExprNode whereClause, OuterJoinDesc[] outerJoinDescList, StatementRawInfo rawInfo, StatementCompileTimeServices services) {
         if (outerJoinDescList.length == 0) {  // not an outer-join syntax
             return whereClause;
         }
-        if (!OuterJoinDesc.consistsOfAllInnerJoins(outerJoinDescList)) {    // all-inner joins
+
+        // for tables the query query planner does not plan extra indexes, since they wouldn't be updated/pushed-to
+        if (!hasTablesAndInnerJoinOnly && !OuterJoinDesc.consistsOfAllInnerJoins(outerJoinDescList)) {    // all-inner joins
             return whereClause;
         }
 
@@ -342,12 +341,18 @@ public class JoinSetComposerPrototypeForgeFactory {
         }
 
         List<ExprNode> expressions = new ArrayList<>();
-        expressions.add(whereClause);
+        if (whereClause != null) {
+            expressions.add(whereClause);
+        }
 
         for (OuterJoinDesc outerJoinDesc : outerJoinDescList) {
             if (outerJoinDesc.getOptLeftNode() != null) {
                 expressions.add(outerJoinDesc.makeExprNode(rawInfo, services));
             }
+        }
+
+        if (expressions.size() == 1) {
+            return expressions.get(0);
         }
 
         ExprAndNode andNode = ExprNodeUtilityMake.connectExpressionsByLogicalAnd(expressions);
