@@ -36,8 +36,12 @@ public abstract class ExprNodeAdapterBase {
     }
 
     protected final boolean evaluatePerStream(EventBean[] eventsPerStream) {
+        return evaluatePerStream(eventsPerStream, this.evaluatorContext);
+    }
+
+    protected final boolean evaluatePerStream(EventBean[] eventsPerStream, ExprEvaluatorContext providedEvalContext) {
         try {
-            Boolean result = (Boolean) factory.getExprNode().evaluate(eventsPerStream, true, this.evaluatorContext);
+            Boolean result = (Boolean) factory.getExprNode().evaluate(eventsPerStream, true, providedEvalContext);
             if (result == null) {
                 return false;
             }

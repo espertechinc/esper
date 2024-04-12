@@ -78,7 +78,35 @@ public class ContextInitTerm {
         execs.add(new ContextStartEndPatternWithFilterCorrelatedWithAsName());
         execs.add(new ContextInitTermWithTermEvent(false));
         execs.add(new ContextInitTermWithTermEvent(true));
+        execs.add(new ContextInitTermSubqueryInFilter());
         return execs;
+    }
+
+    private static class ContextInitTermSubqueryInFilter implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create context MyContext initiated by SupportBean_S0 AS criteria;\n" +
+                "context MyContext create window MyWindow#time(86400 seconds) (eventId int);\n" +
+                "context MyContext insert into MyWindow select id as eventId from SupportBean_S2;\n" +
+                "context MyContext " +
+                "  insert into NotFound " +
+                "  select id from SupportBean_S1(not exists (select * from MyWindow where event.id = eventId)) AS event;\n" +
+                "@name('s0') select * from NotFound;\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new SupportBean_S0(100));
+            env.milestone(0);
+
+            env.sendEventBean(new SupportBean_S1(100));
+            env.assertEqualsNew("s0", "id", 100);
+
+            env.sendEventBean(new SupportBean_S2(100));
+            env.milestone(1);
+
+            env.sendEventBean(new SupportBean_S1(100));
+            env.assertListenerNotInvoked("s0");
+
+            env.undeployAll();
+        }
     }
 
     private static class ContextInitTermWithTermEvent implements RegressionExecution {
