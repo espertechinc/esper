@@ -65,7 +65,33 @@ public class ContextKeySegmented {
         execs.add(new ContextKeySegmentedWPatternFireWhenAllocated());
         execs.add(new ContextKeySegmentedWInitTermPatternAsName());
         execs.add(new ContextKeySegmentedTermEventSelect());
+        execs.add(new ContextKeySegmentedRegExFilter());
         return execs;
+    }
+
+    private static class ContextKeySegmentedRegExFilter implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@public @buseventtype create schema MyEventWPartition as (number int, description string, partitionId string);\n" +
+                "create context MyContext partition by partitionId from MyEventWPartition terminated after 15 minutes;\n" +
+                "@name('s0') context MyContext select * from MyEventWPartition(description like \"%hello%\");\n";
+            env.compileDeploy(epl).addListener("s0");
+
+            sendEvent(env, 1);
+            env.assertListenerInvoked("s0");
+
+            sendEvent(env, 2);
+            env.assertListenerInvoked("s0");
+
+            env.undeployAll();
+        }
+
+        private void sendEvent(RegressionEnvironment env, int number) {
+            Map<String, Object> data = new HashMap<>();
+            data.put("number", number);
+            data.put("description", "hello");
+            data.put("partitionId", "A");
+            env.sendEventMap(data, "MyEventWPartition");
+        }
     }
 
     private static class ContextKeySegmentedTermEventSelect implements RegressionExecution {

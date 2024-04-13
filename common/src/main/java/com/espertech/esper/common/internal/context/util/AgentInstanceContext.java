@@ -70,6 +70,7 @@ public class AgentInstanceContext implements ExprEvaluatorContext {
     private StatementContextCPPair statementContextCPPair;
     private AgentInstanceScriptContext agentInstanceScriptContext;
     private Object terminationCallbacks;
+    private Object filterReboolContext;
 
     public AgentInstanceContext(StatementContext statementContext, EPStatementAgentInstanceHandle epStatementAgentInstanceHandle, AgentInstanceFilterProxy agentInstanceFilterProxy, MappedEventBean contextProperties, AuditProvider auditProvider, InstrumentationCommon instrumentationProvider) {
         this.statementContext = statementContext;
@@ -370,5 +371,13 @@ public class AgentInstanceContext implements ExprEvaluatorContext {
 
     public Configuration getConfigSnapshot() {
         return statementContext.getConfigSnapshot();
+    }
+
+    public Object getFilterReboolConstant() {
+        return filterReboolContext;
+    }
+
+    public void setFilterReboolConstant(Object value) {
+        this.filterReboolContext = value;
     }
 }
