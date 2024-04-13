@@ -25,9 +25,11 @@ import static com.espertech.esper.common.internal.bytecodemodel.model.expression
 
 public class ExprFilterReboolValueNode extends ExprNodeBase implements ExprForge {
     private final EPTypeClass returnType;
+    private final ExprNode valueExpression;
 
-    public ExprFilterReboolValueNode(EPTypeClass returnType) {
+    public ExprFilterReboolValueNode(EPTypeClass returnType, ExprNode valueExpression) {
         this.returnType = returnType;
+        this.valueExpression = valueExpression;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer, ExprNodeRenderableFlags flags) {
@@ -57,6 +59,10 @@ public class ExprFilterReboolValueNode extends ExprNodeBase implements ExprForge
 
     public CodegenExpression evaluateCodegen(EPTypeClass requiredType, CodegenMethodScope parent, ExprForgeCodegenSymbol symbols, CodegenClassScope classScope) {
         return cast(requiredType, CodegenLegoCast.castSafeFromObjectType(requiredType, exprDotMethod(symbols.getAddExprEvalCtx(parent), "getFilterReboolConstant")));
+    }
+
+    public ExprNode getValueExpression() {
+        return valueExpression;
     }
 
     public EPTypeClass getEvaluationType() {

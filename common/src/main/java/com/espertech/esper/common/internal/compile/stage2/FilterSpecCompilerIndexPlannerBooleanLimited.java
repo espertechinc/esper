@@ -68,7 +68,7 @@ public class FilterSpecCompilerIndexPlannerBooleanLimited {
         RewriteDescriptorWithValueExpr withValueExpr = (RewriteDescriptorWithValueExpr) desc;
         ExprNode valueExpression = withValueExpr.valueExpression;
         EPTypeClass valueExpressionType = (EPTypeClass) valueExpression.getForge().getEvaluationType();
-        ExprFilterReboolValueNode replacement = new ExprFilterReboolValueNode(valueExpressionType);
+        ExprFilterReboolValueNode replacement = new ExprFilterReboolValueNode(valueExpressionType, valueExpression);
         ExprNodeUtilityModify.replaceChildNode(withValueExpr.valueExpressionParent, valueExpression, replacement);
         ExprValidationContext validationContext = new ExprValidationContextBuilder(streamTypeService, raw, services).withIsFilterExpression(true).build();
         ExprNode rebool = ExprNodeUtilityValidate.getValidatedSubtree(ExprNodeOrigin.FILTER, constituent, validationContext);

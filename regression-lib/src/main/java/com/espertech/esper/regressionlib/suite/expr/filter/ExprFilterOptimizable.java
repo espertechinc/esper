@@ -56,7 +56,38 @@ public class ExprFilterOptimizable {
         executions.add(new ExprFilterOrContext());
         executions.add(new ExprFilterPatternUDFFilterOptimizable());
         executions.add(new ExprFilterDeployTimeConstant());  // substitution and variables are here
+        executions.add(new ExprFilterRegExManyOr());
         return executions;
+    }
+
+    public static class ExprFilterRegExManyOr implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select * from SupportBean(" +
+                "           theString regexp \".*test.*\" // 1\n" +
+                "        or theString regexp \".*test.*\" // 2\n" +
+                "        or theString regexp \".*test.*\" // 3\n" +
+                "        or theString regexp \".*test.*\" // 4\n" +
+                "        or theString regexp \".*test.*\" // 5\n" +
+                "        or theString regexp \".*test.*\" // 6\n" +
+                "        or theString regexp \".*test.*\" // 7\n" +
+                "        or theString regexp \".*test.*\" // 8\n" +
+                "        or theString regexp \".*test.*\" // 9\n" +
+                "        or theString regexp \".*test.*\" // 10\n" +
+                "        or theString regexp \".*test.*\" // 11\n" +
+                "        or theString regexp \".*test.*\" // 12\n" +
+                "        or theString regexp \".*test.*\" // 13\n" +
+                "        or theString regexp \".*test.*\" // 14\n" +
+                "        or theString regexp \".*test.*\" // 15\n" +
+                "        or theString regexp \".*test.*\" // 16\n" +
+                "        or theString regexp \".*test.*\" // 17\n" +
+                ")";
+            env.compileDeploy(epl).addListener("s0");
+
+            env.sendEventBean(new SupportBean("mytest.com", 0));
+            env.assertListenerInvoked("s0");
+
+            env.undeployAll();
+        }
     }
 
     public static class ExprFilterOrContext implements RegressionExecution {

@@ -21,12 +21,10 @@ import com.espertech.esper.common.internal.compile.stage3.StatementCompileTimeSe
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNode;
 import com.espertech.esper.common.internal.epl.expression.agg.base.ExprAggregateNodeUtil;
 import com.espertech.esper.common.internal.epl.expression.core.*;
+import com.espertech.esper.common.internal.epl.expression.filter.ExprFilterReboolValueNode;
 import com.espertech.esper.common.internal.epl.expression.ops.ExprAndNode;
 import com.espertech.esper.common.internal.epl.expression.subquery.ExprSubselectNode;
-import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeStreamUseCollectVisitor;
-import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;
-import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeTableAccessFinderVisitor;
-import com.espertech.esper.common.internal.epl.expression.visitor.ExprNodeVariableVisitor;
+import com.espertech.esper.common.internal.epl.expression.visitor.*;
 import com.espertech.esper.common.internal.epl.pattern.core.MatchedEventConvertorForge;
 import com.espertech.esper.common.internal.event.map.MapEventType;
 import com.espertech.esper.common.internal.event.property.IndexedProperty;
@@ -315,6 +313,25 @@ public class FilterSpecCompilerIndexPlannerHelper {
         EPTypeClass evalType = (EPTypeClass) exprNode.getForge().getEvaluationType();
         DataInputOutputSerdeForge serdeForge = args.compileTimeServices.getSerdeResolver().serdeForFilter(evalType, args.statementRawInfo);
         ExprFilterSpecLookupableForge lookupable = new ExprFilterSpecLookupableForge(PROPERTY_NAME_BOOLEAN_EXPRESSION, null, null, evalType, false, serdeForge);
+
+        // The expression node cannot use rebool-optimized values.
+        // This can be the case when rebool (regex and like) has been rewritten to use the evaluation context's already-existing instance of like-util or reg-ex-pattern.
+        LinkedHashMap<ExprFilterReboolValueNode, ExprNode> rebools = new LinkedHashMap<>();
+        ExprNodeVisitorWithParent reboolVisitor = new ExprNodeVisitorWithParent() {
+            public boolean isVisit(ExprNode exprNode) {
+                return true;
+            }
+
+            public void visit(ExprNode exprNode, ExprNode parentExprNode) {
+                if (exprNode instanceof ExprFilterReboolValueNode) {
+                    rebools.put((ExprFilterReboolValueNode) exprNode, parentExprNode);
+                }
+            }
+        };
+        exprNode.accept(reboolVisitor);
+        for (Map.Entry<ExprFilterReboolValueNode, ExprNode> entry : rebools.entrySet()) {
+            ExprNodeUtilityModify.replaceChildNode(entry.getValue(), entry.getKey(), entry.getKey().getValueExpression());
+        }
 
         return new FilterSpecParamExprNodeForge(lookupable, FilterOperator.BOOLEAN_EXPRESSION, exprNode, args.taggedEventTypes, args.arrayEventTypes, args.streamTypeService, hasSubselectFilterStream, hasTableAccess, hasVariable, args.compileTimeServices);
     }
