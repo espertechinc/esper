@@ -96,10 +96,11 @@ public class ClientCompileStatementObjectModel {
     private static class ClientCompileSODAPrecedenceExpressions implements RegressionExecution {
         public void run(RegressionEnvironment env) {
             String[][] testdata = {
-                {"1+2*3", null, "ArithmaticExpression"},
-                {"1+(2*3)", "1+2*3", "ArithmaticExpression"},
-                {"2-2/3-4", null, "ArithmaticExpression"},
-                {"2-(2/3)-4", "2-2/3-4", "ArithmaticExpression"},
+                {"7.29d/(3*100)", null, "ArithmaticExpression"},
+                {"1+2*3", "1+(2*3)", "ArithmaticExpression"},
+                {"1+(2*3)", null, "ArithmaticExpression"},
+                {"2-2/3-4", "2-(2/3)-4", "ArithmaticExpression"},
+                {"2-(2/3)-4", null, "ArithmaticExpression"},
                 {"1+2 in (4,5)", null, "InExpression"},
                 {"(1+2) in (4,5)", "1+2 in (4,5)", "InExpression"},
                 {"true and false or true", null, "Disjunction"},

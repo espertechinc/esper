@@ -111,7 +111,15 @@ public class ArithmaticExpression extends ExpressionBase {
         String delimiter = "";
         for (Expression child : this.getChildren()) {
             writer.write(delimiter);
-            child.toEPL(writer, getPrecedence());
+            if (delimiter.equals("") || !(child instanceof ArithmaticExpression)) {
+                child.toEPL(writer, getPrecedence());
+            }
+            else {
+                writer.write('(');
+                child.toEPL(writer, getPrecedence());
+                writer.write(')');
+            }
+
             delimiter = operator;
         }
     }
