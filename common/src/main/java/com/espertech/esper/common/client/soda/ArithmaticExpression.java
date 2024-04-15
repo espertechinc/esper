@@ -113,8 +113,7 @@ public class ArithmaticExpression extends ExpressionBase {
             writer.write(delimiter);
             if (delimiter.equals("") || !(child instanceof ArithmaticExpression)) {
                 child.toEPL(writer, getPrecedence());
-            }
-            else {
+            } else {
                 writer.write('(');
                 child.toEPL(writer, getPrecedence());
                 writer.write(')');
