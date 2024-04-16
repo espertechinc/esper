@@ -116,6 +116,10 @@ public class ExprIdentNodeEvaluatorImpl implements ExprIdentNodeEvaluator {
         return propertyGetter;
     }
 
+    public EventPropertyGetterSPI getGetterNonContext() {
+        return propertyGetter;
+    }
+
     /**
      * Returns true if the property exists, or false if not.
      *

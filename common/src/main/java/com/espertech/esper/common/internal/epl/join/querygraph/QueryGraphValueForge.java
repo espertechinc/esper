@@ -72,7 +72,7 @@ public class QueryGraphValueForge {
             return false;   // second comparison, ignore
         }
 
-        items.add(new QueryGraphValueDescForge(new ExprNode[]{indexPropertyIdent}, new QueryGraphValueEntryHashKeyedForgeProp(keyPropNode, keyProperty, keyPropNode.getExprEvaluatorIdent().getGetter())));
+        items.add(new QueryGraphValueDescForge(new ExprNode[]{indexPropertyIdent}, new QueryGraphValueEntryHashKeyedForgeProp(keyPropNode, keyProperty, keyPropNode.getExprEvaluatorIdent().getGetterNonContext())));
         return true;
     }
 

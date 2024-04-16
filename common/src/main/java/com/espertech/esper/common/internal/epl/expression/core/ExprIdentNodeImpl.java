@@ -225,7 +225,7 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode, Ex
             if (contextPropertyName != null) {
                 EventTypeSPI contextType = (EventTypeSPI) validationContext.getContextDescriptor().getContextPropertyRegistry().getContextEventType();
                 EPType contextPropertyType = JavaClassHelper.getBoxedType(contextType.getPropertyEPType(contextPropertyName));
-                evaluator = new ExprIdentNodeEvaluatorContext(streamNum, contextPropertyType, contextType.getGetterSPI(contextPropertyName), (EventTypeSPI) eventType);
+                evaluator = new ExprIdentNodeEvaluatorContext(streamNum, contextPropertyType, contextType.getGetterSPI(contextPropertyName), (EventTypeSPI) eventType, propertyGetter);
             }
         }
         return null;

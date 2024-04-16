@@ -14,9 +14,9 @@ import com.espertech.esper.common.client.configuration.Configuration;
 import com.espertech.esper.common.client.configuration.ConfigurationException;
 import com.espertech.esper.common.client.configuration.common.ConfigurationCommonEventTypeObjectArray;
 import com.espertech.esper.common.client.util.EventUnderlyingType;
+import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionlib.suite.event.objectarray.EventObjectArrayConfiguredStatic;
 import com.espertech.esper.regressionlib.suite.event.objectarray.EventObjectArrayInheritanceConfigRuntime;
-import com.espertech.esper.common.internal.support.SupportBean;
 import com.espertech.esper.regressionrun.runner.RegressionRunner;
 import com.espertech.esper.regressionrun.runner.RegressionSession;
 import com.espertech.esper.regressionrun.runner.SupportConfigFactory;
@@ -31,7 +31,7 @@ public class TestSuiteEventObjectArrayWConfig extends TestCase {
         RegressionSession session = RegressionRunner.session();
         session.getConfiguration().getCommon().getEventMeta().setDefaultEventRepresentation(EventUnderlyingType.OBJECTARRAY);
         session.getConfiguration().getCommon().addEventType("MyOAType", "bean,theString,map".split(","), new Object[]{SupportBean.class.getName(), "string", "java.util.Map"});
-        RegressionRunner.run(session, new EventObjectArrayConfiguredStatic());
+        RegressionRunner.run(session, EventObjectArrayConfiguredStatic.executions());
         session.destroy();
     }
 

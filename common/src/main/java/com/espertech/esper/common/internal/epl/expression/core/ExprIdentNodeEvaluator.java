@@ -27,6 +27,8 @@ public interface ExprIdentNodeEvaluator extends ExprEvaluator {
 
     public EventPropertyGetterSPI getGetter();
 
+    public EventPropertyGetterSPI getGetterNonContext();
+
     public boolean isContextEvaluated();
 
     public EPType getEvaluationType();

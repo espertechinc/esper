@@ -33,12 +33,14 @@ public class ExprIdentNodeEvaluatorContext implements ExprIdentNodeEvaluator {
     private final EPType resultType;
     private final EventPropertyGetterSPI getter;
     private final EventTypeSPI eventType;
+    private final EventPropertyGetterSPI propertyGetterNonContext;
 
-    public ExprIdentNodeEvaluatorContext(int streamNum, EPType resultType, EventPropertyGetterSPI getter, EventTypeSPI eventType) {
+    public ExprIdentNodeEvaluatorContext(int streamNum, EPType resultType, EventPropertyGetterSPI getter, EventTypeSPI eventType, EventPropertyGetterSPI propertyGetterNonContext) {
         this.streamNum = streamNum;
         this.resultType = resultType;
         this.getter = getter;
         this.eventType = eventType;
+        this.propertyGetterNonContext = propertyGetterNonContext;
     }
 
     public boolean evaluatePropertyExists(EventBean[] eventsPerStream, boolean isNewData) {
@@ -76,6 +78,10 @@ public class ExprIdentNodeEvaluatorContext implements ExprIdentNodeEvaluator {
 
     public EventPropertyGetterSPI getGetter() {
         return getter;
+    }
+
+    public EventPropertyGetterSPI getGetterNonContext() {
+        return propertyGetterNonContext;
     }
 
     public boolean isContextEvaluated() {
