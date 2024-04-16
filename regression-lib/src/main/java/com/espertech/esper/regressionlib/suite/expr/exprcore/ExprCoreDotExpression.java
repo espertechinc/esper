@@ -43,7 +43,56 @@ public class ExprCoreDotExpression {
         execs.add(new ExprCoreDotToArray());
         execs.add(new ExprCoreDotAggregationSimpleValueMethod());
         execs.add(new ExprCoreDotObjectSimpleEventProperty());
+        execs.add(new ExprCoreDotMapPropToStringLength());
         return execs;
+    }
+
+    private static class ExprCoreDotMapPropToStringLength implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "@name('s0') select property('key1').toString().length() as c0 from SupportBeanMapProps;" +
+                         "@name('s1') select mapProperty('key1').toString().length() as c0 from SupportBeanComplexProps";
+            env.compileDeploy(epl).addListener("s0").addListener("s1");
+
+            sendEvents(env, "A");
+            assertStmts(env, 1);
+
+            sendEvents(env, "AB");
+            assertStmts(env, 2);
+
+            env.undeployAll();
+        }
+
+        private void assertStmts(RegressionEnvironment env, int expected) {
+            env.assertEqualsNew("s0", "c0", expected);
+            env.assertEqualsNew("s1", "c0", expected);
+        }
+
+        private void sendEvents(RegressionEnvironment env, String value) {
+            Map<String, String> values = Collections.singletonMap("key1", value);
+
+            env.sendEventBean(new SupportBeanMapProps(values));
+
+            SupportBeanComplexProps e2 = new SupportBeanComplexProps();
+            e2.setMapProperty(values);
+            env.sendEventBean(e2);
+        }
+    }
+
+    public static class EsperTestEvent {
+        private Map<String, String> properties;
+
+        public String getProperty(String key) {
+            return properties.get(key);
+        }
+
+        public Map<String, String> getProperties() {
+            return properties;
+        }
+
+        public EsperTestEvent setProperties(Map<String, String> properties) {
+            this.properties = properties;
+            return this;
+        }
     }
 
     private static class ExprCoreDotObjectSimpleEventProperty implements RegressionExecution {

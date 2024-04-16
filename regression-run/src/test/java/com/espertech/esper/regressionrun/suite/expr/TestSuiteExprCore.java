@@ -152,7 +152,7 @@ public class TestSuiteExprCore extends TestCase {
             SupportEventTypeErasure.class, SupportChainTop.class, SupportLevelZero.class, SupportEventNode.class,
             SupportEventNodeData.class, SupportBeanCombinedProps.class, SupportBeanNumeric.class,
             ISupportA.class, ISupportABCImpl.class, ISupportAImpl.class, SupportBean_ST0.class, SupportBeanObject.class,
-            SupportEventWithManyArray.class, SupportBeanWithArray.class, SupportBean_S0.class}) {
+            SupportEventWithManyArray.class, SupportBeanWithArray.class, SupportBean_S0.class, SupportBeanMapProps.class}) {
             configuration.getCommon().addEventType(clazz);
         }
         configuration.getCommon().getEventMeta().getAvroSettings().setEnableAvro(true);

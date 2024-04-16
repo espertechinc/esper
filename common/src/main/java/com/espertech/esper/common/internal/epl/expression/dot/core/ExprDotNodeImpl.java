@@ -449,11 +449,14 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
             getter = null;
             ChainableCall call = (ChainableCall) firstItem;
             EventPropertyDescriptor desc = EventTypeUtility.getNestablePropertyDescriptor(streamTypeService.getEventTypes()[propertyInfoPair.getFirst().getStreamNum()], call.getName());
+            if (desc == null) {
+                throw new IllegalStateException("Property descriptor for '" + call.getName() + "' is unexpectedly null");
+            }
             if (call.getParameters().size() > 1) {
                 throw new ExprValidationException("Property '" + call.getName() + "' may not be accessed passing 2 or more parameters");
             }
             ExprForge paramEval = call.getParameters().get(0).getForge();
-            inputType = new EPChainableTypeClass(desc.getPropertyComponentType());
+            Class resultType = desc.getPropertyComponentType();
             if (desc.isMapped()) {
                 if (!JavaClassHelper.isTypeString(paramEval.getEvaluationType())) {
                     throw new ExprValidationException("Parameter expression to mapped property '" + propertyName + "' is expected to return a string-type value but returns " + paramEval.getEvaluationType().getTypeName());
@@ -462,7 +465,14 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
                 if (mappedGetter == null) {
                     throw new ExprValidationException("Mapped property named '" + propertyName + "' failed to obtain getter-object");
                 }
-                rootNodeForge = new PropertyDotNonLambdaMappedForge(streamId, mappedGetter, paramEval, desc.getPropertyComponentEPType());
+                if (resultType != null) {
+                    // Mapped property wherein "properties('key')" with properties accepting no parameters and returning a Map, i.e. "Map<String, String> getMapProperty()"
+                    rootNodeForge = new PropertyDotNonLambdaMappedForge(streamId, mappedGetter, paramEval, desc.getPropertyComponentEPType());
+                } else {
+                    // Mapped property wherein "property('key')" with property requiring a map key parameter and returning a value, i.e. "String getProperty(String key)"
+                    rootNodeForge = new PropertyDotNonLambdaMappedForge(streamId, mappedGetter, paramEval, (EPTypeClass) desc.getPropertyEPType());
+                    resultType = desc.getPropertyType();
+                }
             }
             if (desc.isIndexed()) {
                 if (!isTypeInteger(paramEval.getEvaluationType())) {
@@ -474,6 +484,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprSt
                 }
                 rootNodeForge = new PropertyDotNonLambdaIndexedForge(streamId, indexedGetter, paramEval, desc.getPropertyComponentEPType());
             }
+            inputType = new EPChainableTypeClass(resultType);
         }
 
         // try to build chain based on the input (non-fragment)
