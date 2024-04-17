@@ -44,7 +44,24 @@ public class InfraNamedWindowOnMerge {
         execs.add(new InfraOnMergeNoWhereClauseInsertSelectStar());
         execs.add(new InfraOnMergeNoWhereClauseInsertTranspose());
         execs.add(new InfraOnMergeSetRHSEvent());
+        execs.add(new InfraNamedWindowOnMergeSamePropertyNameAsStreamName());
         return execs;
+    }
+
+    private static class InfraNamedWindowOnMergeSamePropertyNameAsStreamName implements RegressionExecution {
+        public void run(RegressionEnvironment env) {
+            String epl = "create window MyWindow#keepall(sb " + SupportBean.class.getName() + ");\n" +
+                "on SupportBean as sb merge MyWindow when not matched then insert into NewStream select " + InfraNamedWindowOnMerge.class.getName() + ".extractString(sb) as c0;\n" +
+                "@name('s0') select c0 from NewStream;";
+            env.compileDeploy(epl).addListener("s0");
+            env.sendEventBean(new SupportBean("A", 1));
+            env.assertEqualsNew("s0", "c0", "A");
+            env.undeployAll();
+        }
+    }
+
+    public static String extractString(SupportBean bean) {
+        return bean.getTheString();
     }
 
     private static class InfraOnMergeSetRHSEvent implements RegressionExecution {

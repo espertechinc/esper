@@ -215,7 +215,8 @@ public class OnTriggerPlanValidator {
                         insert.setOptionalWhereClause(EPStatementStartMethodHelperValidate.validateExprNoAgg(ExprNodeOrigin.MERGEMATCHWHERE, insert.getOptionalWhereClause(), insertTypeSvc, exprNodeErrorMessage, true, false, statementRawInfo, services));
                     }
 
-                    List<SelectClauseElementCompiled> compiledSelect = validateInsertSelect(insert.getSelectClause(), insertTypeSvc, insert.getColumns(), statementRawInfo, services);
+                    StreamTypeService insertTypeSvcMatchedUnmatched = matchedItem.isMatchedUnmatched() ? insertTypeSvc : insertOnlyTypeSvc;
+                    List<SelectClauseElementCompiled> compiledSelect = validateInsertSelect(insert.getSelectClause(), insertTypeSvcMatchedUnmatched, insert.getColumns(), statementRawInfo, services);
                     insert.setSelectClauseCompiled(compiledSelect);
                 } else {
                     throw new IllegalArgumentException("Unrecognized merge item '" + item.getClass().getName() + "'");
