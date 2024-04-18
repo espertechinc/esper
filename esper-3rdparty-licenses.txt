@@ -32,6 +32,6 @@ slf4j-reload4j-1.7.36.jar - Apache v2 License
 - For use with Reload4J
 - see Apache v2 license in file dependencies/runtime/esper_3rdparties_runtime.license
 
-reload4j-1.2.19.jar - Apache v2 License
+reload4j-1.2.25.jar - Apache v2 License
 - Reload4j is a replacement for Log4j 1.2
 - see Apache v2 license in file dependencies/runtime/esper_3rdparties_runtime.license

@@ -26,7 +26,7 @@
 		<antlr4-runtime.version>4.13.1</antlr4-runtime.version>			<!-- Required by compiler only -->
 		<janino.version>3.1.9</janino.version>					<!-- Required by compiler only -->
 
-		<reload4j.version>1.2.19</reload4j.version>					<!-- Optional -->
+		<reload4j.version>1.2.25</reload4j.version>					<!-- Optional -->
 
 		<avro.version>1.11.1</avro.version>					<!-- Optional for Avro Support -->
 		<avro.jackson.version>2.12.7</avro.jackson.version>			<!-- Optional for Avro Support -->
