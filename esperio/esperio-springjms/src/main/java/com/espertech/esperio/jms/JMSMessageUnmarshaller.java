@@ -12,8 +12,7 @@ package com.espertech.esperio.jms;
 
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.runtime.internal.kernel.service.EPRuntimeSPI;
-
-import javax.jms.Message;
+import jakarta.jms.Message;
 
 /**
  * Interface for a un-marshaller that takes a JMS message and creates or wraps an event object for use to

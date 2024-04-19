@@ -10,16 +10,16 @@
  */
 package com.espertech.esperio.regression.adapter;
 
+import jakarta.jms.JMSException;
+import jakarta.jms.MapMessage;
+import jakarta.jms.Message;
+import jakarta.jms.ObjectMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jms.core.JmsTemplate;
 
-import javax.jms.JMSException;
-import javax.jms.MapMessage;
-import javax.jms.Message;
-import javax.jms.ObjectMessage;
 import java.util.Enumeration;
 import java.util.HashMap;
 
@@ -73,6 +73,6 @@ public class SupportJMSReceiver {
     }
 
     public void destroy() {
-        springContext.destroy();
+        springContext.close();
     }
 }

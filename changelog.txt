@@ -9,7 +9,7 @@ Changes in version 9.0.0
     - Janino is now 3.1.12 (commons-compiler-3.1.12.jar and janino-3.1.12.jar, previously *3.1.9.jar)  
     - Reload4J (optional) is now 1.2.25 (reload4j-1.2.25.jar, previously reload4j-1.2.19.jar)
     - For use with Avro: Avro (optional) is now 1.11.3 (avro-1.11.3.jar, previously avro-1.11.1)
-  - The EsperIO dependencies are updated: esperio-kafka to 3.7.0, esperio-amqp to 5.21.0
+  - The EsperIO dependencies are updated: esperio-kafka to kafka 3.7.0, esperio-amqp to amqp 5.21.0, esperio-springjms to spring 6.1.6
 
 Changes in version 8.9.0
 ------------------------

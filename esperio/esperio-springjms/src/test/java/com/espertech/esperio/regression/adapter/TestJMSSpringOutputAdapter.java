@@ -16,10 +16,10 @@ import com.espertech.esper.runtime.client.EPRuntimeProvider;
 import com.espertech.esperio.jms.SpringContext;
 import com.espertech.esperio.jms.SpringContextLoader;
 import com.espertech.esperio.support.util.SupportSerializableBean;
+import jakarta.jms.MapMessage;
+import jakarta.jms.Message;
 import junit.framework.TestCase;
 
-import javax.jms.MapMessage;
-import javax.jms.Message;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;

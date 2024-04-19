@@ -14,6 +14,7 @@
       <bean class="org.apache.activemq.ActiveMQConnectionFactory">
         <!-- <property name="brokerURL" value="tcp://localhost:61616"/> -->
         <property name="brokerURL" value="vm://localhost?broker.persistent=false"/>
+        <property name="trustAllPackages" value="true"/>
       </bean>
     </property>
   </bean>
@@ -49,12 +50,12 @@
     <property name="subscriptionMap">
       <map>
         <entry>
-          <key><idref local="subscriptionOne"/></key>
+          <key><idref bean="subscriptionOne"/></key>
           <ref bean="subscriptionOne"/>
         </entry>
         <!-- Example with a custom marshaller 
         <entry>
-          <key><idref local="subscriptionTwo"/></key>
+          <key><idref bean="subscriptionTwo"/></key>
           <ref bean="subscriptionTwo"/>
         </entry>
         -->

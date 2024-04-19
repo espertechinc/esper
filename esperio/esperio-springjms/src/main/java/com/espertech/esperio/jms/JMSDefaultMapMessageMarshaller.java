@@ -15,13 +15,12 @@ import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.util.ExecutionPathDebugLog;
 import com.espertech.esper.common.internal.util.JavaClassHelper;
+import jakarta.jms.JMSException;
+import jakarta.jms.MapMessage;
+import jakarta.jms.Message;
+import jakarta.jms.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.jms.JMSException;
-import javax.jms.MapMessage;
-import javax.jms.Message;
-import javax.jms.Session;
 
 /**
  * Marshals the response out of the event bean into a jms map message.

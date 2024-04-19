@@ -43,7 +43,7 @@ public class SpringContextLoader implements PluginLoader {
 
     public void destroy() {
         for (Adapter adapter : adapterMap.values()) {
-            adapterSpringContext.destroy();
+            adapterSpringContext.close();
             if (adapter.getState() == AdapterState.STARTED) {
                 adapter.stop();
             }

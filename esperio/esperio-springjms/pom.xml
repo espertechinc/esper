@@ -249,6 +249,21 @@
 						    <artifactId>commons-pool2</artifactId>
 						    <version>${commons.pool2.version}</version>
 						</artifactItem>
+						<artifactItem>
+						    <groupId>commons-logging</groupId>
+						    <artifactId>commons-logging</artifactId>
+						    <version>${springjms.commonslogging.version}</version>
+						</artifactItem>
+						<artifactItem>
+						    <groupId>jakarta.jms</groupId>
+						    <artifactId>jakarta.jms-api</artifactId>
+						    <version>${springjms.jakartajms.version}</version>
+						</artifactItem>
+						<artifactItem>
+						    <groupId>io.micrometer</groupId>
+						    <artifactId>micrometer-observation</artifactId>
+						    <version>${springjms.micrometerobservation.version}</version>
+						</artifactItem>
 					</artifactItems>
 				</configuration>
 			</plugin>		

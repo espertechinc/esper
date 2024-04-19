@@ -13,13 +13,12 @@ package com.espertech.esperio.jms;
 import com.espertech.esper.common.client.EPException;
 import com.espertech.esper.common.client.EventBean;
 import com.espertech.esper.common.internal.util.ExecutionPathDebugLog;
+import jakarta.jms.Message;
+import jakarta.jms.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
-
-import javax.jms.Message;
-import javax.jms.Session;
 
 /**
  * Output adapter for sending runtime events out into the JMS world using Spring JMS templates.

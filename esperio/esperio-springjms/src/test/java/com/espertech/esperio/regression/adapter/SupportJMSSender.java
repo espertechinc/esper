@@ -11,6 +11,7 @@
 package com.espertech.esperio.regression.adapter;
 
 import com.espertech.esper.runtime.client.util.InputAdapter;
+import jakarta.jms.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractXmlApplicationContext;
@@ -18,7 +19,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 
-import javax.jms.*;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -62,7 +62,7 @@ public class SupportJMSSender {
     }
 
     public void destroy() {
-        springContext.destroy();
+        springContext.close();
     }
 
     private class MyObjectMessageCreator implements MessageCreator {

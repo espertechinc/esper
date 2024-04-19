@@ -21,10 +21,10 @@ import com.espertech.esper.runtime.client.util.AdapterSPI;
 import com.espertech.esper.runtime.client.util.AdapterState;
 import com.espertech.esper.runtime.client.util.AdapterStateManager;
 import com.espertech.esper.runtime.internal.kernel.service.EPRuntimeSPI;
+import jakarta.jms.Destination;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jms.Destination;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

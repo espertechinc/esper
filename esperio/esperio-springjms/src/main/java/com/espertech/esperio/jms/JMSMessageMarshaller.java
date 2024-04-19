@@ -11,9 +11,8 @@
 package com.espertech.esperio.jms;
 
 import com.espertech.esper.common.client.EventBean;
-
-import javax.jms.Message;
-import javax.jms.Session;
+import jakarta.jms.Message;
+import jakarta.jms.Session;
 
 /**
  * Interface for a marshaller that creates a JMS message given a JMS session and event.
@@ -28,5 +27,4 @@ public interface JMSMessageMarshaller {
      * @return marshalled event as JMS message
      */
     public Message marshal(EventBean eventBean, Session session, long timestamp);
-
 }

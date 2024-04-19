@@ -16,10 +16,10 @@ import com.espertech.esper.common.client.EventType;
 import com.espertech.esper.common.internal.event.json.core.JsonEventType;
 import com.espertech.esper.runtime.client.util.InputAdapter;
 import com.espertech.esper.runtime.internal.kernel.service.EPRuntimeSPI;
+import jakarta.jms.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jms.*;
 import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.HashMap;
