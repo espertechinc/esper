@@ -7,6 +7,7 @@ Changes in version 9.0.0
   - The following dependent jar files are upgraded:
     - ANTLR is now 4.13.1 (antlr4-runtime-4.13.1.jar, previously antlr-runtime-4.9.3.jar)  
     - Reload4J (optional) is now 1.2.25 (reload4j-1.2.25.jar, previously reload4j-1.2.19.jar)
+    - For use with Avro: Avro (optional) is now 1.11.3 (avro-1.11.3.jar, previously avro-1.11.1)
   - The EsperIO dependencies are updated: esperio-kafka to 3.7.0
 
 Changes in version 8.9.0

@@ -28,8 +28,8 @@
 
 		<reload4j.version>1.2.25</reload4j.version>					<!-- Optional -->
 
-		<avro.version>1.11.1</avro.version>					<!-- Optional for Avro Support -->
-		<avro.jackson.version>2.12.7</avro.jackson.version>			<!-- Optional for Avro Support -->
+		<avro.version>1.11.3</avro.version>					<!-- Optional for Avro Support -->
+		<avro.jackson.version>2.14.2</avro.jackson.version>			<!-- Optional for Avro Support -->
 		<mysql-connector-java.version>8.0.33</mysql-connector-java.version>	<!-- For Esper development and testing only, not required by compiler and runtime -->
 		<xerces2j.version>2.12.2</xerces2j.version>				<!-- For Esper development and testing only, not required by compiler and runtime -->
 		<xerces2j-xmlapis.version>1.4.01</xerces2j-xmlapis.version>		<!-- For Esper development and testing only, not required by compiler and runtime -->
