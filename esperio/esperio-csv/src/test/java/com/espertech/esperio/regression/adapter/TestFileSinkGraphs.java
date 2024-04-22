@@ -34,6 +34,7 @@ public class TestFileSinkGraphs extends TestCase {
         configuration.getRuntime().getThreading().setInternalTimerEnabled(false);
         configuration.getCommon().addImport(FileSinkFactory.class.getPackage().getName() + ".*");
         configuration.getCommon().addImport(DefaultSupportSourceOpForge.class.getName());
+        configuration.getCommon().getEventMeta().setEnableXMLXSD(true);
         DefaultSupportGraphEventUtil.addTypeConfiguration(configuration);
         runtime = EPRuntimeProvider.getDefaultRuntime(configuration);
         runtime.initialize();
