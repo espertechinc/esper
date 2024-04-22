@@ -46,13 +46,13 @@ public class ResourceLoader {
      * <p>
      * The lookup order is as follows:
      * <p>
-     * If a thread context class loader exists, use <tt>Thread.currentThread().getResourceAsStream</tt>
+     * If a thread context class loader exists, use <code>Thread.currentThread().getResourceAsStream</code>
      * to obtain an InputStream.
      * <p>
-     * If no input stream was returned, use the <tt>Configuration.class.getResourceAsStream</tt>.
+     * If no input stream was returned, use the <code>Configuration.class.getResourceAsStream</code>.
      * to obtain an InputStream.
      * <p>
-     * If no input stream was returned, use the <tt>Configuration.class.getClassLoader().getResourceAsStream</tt>.
+     * If no input stream was returned, use the <code>Configuration.class.getClassLoader().getResourceAsStream</code>.
      * to obtain an InputStream.
      * <p>
      * If no input stream was returned, throw an Exception.

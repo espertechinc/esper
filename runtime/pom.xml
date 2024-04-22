@@ -165,10 +165,10 @@
 					<quiet>true</quiet>
 					<additionalparam>--allow-script-in-comments</additionalparam>
 					<windowtitle>Esper Runtime API Documentation</windowtitle>
-					<footer><![CDATA[
+					<bottom><![CDATA[
 						<small><b>&copy; 2006-2024 EsperTech Inc.<br/>All rights reserved.<br/>Visit us at <a href='http://www.espertech.com' target=3_blank'>espertech.com</a></b></small>
 						]]>
-					</footer>
+					</bottom>
 					<groups>
 						<group>
 							<title>Esper Runtime Public API Packages</title>
@@ -179,6 +179,7 @@
 							<packages>com.espertech.esper.runtime.internal*</packages>
 						</group>
 					</groups>
+					<doclint>all,-missing</doclint>
 				</configuration>
 			</plugin>
 			<plugin>

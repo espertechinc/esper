@@ -42,7 +42,7 @@ public class ConfigurationSocketAdapter {
 
     /**
      * Use the configuration specified in an application
-     * resource named <tt>esper.cfg.xml</tt>.
+     * resource named <code>esper.cfg.xml</code>.
      *
      * @return Configuration initialized from the resource
      * @throws RuntimeException thrown to indicate error reading configuration
@@ -55,12 +55,12 @@ public class ConfigurationSocketAdapter {
     /**
      * Use the ConfigurationSocketAdapter specified in the given application
      * resource. The format of the resource is defined in
-     * <tt>esper-configuration-(version).xsd</tt>.
+     * <code>esper-configuration-(version).xsd</code>.
      * <p>
-     * The resource is found via <tt>getConfigurationInputStream(resource)</tt>.
+     * The resource is found via <code>getConfigurationInputStream(resource)</code>.
      * That method can be overridden to implement an arbitrary lookup strategy.
      * </p>
-     * See <tt>getResourceAsStream</tt> for information on how the resource name is resolved.
+     * See <code>getResourceAsStream</code> for information on how the resource name is resolved.
      *
      * @param resource if the file name of the resource
      * @return ConfigurationSocketAdapter initialized from the resource
@@ -76,11 +76,11 @@ public class ConfigurationSocketAdapter {
     }
 
     /**
-     * Get the ConfigurationSocketAdapter file as an <tt>InputStream</tt>. Might be overridden
+     * Get the ConfigurationSocketAdapter file as an <code>InputStream</code>. Might be overridden
      * by subclasses to allow the ConfigurationSocketAdapter to be located by some arbitrary
      * mechanism.
      * <p>
-     * See <tt>getResourceAsStream</tt> for information on how the resource name is resolved.
+     * See <code>getResourceAsStream</code> for information on how the resource name is resolved.
      *
      * @param resource is the resource name
      * @return input stream for resource
@@ -93,7 +93,7 @@ public class ConfigurationSocketAdapter {
     /**
      * Use the ConfigurationSocketAdapter specified by the given XML String.
      * The format of the document obtained from the URL is defined in
-     * <tt>esper-configuration-(version).xsd</tt>.
+     * <code>esper-configuration-(version).xsd</code>.
      *
      * @param xml XML string
      * @return A ConfigurationSocketAdapter configured via the file
@@ -123,7 +123,7 @@ public class ConfigurationSocketAdapter {
     /**
      * Use the ConfigurationSocketAdapter specified by the given URL.
      * The format of the document obtained from the URL is defined in
-     * <tt>esper-configuration-(version).xsd</tt>.
+     * <code>esper-configuration-(version).xsd</code>.
      *
      * @param url URL from which you wish to load the configuration
      * @return A ConfigurationSocketAdapter configured via the file
@@ -149,13 +149,13 @@ public class ConfigurationSocketAdapter {
      * <p>
      * The lookup order is as follows:
      * <p>
-     * If a thread context class loader exists, use <tt>Thread.currentThread().getResourceAsStream</tt>
+     * If a thread context class loader exists, use <code>Thread.currentThread().getResourceAsStream</code>
      * to obtain an InputStream.
      * <p>
-     * If no input stream was returned, use the <tt>Configuration.class.getResourceAsStream</tt>.
+     * If no input stream was returned, use the <code>Configuration.class.getResourceAsStream</code>.
      * to obtain an InputStream.
      * <p>
-     * If no input stream was returned, use the <tt>Configuration.class.getClassLoader().getResourceAsStream</tt>.
+     * If no input stream was returned, use the <code>Configuration.class.getClassLoader().getResourceAsStream</code>.
      * to obtain an InputStream.
      * <p>
      * If no input stream was returned, throw an Exception.
@@ -187,9 +187,9 @@ public class ConfigurationSocketAdapter {
     /**
      * Use the ConfigurationSocketAdapter specified in the given application
      * file. The format of the file is defined in
-     * <tt>esper-configuration-(version).xsd</tt>.
+     * <code>esper-configuration-(version).xsd</code>.
      *
-     * @param configFile <tt>File</tt> from which you wish to load the configuration
+     * @param configFile <code>File</code> from which you wish to load the configuration
      * @return A ConfigurationSocketAdapter configured via the file
      * @throws RuntimeException when the file could not be found
      */

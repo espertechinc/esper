@@ -35,8 +35,6 @@ public class NewInstanceOperatorExpression extends ExpressionBase {
 
     /**
      * Ctor.
-     * <p>
-     *
      * @param className the class name
      */
     public NewInstanceOperatorExpression(String className) {
@@ -45,8 +43,6 @@ public class NewInstanceOperatorExpression extends ExpressionBase {
 
     /**
      * Ctor.
-     * <p>
-     *
      * @param className the class name
      * @param numArrayDimensions for array initialization set a dimension value greater zero
      */

@@ -7,7 +7,7 @@
 	<property name="project_home" value="../../.."/>
 	<property name="esperio_home" value="${project_home}/esperio"/>
 	<property name="destination" value="${esperio_home}/doc/javadoc"/>
-	<property name="javadoc_link" value="http://docs.oracle.com/javase/8/docs/api"/>
+	<property name="javadoc_link" value="https://docs.oracle.com/en/java/javase/17/docs/api/"/>
 	<path id="lib.class.path">
 		<fileset dir="${esperio_home}/esperio-amqp/lib">
 			<include name="**/*.jar"/>
@@ -49,11 +49,11 @@
 		</delete>
 	</target>
 	<target name="javadoc" description="Generate Aggregate JavaDoc" depends="clean">
-		<javadoc classpathref="lib.class.path" destdir="${destination}" use="true" protected="true" version="true" windowtitle="EsperIO API Documentation" Overview="${esperio_home}/doc/api/package.html" doctitle="EsperIO ${version} API Documentation" additionalparam="--allow-script-in-comments">
+		<javadoc classpathref="lib.class.path" destdir="${destination}" use="true" protected="true" version="true" windowtitle="EsperIO API Documentation" Overview="${esperio_home}/doc/api/package.html" doctitle="EsperIO ${version} API Documentation" additionalparam="--allow-script-in-comments -Xdoclint:all,-missing">
 			<link href="${javadoc_link}"/>
-			<link offline="true" href="http://www.espertech.com/esper/release-${version}/javadoc-esperio" packagelistLoc="http://www.espertech.com/esper/release-${version}/javadoc-esperio"/>
-			<footer><![CDATA[
-				<small><b>&copy; 2006-2024 EsperTech Inc.<br/>All rights reserved.<br/>Visit us at <a href='http://www.espertech.com' target='_blank'>espertech.com</a></b></small>
+			<link offline="true" href="https://www.espertech.com/esper/release-${version}/javadoc-esperio" packagelistLoc="https://www.espertech.com/esper/release-${version}/javadoc-esperio"/>
+			<bottom><![CDATA[
+				<small><b>&copy; 2006-2024 EsperTech Inc.<br/>All rights reserved.<br/>Visit us at <a href='https://www.espertech.com' target='_blank'>espertech.com</a></b></small>
 				<script type='text/javascript'>				
 				var gaJsHost = (('https:' == document.location.protocol) ? 'https://ssl.' : 'http://www.');
  				document.write(unescape('%3Cscript src=\'' + gaJsHost + 'google-analytics.com/ga.js\' type=\'text/javascript\'%3E%3C/script%3E'));
@@ -62,7 +62,7 @@
 				var pageTracker = _gat._getTracker('UA-1261295-1');
 				pageTracker._trackPageview();
 				</script>
-				]]></footer>
+				]]></bottom>
 			<packageset dir="${esperio_home}/esperio-amqp/src/main/java" defaultexcludes="yes">
 				<include name="com/espertech/esperio/**"/>
 			</packageset>
