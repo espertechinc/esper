@@ -45,7 +45,7 @@ public class TxnGenMain implements Runnable {
      */
     public static void main(String[] args) throws IOException {
         if (args.length < 2) {
-            System.out.println("Arguments are: <bucket_size> <num_transactions>");
+            System.out.println("Arguments are: <bucket_size (a text value such as 'small')> <num_transactions>");
             System.exit(-1);
         }
 
