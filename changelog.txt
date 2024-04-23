@@ -10,6 +10,17 @@ Changes in version 9.0.0
     - Reload4J (optional) is now 1.2.25 (reload4j-1.2.25.jar, previously reload4j-1.2.19.jar)
     - For use with Avro: Avro (optional) is now 1.11.3 (avro-1.11.3.jar, previously avro-1.11.1)
   - The EsperIO dependencies are updated: esperio-kafka to kafka 3.7.0, esperio-amqp to amqp 5.21.0, esperio-springjms to spring 6.1.6
+  - Fixed issue #266 statement conversion to statement model and back to statement bug for typed arithmetic expression
+  - Fixed issue #274 failed to compile chain invocation of mapped event property
+  - Fixed issue #276 No output from statement with 17+ regexp/like clauses
+  - Fixed issue #285 Regexp and like don`t work for first event in context
+  - Fixed issue FD212 NPE after restart context and subquery-in-filter
+  - Fixed issue FD232 Failing statement deployment with @Audit annotation usage
+  - Fixed issue FD235 NPE context event insert into enumforge
+  - Fixed issue FD236 Null value for on-insert+unmatched when named window column and trigger event name the same
+  - Fixed issue FD244 compilation exception when using OBJECTARRAY default representation and partitioned context with join and where-clause with context key properties
+  - Fixed issue FD247 table inner-join with on-clause does not respect predicate
+  - Fixed issue FD260 NPE obtaining instancelock concurrent partition drop
 
 Changes in version 8.9.0
 ------------------------
